@@ -12,41 +12,51 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ColorPickerForm } from '../components/color-picker-form';
-import UserMoods from './userMoods';
-import { FormEvent } from 'react';
+import { FormEvent, useState } from 'react';
 import { Mood } from '@prisma/client';
 import { addUserMood } from '../actions/moodActions';
 
-const MoodDialog = ({
-  children,
-}: Readonly<{
+type MoodDialogProps = {
   children: React.ReactNode;
-}>) => {
+  updateData: React.Dispatch<React.SetStateAction<Mood[]>>; // Accept the state updater
+};
+
+const MoodDialog = ({ children, updateData }: MoodDialogProps) => {
+  const [open, setOpen] = useState(false); // Dialog open state
+
   const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    console.log(formData.get('name'));
-    console.log(formData.get('color'));
 
     const mood: Mood = {
       name: String(formData.get('name') ?? ''),
       color: String(formData.get('color') ?? ''),
-      userId: '',
-      id: '',
+      userId: '', // Replace with actual userId
+      id: '', // Prisma will generate the id
+      createdAt: new Date(),
     };
+
     const newMood = await addUserMood(mood);
+
+    if (newMood) {
+      // Update the mood state in the parent
+      updateData((prevMoods) => [...prevMoods, newMood]);
+
+      // Close the dialog after saving the mood
+      setOpen(false);
+    }
   };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Moods</DialogTitle>
+          <DialogTitle>Add new mood</DialogTitle>
           <DialogDescription>
-            Add, edit or delete your moods here. Click save when you're done.
+            Here, you can add a new mood. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <UserMoods />
         <form onSubmit={handleSave}>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>

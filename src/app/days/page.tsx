@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { z } from 'zod';
 import Days from './days';
-import MoodDialog from './moodDialog';
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
@@ -21,12 +20,11 @@ const YearInPixels = async ({ searchParams }: Props) => {
       (month) => String(urlMonth).toLowerCase() === month.name.toLowerCase()
     ) ?? currentMonth;
 
-    
   return (
     <Card className='p-2 flex flex-col gap-2'>
-      <MoodDialog>
+      {/* <MoodDialog>
         <Button>Edit Moods</Button>
-      </MoodDialog>
+      </MoodDialog> */}
       <Card className='p-2'>{selectedYear}</Card>
       <div className='flex flex-row gap-2'>
         {months.map((month) => (
