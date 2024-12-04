@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-const Navbar = () => {
+function Navbar() {
   const { data: session } = useSession();
 
   return (
@@ -17,7 +17,7 @@ const Navbar = () => {
         <SidebarTrigger />
         <ModeToggle />
         {session ? (
-          <Profile className=' w-6 h-6 ml-auto mr-2' />
+          <Profile className='w-6 h-6 ml-auto mr-2' />
         ) : (
           <Button
             asChild
@@ -30,6 +30,6 @@ const Navbar = () => {
       </Card>
     </>
   );
-};
+}
 
 export default Navbar;

@@ -1,11 +1,21 @@
-export const getCalendarData = () => {
-  const date = new Date(); // Current date
+  export type Day = {
+    dayIndex: number;
+    weekdayIndex: number;
+    currentDay: boolean;
+  };
+  export type SelectedMonth = {
+    index: number;
+    name: string;
+  };
+
+export default function calendarUtils() {
+  const date = new Date();
   const currentYear = date.getFullYear();
   const currentMonth = {
     index: date.getMonth() + 1,
     name: date.toLocaleDateString('default', { month: 'long' }),
   };
-  // Weekday names for reference
+
   const weekdayNames = [
     'Monday',
     'Tuesday',
@@ -16,7 +26,6 @@ export const getCalendarData = () => {
     'Sunday',
   ];
 
-  // Generate months and days data
   const months = Array.from({ length: 12 }, (_, i) => {
     const monthDate = new Date(currentYear, i); // Current month
     const totalDays = new Date(currentYear, i + 1, 0).getDate(); // Total days in the month

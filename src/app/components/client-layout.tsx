@@ -7,11 +7,11 @@ import { ThemeProvider } from './theme-provider';
 import { AppSidebar } from './app-sidebar';
 import Navbar from './app-navbar';
 
-const ClientLayout = ({
+function ClientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) => {
+}>) {
   return (
     <SessionProvider>
       <ThemeProvider
@@ -38,6 +38,6 @@ const ClientLayout = ({
       </ThemeProvider>
     </SessionProvider>
   );
-};
+}
 
 export default ClientLayout;

@@ -45,7 +45,7 @@ type Color = {
   value: string;
 };
 
-export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
+export function ColorPicker({ color, onChange }: ColorPickerProps) {
   const [open, setOpen] = React.useState(false);
   const colorInputRef = React.useRef<HTMLInputElement>(null);
   const [selectedColor, setSelectedColor] = React.useState<Color>(color);
@@ -82,10 +82,9 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
       <PopoverContent className='w-[280px] p-2 flex flex-col gap-3'>
         <div className='grid grid-cols-5 gap-2 mb-2 m-auto w-full place-items-center'>
           {colors.map((color) => (
-            <Button
+            <div
               key={color.value}
-              variant='outline'
-              className='h-8 w-8 rounded-lg'
+              className='h-8 w-8 rounded-lg items-center flex cursor-pointer'
               style={{ backgroundColor: color.value }}
               onClick={() => {
                 handleColorChange(color);
@@ -97,9 +96,9 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
             >
               <span className='sr-only'>Select color: {color.name}</span>
               {selectedColor?.value === color.value && (
-                <Check className='h-4 w-4 text-white' />
+                <Check className='h-4 w-4 text-white m-auto' />
               )}
-            </Button>
+            </div>
           ))}
         </div>
         <div className='text-sm flex items-center gap-3'>
@@ -132,4 +131,4 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
       </PopoverContent>
     </Popover>
   );
-};
+}

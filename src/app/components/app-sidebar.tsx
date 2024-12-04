@@ -1,4 +1,4 @@
-import { ChevronRight, Home, Notebook } from 'lucide-react';
+import { ChevronRight, Home, Notebook, Smile } from 'lucide-react';
 import React, { ReactElement } from 'react';
 import {
   Sidebar,
@@ -36,10 +36,16 @@ const menuItems: MenuItem[] = [
     href: '/',
   },
   {
-    label: 'Year in Pixels',
+    label: 'Pixels',
     icon: <Notebook className='mr-2' />,
     isCollapsible: false,
-    href: '/year-in-pixels',
+    href: '/pixels',
+  },
+  {
+    label: 'Moods',
+    icon: <Smile className='mr-2' />,
+    isCollapsible: false,
+    href: '/moods',
   },
 ];
 

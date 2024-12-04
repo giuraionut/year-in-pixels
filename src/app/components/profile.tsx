@@ -16,15 +16,11 @@ import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
 import React from 'react';
 
-interface props {
-  className?: string;
-}
-
 const handleLogout = () => {
   signOut({ callbackUrl: 'http://localhost:3000/' });
 };
 
-export const Profile: React.FC<props> = ({ className }) => {
+export function Profile({ className }: { className?: string }): JSX.Element {
   const { data: session } = useSession();
   if (session && session.user) {
     return (
@@ -89,4 +85,5 @@ export const Profile: React.FC<props> = ({ className }) => {
       </DropdownMenu>
     );
   }
-};
+  return <div>User not logged in</div>;
+}

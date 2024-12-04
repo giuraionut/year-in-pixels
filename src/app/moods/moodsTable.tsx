@@ -15,7 +15,6 @@ import {
 } from '@tanstack/react-table';
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
 import { Mood } from '@prisma/client';
-
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -36,45 +35,41 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import MoodDialog from './createMoodDialog';
+import MoodDialog from './AddMoodDialog';
 import { deleteUserMood, deleteUserMoodsBulk } from '../actions/moodActions';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
+import { MoodsTableProps } from './Moods.types';
 
-const handleDelete = async (
-  mood: Mood,
-  updateData: React.Dispatch<React.SetStateAction<Mood[]>>
-) => {
-  const deletedMood = await deleteUserMood(mood);
+export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
+  const handleDelete = async (
+    mood: Mood,
+    setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>
+  ) => {
+    const deletedMood = await deleteUserMood(mood);
 
-  if (deletedMood) {
-    // Update the mood list after deleting
-    updateData((prevMoods) =>
-      prevMoods.filter((item) => item.id !== deletedMood.id)
-    );
-  }
-};
+    if (deletedMood) {
+      setUserMoods((prevMoods) =>
+        prevMoods.filter((item) => item.id !== deletedMood.id)
+      );
+    }
+  };
 
-const handleDeleteAll = async (
-  selectedMoods: Mood[],
-  updateData: React.Dispatch<React.SetStateAction<Mood[]>>
-) => {
-  // Collect the ids of the selected moods
-  const selectedMoodsIds = selectedMoods.map((mood) => mood.id);
+  const handleDeleteAll = async (
+    selectedMoods: Mood[],
+    setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>
+  ) => {
+    const selectedMoodsIds = selectedMoods.map((mood) => mood.id);
 
-  const deletedMoods = await deleteUserMoodsBulk(selectedMoodsIds);
+    const deletedMoods = await deleteUserMoodsBulk(selectedMoodsIds);
 
-  if (deletedMoods) {
-    // Update the mood list after deleting the selected moods
-    updateData((prevMoods) =>
-      prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
-    );
-  }
-};
+    if (deletedMoods) {
+      setUserMoods((prevMoods) =>
+        prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
+      );
+    }
+  };
 
-type MoodsTableProps = {
-  data: Mood[];
-  updateData: React.Dispatch<React.SetStateAction<Mood[]>>; // Add this line
-};
-export function MoodsTable({ data, updateData }: MoodsTableProps) {
   const columns: ColumnDef<Mood>[] = [
     {
       id: 'select',
@@ -120,13 +115,10 @@ export function MoodsTable({ data, updateData }: MoodsTableProps) {
       accessorKey: 'color',
       header: 'Color',
       cell: ({ row }) => (
-        <div className='capitalize'>
-          <Button
-            variant='outline'
-            className='h-8 w-8 rounded-lg'
-            style={{ backgroundColor: row.getValue('color') }}
-          ></Button>
-        </div>
+        <div
+          className='h-8 w-8 rounded-lg'
+          style={{ backgroundColor: row.getValue('color') }}
+        ></div>
       ),
     },
     {
@@ -167,7 +159,9 @@ export function MoodsTable({ data, updateData }: MoodsTableProps) {
                 Copy color
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleDelete(mood, updateData)}>
+              <DropdownMenuItem
+                onClick={() => handleDelete(mood, setUserMoods)}
+              >
                 Delete mood
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -184,7 +178,7 @@ export function MoodsTable({ data, updateData }: MoodsTableProps) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-
+  // const [loading, setLoading] = React.useState<boolean>();
   const table = useReactTable({
     data,
     columns,
@@ -210,7 +204,6 @@ export function MoodsTable({ data, updateData }: MoodsTableProps) {
 
   return (
     <div className='w-full'>
-    
       <div className='flex items-center gap-2 py-4'>
         <Input
           placeholder='Filter names...'
@@ -246,93 +239,108 @@ export function MoodsTable({ data, updateData }: MoodsTableProps) {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-        <MoodDialog updateData={updateData}>
+        <MoodDialog setUserMoods={setUserMoods}>
           <Button>Create New</Button>
         </MoodDialog>
       </div>
-      <div className='rounded-md border'>
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+      {data.length <= 0 ? (
+        <div className='flex flex-col gap-2'>
+          <Skeleton className='p-4 max-w-[500px]' />
+          <Skeleton className='p-4 max-w-[500px]' />
+          <Skeleton className='p-4 max-w-[500px]' />
+          <Skeleton className='p-4 max-w-[500px]' />
+          <Skeleton className='p-4 max-w-[500px]' />
+        </div>
+      ) : (
+        <>
+          <Card>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
                           )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className='h-24 text-center'
+                    >
+                      {`You don't have any moods yet,`}
+                      <Button variant='ghost' className='p-1'>
+                        create a new one!
+                      </Button>
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className='h-24 text-center'
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <div className='flex-1 text-sm text-muted-foreground'>
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className='space-x-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-      {selectedMoods.length > 0 && (
-        <div className='flex justify-end py-4'>
-          <Button
-            variant='destructive'
-            onClick={() => handleDeleteAll(selectedMoods, updateData)}
-          >
-            Delete All Selected
-          </Button>
-        </div>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+          <div className='flex items-center justify-end space-x-2 py-4'>
+            <div className='flex-1 text-sm text-muted-foreground'>
+              {table.getFilteredSelectedRowModel().rows.length} of{' '}
+              {table.getFilteredRowModel().rows.length} row(s) selected.
+            </div>
+            <div className='space-x-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+          {selectedMoods.length > 0 && (
+            <div className='flex justify-end py-4'>
+              <Button
+                variant='destructive'
+                onClick={() => handleDeleteAll(selectedMoods, setUserMoods)}
+              >
+                Delete All Selected
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

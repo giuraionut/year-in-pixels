@@ -1,25 +1,6 @@
-'use client';
-import { Mood } from '@prisma/client';
-import React, { useCallback, useEffect, useState } from 'react';
-import { getUserMoods } from '../actions/moodActions';
-import { MoodsTable } from './moodsTable';
+import React from 'react';
+import MoodsComponent from './MoodsComponent';
 
-const Moods = () => {
-  const [userMoods, setUserMoods] = useState<Mood[]>([]);
-
-  useEffect(() => {
-    const fetchMoods = async () => {
-      const moods = await getUserMoods();
-      setUserMoods(moods);
-    };
-    fetchMoods();
-  }, []);
-
-  return (
-    <div>
-      <MoodsTable data={userMoods} updateData={setUserMoods} />
-    </div>
-  );
-};
-
-export default Moods;
+export default function Moods() {
+  return <MoodsComponent></MoodsComponent>;
+}

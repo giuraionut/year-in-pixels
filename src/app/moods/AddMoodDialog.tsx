@@ -15,14 +15,13 @@ import { ColorPickerForm } from '../components/color-picker-form';
 import { FormEvent, useState } from 'react';
 import { Mood } from '@prisma/client';
 import { addUserMood } from '../actions/moodActions';
+import { AddMoodDialogProps } from './Moods.types';
 
-type MoodDialogProps = {
-  children: React.ReactNode;
-  updateData: React.Dispatch<React.SetStateAction<Mood[]>>; // Accept the state updater
-};
-
-const MoodDialog = ({ children, updateData }: MoodDialogProps) => {
-  const [open, setOpen] = useState(false); // Dialog open state
+export default function MoodDialog({
+  children,
+  setUserMoods,
+}: AddMoodDialogProps) {
+  const [open, setOpen] = useState(false);
 
   const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,18 +30,15 @@ const MoodDialog = ({ children, updateData }: MoodDialogProps) => {
     const mood: Mood = {
       name: String(formData.get('name') ?? ''),
       color: String(formData.get('color') ?? ''),
-      userId: '', // Replace with actual userId
-      id: '', // Prisma will generate the id
+      userId: '',
+      id: '',
       createdAt: new Date(),
     };
 
     const newMood = await addUserMood(mood);
 
     if (newMood) {
-      // Update the mood state in the parent
-      updateData((prevMoods) => [...prevMoods, newMood]);
-
-      // Close the dialog after saving the mood
+      setUserMoods((prevMoods) => [...prevMoods, newMood]);
       setOpen(false);
     }
   };
@@ -54,7 +50,7 @@ const MoodDialog = ({ children, updateData }: MoodDialogProps) => {
         <DialogHeader>
           <DialogTitle>Add new mood</DialogTitle>
           <DialogDescription>
-            Here, you can add a new mood. Click save when you're done.
+            {` Here, you can add a new mood. Click save when you're done.`}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSave}>
@@ -84,6 +80,4 @@ const MoodDialog = ({ children, updateData }: MoodDialogProps) => {
       </DialogContent>
     </Dialog>
   );
-};
-
-export default MoodDialog;
+}
