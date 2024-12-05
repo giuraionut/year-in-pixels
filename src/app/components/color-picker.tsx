@@ -51,10 +51,8 @@ export function ColorPicker({ color, onChange }: ColorPickerProps) {
   const [selectedColor, setSelectedColor] = React.useState<Color>(color);
 
   const handleColorChange = (newColor: Color) => {
-    console.log('newColor', newColor);
     setSelectedColor(newColor);
     onChange(newColor);
-    console.log('selectedColor', selectedColor);
   };
   return (
     <Popover open={open} onOpenChange={setOpen}>

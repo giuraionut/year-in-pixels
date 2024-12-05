@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Mood } from '@prisma/client';
+import { Mood, Pixel } from '@prisma/client';
 import { getUserMoods } from '../actions/moodActions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
@@ -35,9 +35,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { addUserPixel } from '../actions/pixelActions';
+import { addUserPixel, deleteUserPixel } from '../actions/pixelActions';
 import calendarUtils from '../lib/calendarUtils';
 import { AddPixelDialogProps } from './Pixels.type';
+import { CircleX } from 'lucide-react';
 
 export default function AddPixelDialog({
   day,
@@ -51,12 +52,23 @@ export default function AddPixelDialog({
   const { weekdayNames } = calendarUtils();
   const [userMoods, setUserMoods] = useState<Mood[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [userMood, setUserMood] = useState<Mood | null>(null); // Track userMood separately
+  const pixel = pixels.find((pixel) => pixel.day === day.dayIndex);
+
+  useEffect(() => {
+    if (pixel) {
+      const mood = userMoods.find((mood) => mood.id === pixel.mood.id);
+      setUserMood(mood || null);
+    }
+  }, [pixel, userMoods]);
 
   useEffect(() => {
     const fetchUserMoods = async () => {
       const moods = await getUserMoods();
-      setUserMoods(moods);
-      setLoading(false);
+      if (moods) {
+        setUserMoods(moods);
+        setLoading(false);
+      }
     };
 
     fetchUserMoods();
@@ -89,6 +101,9 @@ export default function AddPixelDialog({
           newPixels.push(newPixel);
           setPixels(newPixels);
           setOpen(false); // Close dialog
+          toast({
+            title: 'Pixel created successfully!.',
+          });
         }
       } catch (error) {
         console.error('Failed to add pixel:', error);
@@ -99,6 +114,37 @@ export default function AddPixelDialog({
       }
     }
   }
+
+  function getPlaceholder() {
+    return userMood ? (
+      <div className='flex gap-3 items-center'>
+        <div
+          className='h-4 w-4 rounded-md'
+          style={{
+            backgroundColor: userMood.color,
+          }}
+        ></div>
+        <span>{userMood.name}</span>
+      </div>
+    ) : (
+      'Select a mood'
+    );
+  }
+
+  const handleDeletePixel = async () => {
+    const deletedPixel = await deleteUserPixel(pixel as Pixel);
+    if (deletedPixel) {
+      setPixels((prevPixels) =>
+        prevPixels.filter((p) => p.id !== deletedPixel.id)
+      );
+      toast({
+        title: 'Pixel deleted successfully!',
+      });
+
+      setUserMood(null); // Clear the userMood when the pixel is deleted
+      form.resetField('mood'); // Reset form value
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -119,15 +165,20 @@ export default function AddPixelDialog({
               render={({ field }) => (
                 <FormItem>
                   {loading ? (
-                    <div className='grid grid-cols-4 items-center gap-4'>
-                      <Skeleton className='h-4 w-[35px] justify-self-end' />
-                      <Skeleton className='h-8 w-[180px]' />
+                    <div className='grid gap-4 py-4'>
+                      <div className='grid grid-cols-4 items-center gap-x-4 gap-y-1'>
+                        <Skeleton className='h-4 w-[35px] justify-self-end' />
+                        <Skeleton className='h-8 w-[180px]' />
+                        <Skeleton className='h-2 w-[180px] col-start-2 col-span-2' />
+                      </div>
                     </div>
                   ) : userMoods.length > 0 ? (
                     <div className='grid gap-4 py-4'>
                       <div className='grid grid-cols-4 items-center gap-x-4 gap-y-1'>
-                        <FormLabel className='text-right'>Mood</FormLabel>
-                        <div className='col-span-3'>
+                        <FormLabel className='text-right col-span-1'>
+                          Mood
+                        </FormLabel>
+                        <div className='col-span-2'>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
@@ -137,7 +188,7 @@ export default function AddPixelDialog({
                                 id='mood'
                                 className='w-[180px] capitalize'
                               >
-                                <SelectValue placeholder='Select a mood' />
+                                <SelectValue placeholder={getPlaceholder()} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className='overflow-y-auto max-h-[10rem]'>
@@ -148,13 +199,12 @@ export default function AddPixelDialog({
                                   className='capitalize'
                                 >
                                   <div className='flex gap-3 items-center'>
-                                    <Button
-                                      variant='outline'
-                                      className='h-4 w-4 rounded-lg'
+                                    <div
+                                      className='h-4 w-4 rounded-md'
                                       style={{
                                         backgroundColor: userMood.color,
                                       }}
-                                    ></Button>
+                                    ></div>
                                     <span>{userMood.name}</span>
                                   </div>
                                 </SelectItem>
@@ -162,6 +212,15 @@ export default function AddPixelDialog({
                             </SelectContent>
                           </Select>
                         </div>
+                        {userMood ? (
+                          <CircleX
+                            className='col-span-1 cursor-pointer transition-transform hover:scale-125'
+                            onClick={handleDeletePixel}
+                          />
+                        ) : (
+                          ''
+                        )}
+
                         <FormMessage className='col-start-2 col-span-2' />
                         <FormDescription className='col-start-2 col-span-2'>
                           <span>

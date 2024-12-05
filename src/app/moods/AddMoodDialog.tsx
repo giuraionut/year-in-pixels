@@ -16,6 +16,7 @@ import { FormEvent, useState } from 'react';
 import { Mood } from '@prisma/client';
 import { addUserMood } from '../actions/moodActions';
 import { AddMoodDialogProps } from './Moods.types';
+import { toast } from '@/hooks/use-toast';
 
 export default function MoodDialog({
   children,
@@ -40,6 +41,7 @@ export default function MoodDialog({
     if (newMood) {
       setUserMoods((prevMoods) => [...prevMoods, newMood]);
       setOpen(false);
+      toast({ title: 'Mood created successfully!' });
     }
   };
 

@@ -4,7 +4,7 @@ import db from '@/lib/db';
 import { Mood } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 
-export const getUserMoods = async (): Promise<Mood[]> => {
+export const getUserMoods = async (): Promise<Mood[] | null> => {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -13,13 +13,17 @@ export const getUserMoods = async (): Promise<Mood[]> => {
   }
 
   const userId = session.user.id;
-
-  return await db.mood.findMany({
-    where: { userId: userId },
-  });
+  try {
+    return await db.mood.findMany({
+      where: { userId: userId },
+    });
+  } catch (error) {
+    console.log('Error fetching moods', error);
+    return null;
+  }
 };
 
-export const addUserMood = async (mood: Mood): Promise<Mood> => {
+export const addUserMood = async (mood: Mood): Promise<Mood | null> => {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -30,8 +34,12 @@ export const addUserMood = async (mood: Mood): Promise<Mood> => {
   const userId = session.user.id;
   mood.userId = userId;
   delete (mood as { id?: string }).id;
-
-  return await db.mood.create({ data: mood });
+  try {
+    return await db.mood.create({ data: mood });
+  } catch (error) {
+    console.log('Error creating mood', error);
+    return null;
+  }
 };
 
 export const deleteUserMood = async (mood: Mood): Promise<Mood | null> => {

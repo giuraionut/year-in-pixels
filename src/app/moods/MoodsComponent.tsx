@@ -11,7 +11,7 @@ export default function MoodsComponent() {
   useEffect(() => {
     const fetchMoods = async () => {
       const moods = await getUserMoods();
-      setUserMoods(moods);
+      if (moods) setUserMoods(moods);
     };
     fetchMoods();
   }, []);

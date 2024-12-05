@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/collapsible';
 import Link from 'next/link';
 import { Url } from 'next/dist/shared/lib/router/router';
+import { useSession } from 'next-auth/react';
 
 type MenuItem = {
   label: string;
@@ -50,6 +51,8 @@ const menuItems: MenuItem[] = [
 ];
 
 export function AppSidebar() {
+  const { data: session } = useSession();
+
   return (
     <Sidebar>
       <SidebarContent className='flex flex-col'>

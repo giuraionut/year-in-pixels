@@ -20,10 +20,10 @@ const handleLogout = () => {
   signOut({ callbackUrl: 'http://localhost:3000/' });
 };
 
-export function Profile({ className }: { className?: string }): JSX.Element {
+export function Profile({ className }: { className?: string }) {
   const { data: session } = useSession();
-  if (session && session.user) {
-    return (
+  return (
+    session && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Avatar className={`${className} cursor-pointer`}>
@@ -83,7 +83,6 @@ export function Profile({ className }: { className?: string }): JSX.Element {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
-  }
-  return <div>User not logged in</div>;
+    )
+  );
 }

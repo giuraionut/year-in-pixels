@@ -52,3 +52,20 @@ export const addUserPixel = async (pixel: Pixel): Promise<PixelWithMood> => {
     },
   });
 };
+
+export const deleteUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    console.error('User is not authenticated or missing user ID');
+    throw new Error('User is not authenticated');
+  }
+  try {
+    return await db.pixel.delete({
+      where: { id: pixel.id, userId: pixel.userId },
+    });
+  } catch (error) {
+    console.log('Error deleting pixel', error);
+    return null;
+  }
+};

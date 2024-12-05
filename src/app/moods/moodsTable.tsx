@@ -40,6 +40,7 @@ import { deleteUserMood, deleteUserMoodsBulk } from '../actions/moodActions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { MoodsTableProps } from './Moods.types';
+import { toast } from '@/hooks/use-toast';
 
 export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
   const handleDelete = async (
@@ -67,6 +68,7 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
       setUserMoods((prevMoods) =>
         prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
       );
+      toast({ title: 'Moods deleted successfully!' });
     }
   };
 
@@ -244,12 +246,12 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
         </MoodDialog>
       </div>
       {data.length <= 0 ? (
-        <div className='flex flex-col gap-2'>
-          <Skeleton className='p-4 max-w-[500px]' />
-          <Skeleton className='p-4 max-w-[500px]' />
-          <Skeleton className='p-4 max-w-[500px]' />
-          <Skeleton className='p-4 max-w-[500px]' />
-          <Skeleton className='p-4 max-w-[500px]' />
+        <div className='flex flex-col gap-1'>
+          <Skeleton className='h-8 max-w-[450px]' />
+          <Skeleton className='h-8 max-w-[450px]' />
+          <Skeleton className='h-8 max-w-[450px]' />
+          <Skeleton className='h-8 max-w-[450px]' />
+          <Skeleton className='h-8 max-w-[450px]' />
         </div>
       ) : (
         <>

@@ -6,10 +6,13 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from './theme-provider';
 import { AppSidebar } from './app-sidebar';
 import Navbar from './app-navbar';
+import { Session } from 'next-auth';
 
-function ClientLayout({
+export default function ClientLayout({
+  session,
   children,
 }: Readonly<{
+  session: Session | null;
   children: React.ReactNode;
 }>) {
   return (
@@ -28,9 +31,9 @@ function ClientLayout({
             } as React.CSSProperties
           }
         >
-          <AppSidebar />
+          {session ? <AppSidebar /> : ''}
           <div className='flex flex-col w-screen gap-3'>
-            <Navbar />
+            <Navbar session={session} />
             <main className='flex items-center justify-center'>{children}</main>
             <Toaster />
           </div>
@@ -39,5 +42,3 @@ function ClientLayout({
     </SessionProvider>
   );
 }
-
-export default ClientLayout;
