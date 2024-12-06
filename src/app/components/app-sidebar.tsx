@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/collapsible';
 import Link from 'next/link';
 import { Url } from 'next/dist/shared/lib/router/router';
+import { DashboardIcon } from '@radix-ui/react-icons';
 
 type MenuItem = {
   label: string;
@@ -31,9 +32,9 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   {
     label: 'Dashboard',
-    icon: <Home className='mr-2' />,
+    icon: <DashboardIcon className='mr-2' />,
     isCollapsible: false,
-    href: '/',
+    href: '/dashboard',
   },
   {
     label: 'Pixels',
