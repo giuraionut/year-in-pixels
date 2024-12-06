@@ -18,7 +18,7 @@ export default function MoodsComponent() {
 
   return (
     <div className='p-2'>
-      <Card className='p-5'>
+      <Card className='p-2'>
         <h4 className='scroll-m-20 text-xl font-semibold tracking-tight text-center'>
           Manage your moods
         </h4>

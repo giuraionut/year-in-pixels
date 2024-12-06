@@ -3,11 +3,9 @@ import YearInPixels from './YearInPixels';
 
 const page = () => {
   return (
-    <div>
-      <Suspense fallback={<div>Loading...</div>}>
-        <YearInPixels />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <YearInPixels />
+    </Suspense>
   );
 };
 

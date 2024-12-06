@@ -7,6 +7,7 @@ import { ThemeProvider } from './theme-provider';
 import { AppSidebar } from './app-sidebar';
 import Navbar from './app-navbar';
 import { Session } from 'next-auth';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 export default function ClientLayout({
   session,
@@ -32,11 +33,16 @@ export default function ClientLayout({
           }
         >
           {session ? <AppSidebar /> : ''}
-          <div className='flex flex-col w-screen gap-3'>
-            <Navbar session={session} />
-            <main className='flex items-center justify-center'>{children}</main>
-            <Toaster />
-          </div>
+
+          <TooltipProvider>
+            <div className='flex flex-col w-screen gap-3'>
+              <Navbar session={session} />
+              <main className='flex items-center justify-center'>
+                {children}
+              </main>
+              <Toaster />
+            </div>
+          </TooltipProvider>
         </SidebarProvider>
       </ThemeProvider>
     </SessionProvider>

@@ -41,6 +41,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { MoodsTableProps } from './Moods.types';
 import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
   const handleDelete = async (
@@ -242,16 +253,16 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
           </DropdownMenuContent>
         </DropdownMenu>
         <MoodDialog setUserMoods={setUserMoods}>
-          <Button>Create New</Button>
+          <Button>Create new</Button>
         </MoodDialog>
       </div>
       {data.length <= 0 ? (
         <div className='flex flex-col gap-1'>
-          <Skeleton className='h-8 max-w-[450px]' />
-          <Skeleton className='h-8 max-w-[450px]' />
-          <Skeleton className='h-8 max-w-[450px]' />
-          <Skeleton className='h-8 max-w-[450px]' />
-          <Skeleton className='h-8 max-w-[450px]' />
+          <Skeleton className='h-8' />
+          <Skeleton className='h-8' />
+          <Skeleton className='h-8' />
+          <Skeleton className='h-8' />
+          <Skeleton className='h-8' />
         </div>
       ) : (
         <>
@@ -334,12 +345,32 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
           </div>
           {selectedMoods.length > 0 && (
             <div className='flex justify-end py-4'>
-              <Button
-                variant='destructive'
-                onClick={() => handleDeleteAll(selectedMoods, setUserMoods)}
-              >
-                Delete All Selected
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant='destructive'>Delete selected</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your selected moods.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        handleDeleteAll(selectedMoods, setUserMoods)
+                      }
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </>

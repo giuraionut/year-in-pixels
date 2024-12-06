@@ -16,20 +16,31 @@ export default function YearInPixels() {
     setSelectedMonth(month);
   };
   return (
-    <Card className='p-2 flex flex-col gap-2'>
-      <Card className='p-2'>{year}</Card>
-      <div className='flex flex-row gap-2'>
+    <div className='p-2 flex flex-col gap-3 max-w-[750px]'>
+      <Card className='p-2'>
+        <h4 className='scroll-m-20 text-xl font-semibold tracking-tight text-center'>
+          Manage your pixels
+        </h4>
+      </Card>
+      <div className='grid grid-cols-6 max-sm:grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-y-2 rounded-xl'>
         {months.map((month) => (
           <Button
             key={month.index}
-            className='p-3 rounded-xl'
+            className={`
+              mx-1
+              ${
+                currentMonth.index === month.index
+                  ? 'bg-slate-500 text-white hover:bg-slate-400'
+                  : ''
+              }
+            `}
             onClick={() => handleSelectMonth(month)}
           >
-            {month.name}
+            {month.name.split('', 3)}
           </Button>
         ))}
       </div>
       <PixelsComponent selectedMonth={selectedMonth} selectedYear={year} />
-    </Card>
+    </div>
   );
 }

@@ -54,13 +54,23 @@ export default function AddPixelDialog({
   const [loading, setLoading] = useState<boolean>(true);
   const [userMood, setUserMood] = useState<Mood | null>(null); // Track userMood separately
   const pixel = pixels.find((pixel) => pixel.day === day.dayIndex);
+  const FormSchema = z.object({
+    mood: z.string({ required_error: 'Please select a mood.' }),
+  });
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
 
   useEffect(() => {
-    if (pixel) {
+    if (!pixel) {
+      setUserMood(null);
+      form.reset();
+    } else {
       const mood = userMoods.find((mood) => mood.id === pixel.mood.id);
       setUserMood(mood || null);
     }
-  }, [pixel, userMoods]);
+  }, [day, pixel, userMoods, form]);
 
   useEffect(() => {
     const fetchUserMoods = async () => {
@@ -73,14 +83,6 @@ export default function AddPixelDialog({
 
     fetchUserMoods();
   }, []);
-
-  const FormSchema = z.object({
-    mood: z.string({ required_error: 'Please select a mood.' }),
-  });
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-  });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     if (day?.dayIndex && month.index && year) {
@@ -175,13 +177,17 @@ export default function AddPixelDialog({
                   ) : userMoods.length > 0 ? (
                     <div className='grid gap-4 py-4'>
                       <div className='grid grid-cols-4 items-center gap-x-4 gap-y-1'>
-                        <FormLabel className='text-right col-span-1'>
+                        <FormLabel
+                          htmlFor='mood'
+                          className='text-right col-span-1'
+                        >
                           Mood
                         </FormLabel>
                         <div className='col-span-2'>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
+                            name="select-mood"
                           >
                             <FormControl>
                               <SelectTrigger
