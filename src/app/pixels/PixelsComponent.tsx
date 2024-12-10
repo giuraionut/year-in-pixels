@@ -1,28 +1,26 @@
 'use client';
 
-import calendarUtils, { Day } from '../lib/calendarUtils';
+import calendarUtils from '../../lib/calendarUtils';
 import { useEffect, useState } from 'react';
-import { getUserPixelsForMonth } from '../actions/pixelActions';
 import AddPixelDialog from './AddPixelDialog';
-import { DaysProps, PixelWithMood } from './Pixels.type';
+import { PixelComponentProps, PixelWithMood } from './Pixels.type';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { getUserPixelsByRange } from '@/actions/pixelActions';
 
-export default function PixelsComponent({
-  selectedMonth,
-  selectedYear,
-}: DaysProps) {
+export default function PixelsComponent({ date }: PixelComponentProps) {
   const { daysByMonth, weekdayNames } = calendarUtils();
-  const [selectedDay, setSelectedDay] = useState<Day | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [pixels, setPixels] = useState<PixelWithMood[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
     const fetchPixels = async () => {
-      const fetchedPixels = await getUserPixelsForMonth(
-        selectedYear,
-        selectedMonth.index
-      );
+      console.log('DATE', date);
+      const from = new Date(date.getFullYear(), date.getMonth(), 1);
+      const to = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+      const fetchedPixels = await getUserPixelsByRange(from, to);
       if (fetchedPixels) {
         setPixels(fetchedPixels);
         setLoading(false);
@@ -30,29 +28,28 @@ export default function PixelsComponent({
     };
 
     fetchPixels();
-  }, [selectedYear, selectedMonth]);
+  }, [date]);
 
-  const handleSelectDay = (day: Day) => {
-    // Directly set the selectedDay and open the dialog
-    setSelectedDay(day);
-    if (!open) setOpen(true); // Open dialog only if it's not already open
+  const handleSelectDay = (day: number) => {
+    const newDate = new Date(date);
+    newDate.setDate(day);
+    setSelectedDate(newDate);
+    if (!open) setOpen(true);
   };
 
-  const getPixelForDay = (dayIndex: number) => {
-    return pixels.find(
+  const getPixelForDay = (day: number) => {
+    const pixel = pixels.find(
       (pixel) =>
-        pixel.day === dayIndex &&
-        pixel.month === selectedMonth.index &&
-        pixel.year === selectedYear
+        pixel.pixelDate.getFullYear() === date.getFullYear() &&
+        pixel.pixelDate.getMonth() === date.getMonth() &&
+        pixel.pixelDate.getDate() === day
     );
+    return pixel;
   };
 
-  useEffect(() => {
-    console.log('Selected month', selectedMonth, 'year', selectedYear);
-  }, [selectedMonth, selectedYear]);
   return (
     <div className='grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-2'>
-      {daysByMonth[selectedMonth.index].map((day) => {
+      {daysByMonth[date.getMonth()].map((day) => {
         const pixel = getPixelForDay(day.dayIndex);
         const moodColor = pixel?.mood?.color || '';
 
@@ -62,7 +59,7 @@ export default function PixelsComponent({
           <Button
             style={{ backgroundColor: moodColor }}
             key={day.dayIndex}
-            onClick={() => handleSelectDay(day)}
+            onClick={() => handleSelectDay(day.dayIndex)}
             className={`p-3 cursor-pointer h-[40px] flex items-center justify-between hover:opacity-90`}
           >
             {day.dayIndex} - {weekdayNames[day.weekdayIndex]}
@@ -70,11 +67,9 @@ export default function PixelsComponent({
           </Button>
         );
       })}
-      {selectedDay && (
+      {selectedDate && (
         <AddPixelDialog
-          day={selectedDay}
-          month={selectedMonth}
-          year={selectedYear}
+          date={selectedDate}
           open={open}
           setOpen={setOpen}
           setPixels={setPixels} // Ensure the updated pixels are passed back to the parent component

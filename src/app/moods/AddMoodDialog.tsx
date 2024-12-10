@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ColorPickerForm } from '../components/color-picker-form';
 import { FormEvent, useState } from 'react';
 import { Mood } from '@prisma/client';
-import { addUserMood } from '../actions/moodActions';
 import { AddMoodDialogProps } from './Moods.types';
 import { toast } from '@/hooks/use-toast';
+import { addUserMood } from '@/actions/moodActions';
+import { ColorPickerForm } from '@/components/color-picker-form';
 
 export default function MoodDialog({
   children,

@@ -36,8 +36,10 @@ export default function ClientLayout({
 
           <TooltipProvider>
             <div className='flex flex-col w-screen gap-3'>
-              <Navbar session={session} />
-              <main className='flex items-center justify-center'>
+              <nav>
+                <Navbar session={session} />
+              </nav>
+              <main className='flex items-center justify-center h-full'>
                 {children}
               </main>
               <Toaster />

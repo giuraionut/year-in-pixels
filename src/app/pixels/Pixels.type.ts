@@ -6,17 +6,10 @@ export type PixelWithMood = Pixel & {
 export type AddPixelDialogProps = {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    day: {
-        dayIndex: number;
-        weekdayIndex: number;
-        currentDay: boolean;
-    };
-    month: { index: number; name: string };
-    year: number;
     setPixels: React.Dispatch<React.SetStateAction<PixelWithMood[]>>; // Accept the state updater
     pixels: PixelWithMood[];
+    date: Date
 };
-export type DaysProps = {
-    selectedMonth: { index: number; name: string };
-    selectedYear: number;
+export type PixelComponentProps = {
+    date: Date
 };

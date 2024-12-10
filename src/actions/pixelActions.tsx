@@ -1,13 +1,13 @@
 'use server';
+import { PixelWithMood } from '@/app/pixels/Pixels.type';
 import { authOptions } from '@/lib/auth';
 import db from '@/lib/db';
 import { Pixel } from '@prisma/client';
 import { getServerSession } from 'next-auth';
-import { PixelWithMood } from '../pixels/Pixels.type';
 
-export const getUserPixelsForMonth = async (
-  year: number,
-  month: number
+export const getUserPixelsByRange = async (
+  from: Date,
+  to?: Date
 ): Promise<PixelWithMood[]> => {
   const session = await getServerSession(authOptions);
 
@@ -15,18 +15,30 @@ export const getUserPixelsForMonth = async (
     console.error('User is not authenticated or missing user ID');
     throw new Error('User is not authenticated');
   }
-
   const userId = session.user.id;
+
+  const fromDate = new Date(
+    Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())
+  );
+  const toDate = to
+    ? new Date(
+        Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999)
+      )
+    : fromDate; 
+
   const pixels = await db.pixel.findMany({
     where: {
-      year,
-      month,
+      pixelDate: {
+        gte: fromDate,
+        lte: toDate,
+      },
       userId,
     },
     include: {
       mood: true,
     },
   });
+
   return pixels as PixelWithMood[];
 };
 
@@ -42,8 +54,19 @@ export const addUserPixel = async (pixel: Pixel): Promise<PixelWithMood> => {
   pixel.userId = userId;
   delete (pixel as { id?: string }).id;
 
-  return await db.pixel.create({
-    data: {
+  return await db.pixel.upsert({
+    where: {
+      userId_moodId_pixelDate: {
+        userId,
+        moodId: pixel.moodId,
+        pixelDate: pixel.pixelDate,
+      },
+    },
+    create: {
+      ...pixel,
+      userId,
+    },
+    update: {
       ...pixel,
       userId,
     },

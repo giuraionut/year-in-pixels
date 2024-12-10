@@ -36,7 +36,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import MoodDialog from './AddMoodDialog';
-import { deleteUserMood, deleteUserMoodsBulk } from '../actions/moodActions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { MoodsTableProps } from './Moods.types';
@@ -52,6 +51,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
 
 export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
   const handleDelete = async (

@@ -20,7 +20,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Mood, Pixel } from '@prisma/client';
-import { getUserMoods } from '../actions/moodActions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -35,25 +34,24 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { addUserPixel, deleteUserPixel } from '../actions/pixelActions';
-import calendarUtils from '../lib/calendarUtils';
 import { AddPixelDialogProps } from './Pixels.type';
 import { CircleX } from 'lucide-react';
+import { getUserMoods } from '@/actions/moodActions';
+import { addUserPixel, deleteUserPixel } from '@/actions/pixelActions';
 
 export default function AddPixelDialog({
-  day,
-  month,
-  year,
+  date,
   open,
   setOpen,
   setPixels,
   pixels,
 }: Readonly<AddPixelDialogProps>) {
-  const { weekdayNames } = calendarUtils();
   const [userMoods, setUserMoods] = useState<Mood[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [userMood, setUserMood] = useState<Mood | null>(null); // Track userMood separately
-  const pixel = pixels.find((pixel) => pixel.day === day.dayIndex);
+  const pixel = pixels.find(
+    (pixel) => pixel.pixelDate.getDate() === date.getDate()
+  );
   const FormSchema = z.object({
     mood: z.string({ required_error: 'Please select a mood.' }),
   });
@@ -70,7 +68,7 @@ export default function AddPixelDialog({
       const mood = userMoods.find((mood) => mood.id === pixel.mood.id);
       setUserMood(mood || null);
     }
-  }, [day, pixel, userMoods, form]);
+  }, [date, pixel, userMoods, form]);
 
   useEffect(() => {
     const fetchUserMoods = async () => {
@@ -85,17 +83,14 @@ export default function AddPixelDialog({
   }, []);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    if (day?.dayIndex && month.index && year) {
+    if (date) {
       const pixel = {
-        day: day.dayIndex,
-        month: month.index,
-        year,
+        pixelDate: date,
         moodId: data.mood,
         createdAt: new Date(),
         id: '', // Backend should populate this
         userId: '', // Backend should populate this
       };
-
       try {
         const newPixel = await addUserPixel(pixel); // Call backend to add pixel
         if (newPixel) {
@@ -153,7 +148,8 @@ export default function AddPixelDialog({
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
-            {day.dayIndex} - {weekdayNames[day.weekdayIndex]}
+            {/* {day.dayIndex} - {weekdayNames[day.weekdayIndex]} */}
+            {date.toLocaleDateString()}
           </DialogTitle>
           <DialogDescription>
             {`Make changes to your day here. Click save when you're done.`}
@@ -187,7 +183,7 @@ export default function AddPixelDialog({
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            name="select-mood"
+                            name='select-mood'
                           >
                             <FormControl>
                               <SelectTrigger

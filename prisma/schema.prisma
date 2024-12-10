@@ -20,10 +20,10 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  accounts      Account[]
-  Session       Session[]
-  Mood          Mood[]
-  Pixel         Pixel[]
+  accounts Account[]
+  Session  Session[]
+  Mood     Mood[]
+  Pixel    Pixel[]
 }
 
 model Account {
@@ -55,10 +55,10 @@ model Session {
 }
 
 model Mood {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt         DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   name  String
   color String
@@ -66,14 +66,14 @@ model Mood {
 }
 
 model Pixel {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
-  createdAt         DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 
-  mood   Mood   @relation(fields: [moodId], references: [id])
-  moodId String @db.ObjectId
-  year   Int
-  month  Int
-  day    Int
+  mood      Mood     @relation(fields: [moodId], references: [id])
+  moodId    String   @db.ObjectId
+  pixelDate DateTime @default(now())
+
+  @@unique([userId, moodId, pixelDate])
 }

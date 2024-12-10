@@ -10,46 +10,37 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { cn } from '../lib/utils';
 import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 },
-];
+export function BarChartComponent({
+  className,
+  config,
+  data,
+}: {
+  className: string;
+  config: any;
+  data: any;
+}) {
+  const bars = Object.keys(config).map((key) => {
+    return <Bar key={key} dataKey={key} fill={config[key].color} radius={4} />;
+  });
 
-const chartConfig = {
-  desktop: {
-    label: 'Desktop',
-    color: '#2563eb',
-  },
-  mobile: {
-    label: 'Mobile',
-    color: '#60a5fa',
-  },
-} satisfies ChartConfig;
-
-export function BarChartComponent({ className }: { className: string }) {
   return (
     <Card className={cn('p-4', className)}>
-      <ChartContainer config={chartConfig} className='min-h-[200px] w-full'>
-        <BarChart accessibilityLayer data={chartData}>
+      <ChartContainer config={config} className='min-h-[200px] w-full'>
+        <BarChart accessibilityLayer data={data}>
           <CartesianGrid vertical={false} />
           <XAxis
-            dataKey='month'
+            dataKey='name'
             tickLine={false}
             tickMargin={10}
             axisLine={false}
-            tickFormatter={(value) => value.slice(0, 3)}
+            tickFormatter={(value) => value}
           />
           <ChartTooltip content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent />} />
-          <Bar dataKey='desktop' fill='var(--color-desktop)' radius={4} />
-          <Bar dataKey='mobile' fill='var(--color-mobile)' radius={4} />
+          {bars}
         </BarChart>
       </ChartContainer>
     </Card>
