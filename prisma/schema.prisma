@@ -75,5 +75,5 @@ model Pixel {
   moodId    String   @db.ObjectId
   pixelDate DateTime @default(now())
 
-  @@unique([userId, moodId, pixelDate])
+  @@unique([userId, pixelDate])
 }

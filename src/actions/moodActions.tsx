@@ -42,6 +42,9 @@ export const addUserMood = async (mood: Mood): Promise<Mood | null> => {
   }
 };
 
+//here you need to delete the pixels that use this mood first before you delete the mood
+//better create a method that can edit a mood so the pixels aren't lost
+//check a way to notify the user that this mood is used in pixels when they try to delete it
 export const deleteUserMood = async (mood: Mood): Promise<Mood | null> => {
   const session = await getServerSession(authOptions);
 

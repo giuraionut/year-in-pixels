@@ -3,6 +3,7 @@ import { PixelWithMood } from '@/app/pixels/Pixels.type';
 import { authOptions } from '@/lib/auth';
 import db from '@/lib/db';
 import { Pixel } from '@prisma/client';
+import { format } from 'date-fns';
 import { getServerSession } from 'next-auth';
 
 export const getUserPixels = async (): Promise<PixelWithMood[]> => {
@@ -60,7 +61,10 @@ export const getUserPixelsByRange = async (
 
   return pixels as PixelWithMood[];
 };
-
+const normalizeDate = (date: Date | string): Date => {
+  const parsedDate = new Date(date);
+  return new Date(format(parsedDate, 'yyyy-MM-dd')); // Example: "2024-12-11"
+};
 export const addUserPixel = async (pixel: Pixel): Promise<PixelWithMood> => {
   const session = await getServerSession(authOptions);
 
@@ -72,12 +76,12 @@ export const addUserPixel = async (pixel: Pixel): Promise<PixelWithMood> => {
   const userId = session.user.id;
   pixel.userId = userId;
   delete (pixel as { id?: string }).id;
-
+  const normalizedDate = normalizeDate(pixel.pixelDate);
+  pixel.pixelDate = normalizedDate;
   return await db.pixel.upsert({
     where: {
-      userId_moodId_pixelDate: {
+      userId_pixelDate: {
         userId,
-        moodId: pixel.moodId,
         pixelDate: pixel.pixelDate,
       },
     },
