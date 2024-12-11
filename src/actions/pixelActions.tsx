@@ -5,6 +5,25 @@ import db from '@/lib/db';
 import { Pixel } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 
+export const getUserPixels = async (): Promise<PixelWithMood[]> => {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    console.error('User is not authenticated or missing user ID');
+    throw new Error('User is not authenticated');
+  }
+  const userId = session.user.id;
+  const pixels = await db.pixel.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      mood: true,
+    },
+  });
+
+  return pixels as PixelWithMood[];
+};
 export const getUserPixelsByRange = async (
   from: Date,
   to?: Date
@@ -24,7 +43,7 @@ export const getUserPixelsByRange = async (
     ? new Date(
         Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999)
       )
-    : fromDate; 
+    : fromDate;
 
   const pixels = await db.pixel.findMany({
     where: {
