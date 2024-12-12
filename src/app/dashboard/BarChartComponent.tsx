@@ -1,17 +1,12 @@
 'use client';
 
-import {
-  RectangleHorizontal,
-  RectangleVertical,
-  TrendingUp,
-} from 'lucide-react';
+import { RectangleHorizontal, RectangleVertical } from 'lucide-react';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -30,7 +25,9 @@ export function BarChartComponent({
   config,
 }: {
   className?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any;
 }) {
   const [barChartVertical, setBarChartVertical] = useState<boolean>(false);
@@ -41,7 +38,7 @@ export function BarChartComponent({
   return (
     <Card className={cn('p-4', className)}>
       <CardHeader>
-        <CardTitle className='flex items-center justify-between'>
+        <CardTitle className='flex items-center justify-between gap-6'>
           Moods Chart
           <Button onClick={handleBarChartVertical} className='w-4 h-8'>
             {barChartVertical ? (
@@ -101,12 +98,7 @@ export function BarChartComponent({
         </ChartContainer>
       </CardContent>
       {/* <CardFooter className='flex-col items-start gap-2 text-sm'>
-        <div className='flex gap-2 font-medium leading-none'>
-          Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
-        </div>
-        <div className='leading-none text-muted-foreground'>
-          Showing total quantity for the last 6 months
-        </div>
+      
       </CardFooter> */}
     </Card>
   );

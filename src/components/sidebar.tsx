@@ -1,4 +1,4 @@
-import { ChevronRight, Home, Notebook, Smile } from 'lucide-react';
+import { ChevronRight, Notebook, Smile } from 'lucide-react';
 import React, { ReactElement } from 'react';
 import {
   Sidebar,
@@ -50,7 +50,7 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-export function AppSidebar() {
+export function SideBar() {
   return (
     <Sidebar>
       <SidebarContent className='flex flex-col'>

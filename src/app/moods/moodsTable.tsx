@@ -35,54 +35,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import MoodDialog from './AddMoodDialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { MoodsTableProps } from './Moods.types';
-import { toast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
+import AddMoodDialog from './AddMoodDialog';
+import EditMoodDialog from './EditMoodDialog';
+import { Color } from '@/types/prisma';
+import DeleteMoodModal from './ConfirmDeleteMoodDialog';
 
-export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
-  const handleDelete = async (
-    mood: Mood,
-    setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>
-  ) => {
-    const deletedMood = await deleteUserMood(mood);
-
-    if (deletedMood) {
-      setUserMoods((prevMoods) =>
-        prevMoods.filter((item) => item.id !== deletedMood.id)
-      );
-    }
-  };
-
-  const handleDeleteAll = async (
-    selectedMoods: Mood[],
-    setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>
-  ) => {
-    const selectedMoodsIds = selectedMoods.map((mood) => mood.id);
-
-    const deletedMoods = await deleteUserMoodsBulk(selectedMoodsIds);
-
-    if (deletedMoods) {
-      setUserMoods((prevMoods) =>
-        prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
-      );
-      toast({ title: 'Moods deleted successfully!' });
-    }
-  };
-
+export default function MoodsTable({
+  data,
+  setUserMoods,
+  loading,
+}: MoodsTableProps) {
   const columns: ColumnDef<Mood>[] = [
     {
       id: 'select',
@@ -130,7 +95,7 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
       cell: ({ row }) => (
         <div
           className='h-8 w-8 rounded-lg'
-          style={{ backgroundColor: row.getValue('color') }}
+          style={{ backgroundColor: (row.getValue('color') as Color).value }}
         ></div>
       ),
     },
@@ -138,7 +103,9 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
       accessorKey: 'hex_code',
       header: 'Hex',
       cell: ({ row }) => (
-        <div className='lowercase'>{row.getValue('color')}</div>
+        <div className='lowercase'>
+          {(row.getValue('color') as Color).value}
+        </div>
       ),
     },
     {
@@ -167,16 +134,21 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
             <DropdownMenuContent align='end'>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(mood.color)}
+                onClick={() => navigator.clipboard.writeText(mood.color.value)}
               >
                 Copy color
               </DropdownMenuItem>
+              <EditMoodDialog setUserMoods={setUserMoods} mood={mood}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Edit
+                </DropdownMenuItem>
+              </EditMoodDialog>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleDelete(mood, setUserMoods)}
-              >
-                Delete mood
-              </DropdownMenuItem>
+              <DeleteMoodModal mood={mood} setUserMoods={setUserMoods}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Delete
+                </DropdownMenuItem>
+              </DeleteMoodModal>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -191,7 +163,6 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  // const [loading, setLoading] = React.useState<boolean>();
   const table = useReactTable({
     data,
     columns,
@@ -215,6 +186,13 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
     .getSelectedRowModel()
     .rows.map((row) => row.original);
 
+  const columnNameMapping: { [key: string]: string } = {
+    name: 'Name',
+    color: 'Color',
+    hex_code: 'Hex',
+    createdAt: 'Created At',
+    actions: 'Actions',
+  };
   return (
     <div className='w-full'>
       <div className='flex items-center gap-2 py-4'>
@@ -246,17 +224,17 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {columnNameMapping[column.id]}
                   </DropdownMenuCheckboxItem>
                 );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-        <MoodDialog setUserMoods={setUserMoods}>
+        <AddMoodDialog setUserMoods={setUserMoods}>
           <Button>Create new</Button>
-        </MoodDialog>
+        </AddMoodDialog>
       </div>
-      {data.length <= 0 ? (
+      {loading ? (
         <div className='flex flex-col gap-1'>
           <Skeleton className='h-8' />
           <Skeleton className='h-8' />
@@ -345,32 +323,12 @@ export default function MoodsTable({ data, setUserMoods }: MoodsTableProps) {
           </div>
           {selectedMoods.length > 0 && (
             <div className='flex justify-end py-4'>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant='destructive'>Delete selected</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your selected moods.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() =>
-                        handleDeleteAll(selectedMoods, setUserMoods)
-                      }
-                    >
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <DeleteMoodModal
+                moods={selectedMoods}
+                setUserMoods={setUserMoods}
+              >
+                <Button variant='destructive'>Delete selected</Button>
+              </DeleteMoodModal>
             </div>
           )}
         </>

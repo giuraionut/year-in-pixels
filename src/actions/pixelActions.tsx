@@ -1,12 +1,11 @@
 'use server';
-import { PixelWithMood } from '@/app/pixels/Pixels.type';
 import { authOptions } from '@/lib/auth';
 import db from '@/lib/db';
 import { Pixel } from '@prisma/client';
 import { format } from 'date-fns';
 import { getServerSession } from 'next-auth';
 
-export const getUserPixels = async (): Promise<PixelWithMood[]> => {
+export const getUserPixels = async (): Promise<Pixel[]> => {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -23,12 +22,12 @@ export const getUserPixels = async (): Promise<PixelWithMood[]> => {
     },
   });
 
-  return pixels as PixelWithMood[];
+  return pixels;
 };
 export const getUserPixelsByRange = async (
   from: Date,
   to?: Date
-): Promise<PixelWithMood[]> => {
+): Promise<Pixel[]> => {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -59,13 +58,13 @@ export const getUserPixelsByRange = async (
     },
   });
 
-  return pixels as PixelWithMood[];
+  return pixels;
 };
 const normalizeDate = (date: Date | string): Date => {
   const parsedDate = new Date(date);
   return new Date(format(parsedDate, 'yyyy-MM-dd')); // Example: "2024-12-11"
 };
-export const addUserPixel = async (pixel: Pixel): Promise<PixelWithMood> => {
+export const addUserPixel = async (pixel: Pixel): Promise<Pixel> => {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {

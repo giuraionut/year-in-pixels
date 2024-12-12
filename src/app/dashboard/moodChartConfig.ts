@@ -1,13 +1,12 @@
-import { PixelWithMood } from "../pixels/Pixels.type";
+import { Pixel } from "@prisma/client";
 
-export default function generateChartData(pixels: PixelWithMood[]) {
-    console.log("PIXELS", pixels);
-    const moods = pixels.map((pixel: PixelWithMood) => ({
+export default function generateChartData(pixels: Pixel[]) {
+    const moods = pixels.map((pixel: Pixel) => ({
         moodName: pixel.mood.name.toLowerCase(),
-        moodColor: pixel.mood.color
+        moodColor: pixel.mood.color.value
     })
     );
-    console.log("MOODS", moods);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = moods.reduce((acc: any[], curr) => {
         // Check if the mood already exists in the accumulator
         const existingMood = acc.find((mood) => mood.moodName === curr.moodName);
@@ -25,6 +24,7 @@ export default function generateChartData(pixels: PixelWithMood[]) {
         }
         return acc;
     }, []);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config = moods.reduce((acc: any, curr) => {
         // Add the 'moods' field as a label
         if (!acc.quantity) {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 
@@ -24,11 +24,6 @@ export function DatePickerWithRange({
   date,
   setDate,
 }: DatePickerWithRangeProps) {
-  // const [date, setDate] = React.useState<DateRange | undefined>({
-  //   from: new Date(),
-  //   // to: addDays(new Date(), 0),
-  // });
-
   const handleSelect = (date: React.SetStateAction<DateRange | undefined>) => {
     if (setDate) {
       setDate(date); // Only call setDate if it is defined

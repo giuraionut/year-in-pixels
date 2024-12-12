@@ -12,35 +12,32 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormEvent, useState } from 'react';
-import { Mood } from '@prisma/client';
-import { AddMoodDialogProps } from './Moods.types';
-import { toast } from '@/hooks/use-toast';
-import { addUserMood } from '@/actions/moodActions';
+import { EditMoodDialogProps } from './Moods.types';
+import { editUserMood } from '@/actions/moodActions';
 import { ColorPickerForm } from '@/components/color-picker-form';
 
-export default function AddMoodDialog({
+export default function EditMoodDialog({
+  mood,
   children,
   setUserMoods,
-}: AddMoodDialogProps) {
+}: EditMoodDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
+  const handleEdit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const mood: Mood = {
-      name: String(formData.get('name') ?? ''),
-      color: JSON.parse(formData.get('color') as string),
-      userId: '',
-      id: '',
-      createdAt: new Date(),
-    };
 
-    const newMood = await addUserMood(mood);
+    mood.name = String(formData.get('name') ?? '');
+    mood.color = JSON.parse(formData.get('color') as string);
 
-    if (newMood) {
-      setUserMoods((prevMoods) => [...prevMoods, newMood]);
-      setOpen(false);
-      toast({ title: 'Mood created successfully!' });
+    const newUserMood = await editUserMood(mood);
+
+    if (newUserMood) {
+      setUserMoods((prevMoods) =>
+        prevMoods.map((item) =>
+          item.id === newUserMood.id ? newUserMood : item
+        )
+      );
     }
   };
 
@@ -49,12 +46,12 @@ export default function AddMoodDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Add new mood</DialogTitle>
+          <DialogTitle>Edit mood</DialogTitle>
           <DialogDescription>
-            {` Here, you can add a new mood. Click save when you're done.`}
+            {` Here, you can edit the selected mood. Click save when you're done.`}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSave}>
+        <form onSubmit={handleEdit}>
           <div className='grid gap-4 py-4'>
             <div className='grid grid-cols-4 items-center gap-4'>
               <Label htmlFor='name' className='text-right'>
@@ -63,7 +60,8 @@ export default function AddMoodDialog({
               <Input
                 id='name'
                 name='name'
-                placeholder='Name of the mood, eg. happy, sad'
+                defaultValue={mood.name}
+                placeholder={mood.name}
                 className='col-span-3'
               />
             </div>
@@ -71,7 +69,7 @@ export default function AddMoodDialog({
               <Label htmlFor='color' className='text-right'>
                 Color
               </Label>
-              <ColorPickerForm />
+              <ColorPickerForm defaultColor={mood.color} />
             </div>
           </div>
           <DialogFooter>

@@ -30,7 +30,7 @@ const RootLayout = async ({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
         <ClientLayout session={session}>{children}</ClientLayout>
         <Toaster />

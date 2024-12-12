@@ -1,14 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { TrendingUp } from 'lucide-react';
 import { Label, Pie, PieChart } from 'recharts';
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -25,15 +23,18 @@ export function PieChartComponent({
   config,
 }: {
   className?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any;
 }) {
   const totalMoods = React.useMemo(() => {
     return data.reduce(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (acc: any, curr: { quantity: any }) => acc + curr.quantity,
       0
     );
-  }, []);
+  }, [data]);
 
   return (
     <Card className={cn('p-4 flex flex-col', className)}>
@@ -42,7 +43,10 @@ export function PieChartComponent({
         <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
       <CardContent className='flex-1 pb-0'>
-        <ChartContainer config={config}>
+        <ChartContainer
+          config={config}
+          className='mx-auto aspect-square max-h-[250px]'
+        >
           <PieChart>
             <ChartTooltip
               cursor={false}
@@ -89,12 +93,7 @@ export function PieChartComponent({
         </ChartContainer>
       </CardContent>
       {/* <CardFooter className='flex-col gap-2 text-sm'>
-        <div className='flex items-center gap-2 font-medium leading-none'>
-          Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
-        </div>
-        <div className='leading-none text-muted-foreground'>
-          Showing total quantity for the last 6 months
-        </div>
+       
       </CardFooter> */}
     </Card>
   );

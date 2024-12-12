@@ -1,13 +1,11 @@
-import { Mood, Pixel } from "@prisma/client";
+import { Pixel } from "@prisma/client";
 
-export type PixelWithMood = Pixel & {
-    mood: Mood; // This ensures that each pixel has a `mood` property
-};
+
 export type AddPixelDialogProps = {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setPixels: React.Dispatch<React.SetStateAction<PixelWithMood[]>>; // Accept the state updater
-    pixels: PixelWithMood[];
+    setPixels: React.Dispatch<React.SetStateAction<Pixel[]>>; // Accept the state updater
+    pixels: Pixel[];
     date: Date
 };
 export type PixelComponentProps = {

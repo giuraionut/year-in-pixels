@@ -3,16 +3,17 @@
 import calendarUtils from '../../lib/calendarUtils';
 import { useEffect, useState } from 'react';
 import AddPixelDialog from './AddPixelDialog';
-import { PixelComponentProps, PixelWithMood } from './Pixels.type';
+import { PixelComponentProps } from './Pixels.type';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
+import { Pixel } from '@prisma/client';
 
 export default function PixelsComponent({ date }: PixelComponentProps) {
   const { daysByMonth, weekdayNames } = calendarUtils();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [pixels, setPixels] = useState<PixelWithMood[]>([]);
+  const [pixels, setPixels] = useState<Pixel[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function PixelsComponent({ date }: PixelComponentProps) {
     <div className='grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-2'>
       {daysByMonth[date.getMonth()].map((day) => {
         const pixel = getPixelForDay(day.dayIndex);
-        const moodColor = pixel?.mood?.color || '';
+        const moodColor = pixel?.mood?.color.value || '';
 
         return loading ? (
           <Skeleton key={day.dayIndex} className='h-[40px]' />

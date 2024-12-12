@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { LoadingDots } from '@/components/loading-dots';
 
 interface Providers {
   [key: string]: ClientSafeProvider;
@@ -35,21 +36,23 @@ export default function SignIn() {
   }, [session, router]);
 
   // Prevent the page from rendering until session and providers are loaded
-  if (status === 'loading' || !providers) return <div>Loading...</div>;
+  if (status === 'loading' || !providers) return <LoadingDots />;
 
   // Only render the login UI if the user is not logged in
   if (session) return null;
 
   return (
-    <Card className='p-5 flex flex-col gap-5'>
-      <h3 className='scroll-m-20 text-2xl font-semibold tracking-tight'>
-        Sign in to Year In Pixels
-      </h3>
-      {Object.values(providers).map((provider) => (
-        <Button key={provider.name} onClick={() => signIn(provider.id)}>
-          Sign in with {provider.name}
-        </Button>
-      ))}
-    </Card>
+    <div className='container px-6 py-6 mx-auto gap-6 max-w-[400px]'>
+      <Card className='p-5 flex flex-col gap-5'>
+        <h3 className='scroll-m-20 text-2xl font-semibold tracking-tight'>
+          Sign in to Year In Pixels
+        </h3>
+        {Object.values(providers).map((provider) => (
+          <Button key={provider.name} onClick={() => signIn(provider.id)}>
+            Sign in with {provider.name}
+          </Button>
+        ))}
+      </Card>
+    </div>
   );
 }

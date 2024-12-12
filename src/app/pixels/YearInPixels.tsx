@@ -1,5 +1,4 @@
 'use client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import PixelsComponent from './PixelsComponent';
@@ -15,17 +14,20 @@ export default function YearInPixels() {
     setDate(newDate);
   };
   return (
-    <div className='p-2 flex flex-col gap-3 max-w-[750px]'>
-      <Card className='p-2'>
-        <h4 className='scroll-m-20 text-xl font-semibold tracking-tight text-center'>
-          Manage your pixels
-        </h4>
-      </Card>
-      <div className='grid grid-cols-6 max-sm:grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-y-2 rounded-xl'>
-        {months.map((month) => (
-          <Button
-            key={month}
-            className={`
+    <div className='relative'>
+      <section className='flex flex-col items-start gap-2 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
+        <div className='container px-6 flex mx-auto flex-wrap gap-6'>
+          <h1 className='text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:leading-[1.1]'>
+            Manage your pixels
+          </h1>
+        </div>
+      </section>
+      <div className='container px-6 py-6 mx-auto flex flex-col gap-6 max-w-[800px]'>
+        <div className='grid grid-cols-6 max-sm:grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-y-2 rounded-xl'>
+          {months.map((month) => (
+            <Button
+              key={month}
+              className={`
               mx-1
               ${
                 date.getMonth() === month
@@ -33,15 +35,16 @@ export default function YearInPixels() {
                   : ''
               }
             `}
-            onClick={() => handleSelectMonth(month)}
-          >
-            {new Date(year, month)
-              .toLocaleString('default', { month: 'long' })
-              .split('', 3)}
-          </Button>
-        ))}
+              onClick={() => handleSelectMonth(month)}
+            >
+              {new Date(year, month)
+                .toLocaleString('default', { month: 'long' })
+                .split('', 3)}
+            </Button>
+          ))}
+        </div>
+        <PixelsComponent date={date} />
       </div>
-      <PixelsComponent date={date} />
     </div>
   );
 }

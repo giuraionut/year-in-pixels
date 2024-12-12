@@ -1,29 +1,39 @@
 'use client';
 import { Mood } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { getUserMoods } from '@/actions/moodActions';
-import MoodsTable from './moodsTable';
+import MoodsTable from './MoodsTable';
 
 export default function MoodsComponent() {
   const [userMoods, setUserMoods] = useState<Mood[]>([]);
-
+  const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     const fetchMoods = async () => {
       const moods = await getUserMoods();
-      if (moods) setUserMoods(moods);
+      if (moods) {
+        setUserMoods(moods);
+        setLoading(false);
+      }
     };
     fetchMoods();
   }, []);
 
   return (
-    <div className='p-2'>
-      <Card className='p-2'>
-        <h4 className='scroll-m-20 text-xl font-semibold tracking-tight text-center'>
-          Manage your moods
-        </h4>
-      </Card>
-      <MoodsTable data={userMoods} setUserMoods={setUserMoods} />
+    <div className='relative'>
+      <section className='flex flex-col items-start gap-2 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
+        <div className='container px-6 flex mx-auto flex-wrap gap-6'>
+          <h1 className='text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:leading-[1.1]'>
+            Manage your pixels
+          </h1>
+        </div>
+      </section>
+      <div className='container px-6 py-6 mx-auto gap-6 max-w-[600px]'>
+        <MoodsTable
+          data={userMoods}
+          setUserMoods={setUserMoods}
+          loading={loading}
+        />
+      </div>
     </div>
   );
 }

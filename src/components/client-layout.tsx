@@ -4,10 +4,11 @@ import { SessionProvider } from 'next-auth/react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from './theme-provider';
-import { AppSidebar } from './app-sidebar';
-import Navbar from './app-navbar';
 import { Session } from 'next-auth';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
+import Header from './header';
+import { SideBar } from './sidebar';
+import Footer from './footer';
 
 export default function ClientLayout({
   session,
@@ -32,16 +33,13 @@ export default function ClientLayout({
             } as React.CSSProperties
           }
         >
-          {session ? <AppSidebar /> : ''}
+          {session ? <SideBar /> : ''}
 
           <TooltipProvider>
-            <div className='flex flex-col w-screen gap-3'>
-              <nav>
-                <Navbar session={session} />
-              </nav>
-              <main className='flex items-center justify-center h-full'>
-                {children}
-              </main>
+            <div className='mx-auto w-full border-border/40 dark:border-border min-[1800px]:max-w-[1536px] min-[1800px]:border-x flex flex-col'>
+              <Header session={session} />
+              <main className='flex-1'>{children}</main>
+              <Footer />
               <Toaster />
             </div>
           </TooltipProvider>
