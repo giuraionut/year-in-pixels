@@ -42,9 +42,9 @@ export function BarChartComponent({
           Moods Chart
           <Button onClick={handleBarChartVertical} className='w-4 h-8'>
             {barChartVertical ? (
-              <RectangleVertical></RectangleVertical>
+              <RectangleVertical strokeWidth={3} />
             ) : (
-              <RectangleHorizontal></RectangleHorizontal>
+              <RectangleHorizontal strokeWidth={3} />
             )}
           </Button>
         </CardTitle>
@@ -85,10 +85,7 @@ export function BarChartComponent({
             )}
 
             <XAxis dataKey='quantity' type='number' hide />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Bar
               dataKey='quantity'
               layout={barChartVertical ? 'vertical' : 'horizontal'}

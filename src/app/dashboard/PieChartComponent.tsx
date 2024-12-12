@@ -39,8 +39,8 @@ export function PieChartComponent({
   return (
     <Card className={cn('p-4 flex flex-col', className)}>
       <CardHeader className='items-center pb-0'>
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Pie Chart</CardTitle>
+        <CardDescription>Based on date range</CardDescription>
       </CardHeader>
       <CardContent className='flex-1 pb-0'>
         <ChartContainer
@@ -48,10 +48,7 @@ export function PieChartComponent({
           className='mx-auto aspect-square max-h-[250px]'
         >
           <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Pie
               data={data}
               dataKey='quantity'
@@ -81,7 +78,7 @@ export function PieChartComponent({
                           y={(viewBox.cy || 0) + 24}
                           className='fill-muted-foreground'
                         >
-                          Moods total
+                          Total
                         </tspan>
                       </text>
                     );

@@ -87,12 +87,13 @@ const DashboardComponent = () => {
   return (
     <div className='relative '>
       <section
+        id='dashboard-header'
         className='flex flex-col items-start gap-2 border-b border-border/40 py-2 dark:border-border md:py-10 lg:py-12
       bg-background/95 backdrop-blur 
     supports-[backdrop-filter]:bg-background/60 sticky top-10 z-50'
       >
         <div className='container px-6 flex mx-auto flex-wrap gap-6'>
-          <h1 className='text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:leading-[1.1]'>
+          <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
             Dashboard
           </h1>
           <DatePickerWithRange
@@ -103,125 +104,122 @@ const DashboardComponent = () => {
         </div>
       </section>
       <div className='container px-6 py-6 mx-auto'>
-        <section id='charts' className='scroll-mt-20'>
-          <div className='grid gap-4'>
-            <div className='gap-6 md:flex md:flex-row-reverse md:items-start'>
-              <div className='grid flex-1 gap-12'>
-                <div
-                  id='cards'
-                  className='grid flex-1 scroll-mt-20 items-start gap-10 md:grid-cols-2 md:gap-6 lg:grid-cols-4 xl:gap-10'
-                >
-                  {loading ? (
-                    <Skeleton className='h-48'></Skeleton>
-                  ) : (
-                    mostUsedMoodByYear && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Favorite Mood</CardTitle>
-                          <CardDescription>This Year</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className='flex items-center gap-1'>
-                            <div
-                              style={{
-                                backgroundColor:
-                                  mostUsedMoodByYear.data.color.value,
-                              }}
-                              className='w-3 h-3 rounded'
-                            ></div>
-                            <h4 className='text-md font-extrabold tracking-tighter inline'>
-                              {mostUsedMoodByYear.moodName}
-                            </h4>
-                          </div>
-                          <small className='text-sm text-muted-foreground'>
-                            6 times
-                          </small>
-                        </CardContent>
-                      </Card>
-                    )
-                  )}
-                  {loading ? (
-                    <Skeleton className='h-48'></Skeleton>
-                  ) : (
-                    mostUsedMood && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Favorite Mood</CardTitle>
-                          <CardDescription>All Time</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className='flex items-center gap-1'>
-                            <div
-                              style={{
-                                backgroundColor: mostUsedMood.data.color.value,
-                              }}
-                              className='w-3 h-3 rounded'
-                            ></div>
-                            <h4 className='text-md font-extrabold tracking-tighter inline'>
-                              {mostUsedMood.moodName}
-                            </h4>
-                          </div>
-                          <small className='text-sm text-muted-foreground'>
-                            6 times
-                          </small>
-                        </CardContent>
-                      </Card>
-                    )
-                  )}
+        <section id='dashboard-content' className='scroll-mt-20'>
+          <div className='grid flex-1 gap-12'>
+            <div
+              id='cards'
+              className='grid flex-1 scroll-mt-20 items-start gap-10 md:grid-cols-2 md:gap-6 lg:grid-cols-4 xl:gap-10'
+            >
+              {loading ? (
+                <Skeleton className='h-48'></Skeleton>
+              ) : (
+                mostUsedMoodByYear && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Favorite Mood</CardTitle>
+                      <CardDescription>This Year</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className='flex items-center gap-1'>
+                        <div
+                          style={{
+                            backgroundColor:
+                              mostUsedMoodByYear.data.color.value,
+                          }}
+                          className='w-3 h-3 rounded'
+                        ></div>
+                        <h4 className='text-md font-extrabold tracking-tighter inline'>
+                          {mostUsedMoodByYear.moodName}
+                        </h4>
+                      </div>
+                      <small className='text-sm text-muted-foreground'>
+                        6 times
+                      </small>
+                    </CardContent>
+                  </Card>
+                )
+              )}
+              {loading ? (
+                <Skeleton className='h-48'></Skeleton>
+              ) : (
+                mostUsedMood && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Favorite Mood</CardTitle>
+                      <CardDescription>All Time</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className='flex items-center gap-1'>
+                        <div
+                          style={{
+                            backgroundColor: mostUsedMood.data.color.value,
+                          }}
+                          className='w-3 h-3 rounded'
+                        ></div>
+                        <h4 className='text-md font-extrabold tracking-tighter inline'>
+                          {mostUsedMood.moodName}
+                        </h4>
+                      </div>
+                      <small className='text-sm text-muted-foreground'>
+                        6 times
+                      </small>
+                    </CardContent>
+                  </Card>
+                )
+              )}
 
-                  {/* Card 3 */}
-                  {loading ? (
-                    <Skeleton className='h-48'></Skeleton>
-                  ) : (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Card 3</CardTitle>
-                        <CardDescription>Card 3 description</CardDescription>
-                      </CardHeader>
-                      <CardContent></CardContent>
-                    </Card>
-                  )}
+              {/* Card 3 */}
+              {loading ? (
+                <Skeleton className='h-48'></Skeleton>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Card 3</CardTitle>
+                    <CardDescription>Card 3 description</CardDescription>
+                  </CardHeader>
+                  <CardContent></CardContent>
+                </Card>
+              )}
 
-                  {/* Card 4 */}
-                  {loading ? (
-                    <Skeleton className='h-48'></Skeleton>
-                  ) : (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Card 3</CardTitle>
-                        <CardDescription>Card 3 description</CardDescription>
-                      </CardHeader>
-                      <CardContent></CardContent>
-                    </Card>
-                  )}
+              {/* Card 4 */}
+              {loading ? (
+                <Skeleton className='h-48'></Skeleton>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Card 3</CardTitle>
+                    <CardDescription>Card 3 description</CardDescription>
+                  </CardHeader>
+                  <CardContent></CardContent>
+                </Card>
+              )}
+            </div>
+
+            <div
+              id='charts'
+              className='grid flex-1 scroll-mt-20 items-start gap-10 md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:gap-10'
+            >
+              {loading ? (
+                <Skeleton className='h-96'></Skeleton>
+              ) : (
+                <div>
+                  <Tabs
+                    defaultValue='bar'
+                    className='col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2'
+                  >
+                    <TabsList className='grid grid-cols-2'>
+                      <TabsTrigger value='bar'>Bar Chart</TabsTrigger>
+                      <TabsTrigger value='pie'>Pie Chart</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value='bar'>
+                      <BarChartComponent config={config} data={data} />
+                    </TabsContent>
+                    <TabsContent value='pie'>
+                      <PieChartComponent config={config} data={data} />
+                    </TabsContent>
+                  </Tabs>
                 </div>
-                <div
-                  id='charts'
-                  className='grid flex-1 scroll-mt-20 items-start gap-10 md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:gap-10'
-                >
-                  {loading ? (
-                    <Skeleton className='h-96'></Skeleton>
-                  ) : (
-                    <div>
-                      <Tabs
-                        defaultValue='bar'
-                        className='col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2'
-                      >
-                        <TabsList className='grid grid-cols-2'>
-                          <TabsTrigger value='bar'>Bar Chart</TabsTrigger>
-                          <TabsTrigger value='pie'>Pie Chart</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value='bar'>
-                          <BarChartComponent config={config} data={data} />
-                        </TabsContent>
-                        <TabsContent value='pie'>
-                          <PieChartComponent config={config} data={data} />
-                        </TabsContent>
-                      </Tabs>
-                    </div>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </section>

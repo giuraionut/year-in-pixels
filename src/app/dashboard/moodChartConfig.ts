@@ -28,7 +28,7 @@ export default function generateChartData(pixels: Pixel[]) {
     const config = moods.reduce((acc: any, curr) => {
         // Add the 'moods' field as a label
         if (!acc.quantity) {
-            acc.quantity = { label: 'Moods' };
+            acc.quantity = { label: 'Value' };
         }
 
         // Add each mood as a separate entry in the object

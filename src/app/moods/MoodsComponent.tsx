@@ -22,7 +22,7 @@ export default function MoodsComponent() {
     <div className='relative'>
       <section className='flex flex-col items-start gap-2 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
         <div className='container px-6 flex mx-auto flex-wrap gap-6'>
-          <h1 className='text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:leading-[1.1]'>
+          <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
             Manage your pixels
           </h1>
         </div>

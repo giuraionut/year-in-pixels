@@ -1,5 +1,5 @@
-import { ChevronRight, Notebook, Smile } from 'lucide-react';
-import React, { ReactElement } from 'react';
+import { ChevronRight, LayoutDashboard, Notebook, Smile } from 'lucide-react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/collapsible';
 import Link from 'next/link';
 import { Url } from 'next/dist/shared/lib/router/router';
-import { DashboardIcon } from '@radix-ui/react-icons';
+import { useRouter } from 'next/navigation';
 
 type MenuItem = {
   label: string;
@@ -32,25 +32,40 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   {
     label: 'Dashboard',
-    icon: <DashboardIcon className='mr-2' />,
+    icon: <LayoutDashboard className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
     href: '/dashboard',
   },
   {
     label: 'Pixels',
-    icon: <Notebook className='mr-2' />,
+    icon: <Notebook className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
     href: '/pixels',
   },
   {
     label: 'Moods',
-    icon: <Smile className='mr-2' />,
+    icon: <Smile className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
     href: '/moods',
   },
 ];
+import { usePathname } from 'next/navigation';
 
 export function SideBar() {
+  const [isClient, setIsClient] = useState(false); // Track if we are on the client-side
+  const pathname = usePathname(); // Get the current path from next/navigation
+
+  useEffect(() => {
+    // Check if window is defined (indicating client-side rendering)
+    setIsClient(true);
+  }, []);
+
+  // Function to check if the current route matches the menu item's href
+  const isActive = (href: string) => pathname === href;
+
+  if (!isClient) {
+    return null; // Prevent rendering until client-side is available
+  }
   return (
     <Sidebar>
       <SidebarContent className='flex flex-col'>
@@ -91,7 +106,13 @@ export function SideBar() {
                   ) : (
                     <SidebarMenuItem>
                       <Link href={item.href ? item.href : ''}>
-                        <SidebarMenuButton>
+                        <SidebarMenuButton
+                          className={`font-bold ${
+                            isActive(String(item.href) || '')
+                              ? 'bg-gray-200 hover:bg-gray-200'
+                              : ''
+                          }`}
+                        >
                           {item.icon}
                           {item.label}
                         </SidebarMenuButton>
