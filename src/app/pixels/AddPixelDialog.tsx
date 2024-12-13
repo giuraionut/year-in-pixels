@@ -54,7 +54,7 @@ export default function AddPixelDialog({
     (pixel) => pixel.pixelDate.getDate() === date.getDate()
   );
   const FormSchema = z.object({
-    mood: z.string({ required_error: 'Please select a mood.' }),
+    moodId: z.string().min(1, { message: 'Please select an option' }),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -84,7 +84,7 @@ export default function AddPixelDialog({
   }, []);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    if (data.mood === 'none' && pixel) {
+    if (data.moodId === 'reset' && pixel) {
       try {
         const deletedPixel = await deleteUserPixel(pixel as Pixel);
         if (deletedPixel) {
@@ -96,7 +96,7 @@ export default function AddPixelDialog({
           });
 
           setUserMood(null);
-          form.resetField('mood');
+          form.resetField('moodId');
         }
       } catch (error) {
         console.log(error);
@@ -107,10 +107,10 @@ export default function AddPixelDialog({
       }
     }
 
-    if (date && data.mood !== 'none') {
+    if (date && data.moodId !== 'reset') {
       const pixel = {
         pixelDate: date,
-        moodId: data.mood,
+        moodId: data.moodId,
         createdAt: new Date(),
         id: '',
         userId: '',
@@ -180,7 +180,7 @@ export default function AddPixelDialog({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name='mood'
+              name='moodId'
               render={({ field }) => (
                 <FormItem>
                   {loading ? (
@@ -219,12 +219,12 @@ export default function AddPixelDialog({
                               {userMood && (
                                 <SelectItem
                                   key='0'
-                                  value='none'
+                                  value='reset'
                                   className='capitalize'
                                 >
                                   <div className='flex gap-3 items-center'>
                                     <div className='h-4 w-4 rounded-md'></div>
-                                    <span>None</span>
+                                    <span>Reset</span>
                                   </div>
                                 </SelectItem>
                               )}

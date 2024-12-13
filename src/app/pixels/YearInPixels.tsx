@@ -71,7 +71,7 @@ export default function YearInPixels() {
               className={`
               ${
                 date.getMonth() === month
-                  ? 'bg-slate-500 text-white hover:bg-slate-400'
+                  ? 'bg-slate-700 text-white hover:bg-slate-400'
                   : ''
               }
             `}
