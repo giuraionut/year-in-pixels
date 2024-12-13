@@ -8,30 +8,24 @@ export default function generateChartData(pixels: Pixel[]) {
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = moods.reduce((acc: any[], curr) => {
-        // Check if the mood already exists in the accumulator
         const existingMood = acc.find((mood) => mood.moodName === curr.moodName);
 
         if (existingMood) {
-            // If the mood exists, increment the quantity
             existingMood.quantity += 1;
         } else {
-            // If the mood doesn't exist, create a new object for it
             acc.push({
                 moodName: curr.moodName,
-                quantity: 1, // Start the count at 1
-                fill: curr.moodColor, // Add the fill
+                quantity: 1,
+                fill: curr.moodColor,
             });
         }
         return acc;
     }, []);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config = moods.reduce((acc: any, curr) => {
-        // Add the 'moods' field as a label
         if (!acc.quantity) {
             acc.quantity = { label: 'Value' };
         }
-
-        // Add each mood as a separate entry in the object
         acc[curr.moodName.toLowerCase()] = {
             label: curr.moodName.toLowerCase(),
             fill: curr.moodColor,

@@ -1,25 +1,32 @@
-'use client';
+import { Color } from '@/app/moods/Moods.types';
+import { ColorPicker } from '@/components/color-picker';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
-import { useState } from 'react';
-import { ColorPicker } from './color-picker';
-type Color = {
-  name: string;
-  value: string;
+type ColorPickerFormProps = {
+  value: { name: string; value: string };
+  onChange: (color: { name: string; value: string }) => void;
+  className: string;
+  defaultColor?: Color;
 };
-export function ColorPickerForm({ defaultColor }: { defaultColor?: Color }) {
-  const [color, setColor] = useState<Color>(
-    defaultColor
-      ? defaultColor
-      : {
-          name: 'Custom Color',
-          value: '#000000',
-        }
-  );
 
+export function ColorPickerForm({
+  value,
+  onChange,
+  className,
+  defaultColor,
+}: ColorPickerFormProps) {
   return (
-    <div className='space-y-2'>
-      <ColorPicker color={color} onChange={setColor} />
-      <input type='hidden' name='color' value={JSON.stringify(color)} />
+    <div className={cn('', className)}>
+      <ColorPicker color={defaultColor} onChange={onChange} />
+
+      <Input
+        type='color'
+        value={value.value}
+        onChange={(e) => onChange({ name: value.name, value: e.target.value })}
+        className='sr-only'
+        aria-label='Select custom color'
+      />
     </div>
   );
 }

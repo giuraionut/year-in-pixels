@@ -12,5 +12,11 @@ export type EditMoodDialogProps = {
 export type MoodsTableProps = {
     data: Mood[];
     setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>;
-    loading:boolean;
+    loading: boolean;
 };
+
+export type Color = {
+    name: string;
+    value: string;
+};
+

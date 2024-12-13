@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 import {
   Popover,
   PopoverContent,
@@ -36,8 +35,8 @@ const colors = [
 ];
 
 type ColorPickerProps = {
-  color: Color;
-  onChange: (color: Color) => void;
+  color?: Color;
+  onChange?: (color: Color) => void;
 };
 
 type Color = {
@@ -48,11 +47,13 @@ type Color = {
 export function ColorPicker({ color, onChange }: ColorPickerProps) {
   const [open, setOpen] = React.useState(false);
   const colorInputRef = React.useRef<HTMLInputElement>(null);
-  const [selectedColor, setSelectedColor] = React.useState<Color>(color);
+  const [selectedColor, setSelectedColor] = React.useState<Color>(
+    color ? color : { name: 'No color', value: '#000' }
+  );
 
   const handleColorChange = (newColor: Color) => {
     setSelectedColor(newColor);
-    onChange(newColor);
+    if (onChange) onChange(newColor);
   };
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,7 +62,7 @@ export function ColorPicker({ color, onChange }: ColorPickerProps) {
           variant='outline'
           role='combobox'
           aria-expanded={open}
-          className='w-[280px] justify-between'
+          className='w-full justify-between'
         >
           {selectedColor ? (
             <div className='flex items-center gap-2'>
@@ -77,7 +78,7 @@ export function ColorPicker({ color, onChange }: ColorPickerProps) {
           <ChevronDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-[280px] p-2 flex flex-col gap-3'>
+      <PopoverContent className='w-full p-2 flex flex-col gap-3'>
         <div className='grid grid-cols-5 gap-2 mb-2 m-auto w-full place-items-center'>
           {colors.map((color) => (
             <div
@@ -88,7 +89,7 @@ export function ColorPicker({ color, onChange }: ColorPickerProps) {
                 handleColorChange(color);
                 setOpen(false);
                 if (colorInputRef.current) {
-                  colorInputRef.current.value = color.value; // Synchronize with the input
+                  colorInputRef.current.value = color.value;
                 }
               }}
             >
@@ -123,7 +124,7 @@ export function ColorPicker({ color, onChange }: ColorPickerProps) {
             />
           </Card>
           <span className='text-xs font-medium'>
-            {selectedColor?.value || '#000000'}
+            {selectedColor?.value || '#00'}
           </span>
         </div>
       </PopoverContent>

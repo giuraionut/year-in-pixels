@@ -42,9 +42,6 @@ export const addUserMood = async (mood: Mood): Promise<Mood | null> => {
   }
 };
 
-//here you need to delete the pixels that use this mood first before you delete the mood
-//check a way to notify the user that this mood is used in pixels when they try to delete it
-
 export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
   const session = await getServerSession(authOptions);
 
@@ -90,16 +87,14 @@ export const deleteUserMood = async (
   mood.userId = userId;
 
   try {
-    // Check if the mood is used by any Pixel
     const pixelCount = await db.pixel.count({
       where: {
         moodId: mood.id,
-        userId: userId, // Ensure it's the correct user's mood
+        userId: userId,
       },
     });
 
     if (pixelCount > 0) {
-      // Delete associated pixels first
       await db.pixel.deleteMany({
         where: {
           moodId: mood.id,
@@ -108,7 +103,6 @@ export const deleteUserMood = async (
       });
     }
 
-    // Proceed to delete the mood after deleting associated pixels
     const deletedMood = await db.mood.delete({
       where: {
         id: mood.id,
@@ -141,9 +135,7 @@ export const deleteUserMoodsBulk = async (
   try {
     const deletedMoods: Mood[] = [];
 
-    // Step 1: Iterate over each mood ID to check and delete associated pixels individually
     for (const moodId of moodIds) {
-      // Count the pixels associated with the current mood
       const pixelCount = await db.pixel.count({
         where: {
           moodId: moodId,
@@ -152,7 +144,6 @@ export const deleteUserMoodsBulk = async (
       });
 
       if (pixelCount > 0) {
-        // Delete the associated pixels for this specific mood
         await db.pixel.deleteMany({
           where: {
             moodId: moodId,
@@ -160,20 +151,14 @@ export const deleteUserMoodsBulk = async (
           },
         });
       }
-
-      // Step 2: Now delete the mood after deleting the associated pixels
       const deletedMood = await db.mood.delete({
         where: {
           id: moodId,
           userId: userId,
         },
       });
-
-      // Add the deleted mood to the array
       deletedMoods.push(deletedMood);
     }
-
-    // If at least one mood was deleted, return the deleted moods
     if (deletedMoods.length > 0) {
       return { deletedMoods, error: null };
     } else {

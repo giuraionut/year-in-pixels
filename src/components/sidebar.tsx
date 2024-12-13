@@ -52,19 +52,17 @@ const menuItems: MenuItem[] = [
 import { usePathname } from 'next/navigation';
 
 export function SideBar() {
-  const [isClient, setIsClient] = useState(false); // Track if we are on the client-side
-  const pathname = usePathname(); // Get the current path from next/navigation
+  const [isClient, setIsClient] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Check if window is defined (indicating client-side rendering)
     setIsClient(true);
   }, []);
 
-  // Function to check if the current route matches the menu item's href
   const isActive = (href: string) => pathname === href;
 
   if (!isClient) {
-    return null; // Prevent rendering until client-side is available
+    return null;
   }
   return (
     <Sidebar>

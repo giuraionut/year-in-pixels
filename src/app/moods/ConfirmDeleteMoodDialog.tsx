@@ -9,17 +9,14 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions'; // Backend function
+import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
 import { Mood } from '@prisma/client';
 import { toast } from '@/hooks/use-toast';
 
 type DeleteMoodModalProps = {
   setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>;
   children: React.ReactNode;
-} & (
-  | { mood: Mood; moods?: never } // If mood is provided, moods cannot be provided
-  | { moods: Mood[]; mood?: never }
-); // If moods is provided, mood cannot be provided
+} & ({ mood: Mood; moods?: never } | { moods: Mood[]; mood?: never });
 
 const DeleteMoodModal = ({
   moods,
@@ -58,7 +55,7 @@ const DeleteMoodModal = ({
       }
     }
 
-    setOpen(false); // Close the modal after the operation
+    setOpen(false);
   };
 
   return (

@@ -37,10 +37,9 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
-import { MoodsTableProps } from './Moods.types';
+import { Color, MoodsTableProps } from './Moods.types';
 import AddMoodDialog from './AddMoodDialog';
 import EditMoodDialog from './EditMoodDialog';
-import { Color } from '@/types/prisma';
 import DeleteMoodModal from './ConfirmDeleteMoodDialog';
 
 export default function MoodsTable({

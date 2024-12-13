@@ -29,18 +29,13 @@ export default function SignIn() {
 
     fetchProviders();
 
-    // Redirect if the user is already logged in
     if (session) {
-      router.push('/dashboard'); // Change '/dashboard' to your desired page
+      router.push('/dashboard');
     }
   }, [session, router]);
 
-  // Prevent the page from rendering until session and providers are loaded
   if (status === 'loading' || !providers) return <LoadingDots />;
-
-  // Only render the login UI if the user is not logged in
   if (session) return null;
-
   return (
     <div className='container px-6 py-6 mx-auto gap-6 max-w-[400px]'>
       <Card className='p-5 flex flex-col gap-5'>

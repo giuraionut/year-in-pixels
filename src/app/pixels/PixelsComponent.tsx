@@ -73,7 +73,7 @@ export default function PixelsComponent({ date }: PixelComponentProps) {
           date={selectedDate}
           open={open}
           setOpen={setOpen}
-          setPixels={setPixels} // Ensure the updated pixels are passed back to the parent component
+          setPixels={setPixels}
           pixels={pixels}
         />
       )}
