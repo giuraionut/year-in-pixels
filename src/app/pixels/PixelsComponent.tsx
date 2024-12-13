@@ -10,7 +10,7 @@ import { getUserPixelsByRange } from '@/actions/pixelActions';
 import { Pixel } from '@prisma/client';
 
 export default function PixelsComponent({ date }: PixelComponentProps) {
-  const { daysByMonth, weekdayNames } = calendarUtils();
+  const { daysByMonth, weekdayNames } = calendarUtils(date);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [pixels, setPixels] = useState<Pixel[]>([]);

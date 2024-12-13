@@ -1,8 +1,33 @@
+/**
+ * Utility function to generate calendar-related data for a given year.
+ *
+ * This function processes a `Date` object and returns detailed information about the months, weekdays, and days of the given year.
+ * It calculates the total days in each month and categorizes them by weekdays, while also identifying the current day.
+ *
+ * @param {Date} date - A `Date` object representing the reference date (typically the current date).
+ * @returns {Object} An object containing:
+ * - `months`: An array of month objects, each containing:
+ *    - `index`: The month index (0-based).
+ *    - `name`: The full name of the month.
+ *    - `totalDays`: The total number of days in the month.
+ * - `daysByMonth`: A record with keys as month indices and values as arrays of day objects, each containing:
+ *    - `dayIndex`: The 1-based index of the day.
+ *    - `weekdayIndex`: The weekday index (0 for Sunday, 6 for Saturday).
+ *    - `currentDay`: A boolean indicating if the day is the current date.
+ * - `weekdayNames`: An array of weekday names from Monday to Sunday.
+ *
+ * @example
+ * const date = new Date(); // Current date
+ * const calendar = calendarUtils(date);
+ * console.log(calendar.months); // Array of month details
+ * console.log(calendar.daysByMonth); // Record of days categorized by months
+ * console.log(calendar.weekdayNames); // Weekday names array (["Monday", "Tuesday", ...])
+ *
+ * @throws {Error} If the provided date is invalid.
+ */
 
-export default function calendarUtils() {
-  const date = new Date();
+export default function calendarUtils(date: Date) {
   const currentYear = date.getFullYear();
-
 
   const weekdayNames = [
     'Monday',

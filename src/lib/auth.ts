@@ -1,5 +1,4 @@
-// lib/auth.ts
-import db from "@/lib/db";  // assuming db is needed later for session handling
+import db from "@/lib/db";
 import { AuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
@@ -15,8 +14,8 @@ declare module "next-auth" {
     }
 }
 export const authOptions: AuthOptions = {
-    pages:{
-        signIn:'/auth/signin'
+    pages: {
+        signIn: '/auth/signin'
     },
     providers: [
         GoogleProvider({
