@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
-export function DarkModeToggle({ className }: { className?: string }) {
+export function ThemeModeToggle({ className }: { className?: string }) {
   const { setTheme } = useTheme();
 
   return (
