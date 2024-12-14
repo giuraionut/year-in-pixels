@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -7,11 +7,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
-import { Mood } from '@prisma/client';
-import { toast } from '@/hooks/use-toast';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { deleteUserMood, deleteUserMoodsBulk } from "@/actions/moodActions";
+import { Mood } from "@prisma/client";
+import { toast } from "@/hooks/use-toast";
 
 type DeleteMoodModalProps = {
   setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>;
@@ -28,30 +28,25 @@ const DeleteMoodModal = ({
 
   const handleConfirmDelete = async () => {
     if (mood) {
-      const { deletedMood, error } = await deleteUserMood(mood);
+      const deletedMood = await deleteUserMood(mood);
 
-      if (error) {
-        toast({ title: 'There was an error, please try again!' });
-      } else if (deletedMood) {
-        setUserMoods((prevMoods) =>
-          prevMoods.filter((item) => item.id !== deletedMood.id)
-        );
-        toast({ title: 'Mood deleted successfully!' });
+      if (deletedMood) {
+        toast({ title: "There was an error, please try again!" });
+      } else {
+        toast({ title: "There was an error, please try again!" });
       }
     }
     if (moods) {
       const selectedMoodsIds = moods.map((mood) => mood.id);
 
-      const { deletedMoods, error } = await deleteUserMoodsBulk(
-        selectedMoodsIds
-      );
-      if (error) {
-        toast({ title: 'There was an error, please try again!' });
-      } else if (deletedMoods) {
+      const deletedUserMoods = await deleteUserMoodsBulk(selectedMoodsIds);
+      if (deletedUserMoods) {
         setUserMoods((prevMoods) =>
           prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
         );
-        toast({ title: 'Moods deleted successfully!' });
+        toast({ title: "Moods deleted successfully!" });
+      } else {
+        toast({ title: "There was an error, please try again!" });
       }
     }
 
@@ -64,19 +59,19 @@ const DeleteMoodModal = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mood && 'Are you sure you want to delete this mood?'}
-            {moods && 'Are you sure you want to all the selected moods?'}
+            {mood && "Are you sure you want to delete this mood?"}
+            {moods && "Are you sure you want to all the selected moods?"}
           </DialogTitle>
           <DialogDescription>
-            {mood && 'Pixels associated with it will be deleted as well.'}
-            {moods && 'Pixels associated with them will be deleted as well.'}
+            {mood && "Pixels associated with it will be deleted as well."}
+            {moods && "Pixels associated with them will be deleted as well."}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={() => setOpen(false)} variant='outline'>
+          <Button onClick={() => setOpen(false)} variant="outline">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} variant='destructive'>
+          <Button onClick={handleConfirmDelete} variant="destructive">
             Yes, delete
           </Button>
         </DialogFooter>

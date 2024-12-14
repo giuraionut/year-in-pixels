@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   DialogHeader,
@@ -7,24 +7,24 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Mood, Pixel } from '@prisma/client';
-import { Skeleton } from '@/components/ui/skeleton';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from '@/hooks/use-toast';
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Mood, Pixel } from "@prisma/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -33,12 +33,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { AddPixelDialogProps } from './Pixels.type';
-import { CircleX } from 'lucide-react';
-import { getUserMoods } from '@/actions/moodActions';
-import { addUserPixel, deleteUserPixel } from '@/actions/pixelActions';
-import React from 'react';
+} from "@/components/ui/form";
+import { AddPixelDialogProps } from "./Pixels.type";
+import { CircleX } from "lucide-react";
+import { getUserMoods } from "@/actions/moodActions";
+import { addUserPixel, deleteUserPixel } from "@/actions/pixelActions";
+import React from "react";
 
 export default function AddPixelDialog({
   date,
@@ -54,7 +54,7 @@ export default function AddPixelDialog({
     (pixel) => pixel.pixelDate.getDate() === date.getDate()
   );
   const FormSchema = z.object({
-    moodId: z.string().min(1, { message: 'Please select an option' }),
+    moodId: z.string().min(1, { message: "Please select an option" }),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -84,7 +84,7 @@ export default function AddPixelDialog({
   }, []);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    if (data.moodId === 'reset' && pixel) {
+    if (data.moodId === "reset" && pixel) {
       try {
         const deletedPixel = await deleteUserPixel(pixel as Pixel);
         if (deletedPixel) {
@@ -92,28 +92,28 @@ export default function AddPixelDialog({
             prevPixels.filter((p) => p.id !== deletedPixel.id)
           );
           toast({
-            title: 'Pixel deleted successfully!',
+            title: "Pixel deleted successfully!",
           });
 
           setUserMood(null);
-          form.resetField('moodId');
+          form.resetField("moodId");
         }
       } catch (error) {
         console.log(error);
         toast({
-          title: 'Error',
-          description: 'Could not delete pixel. Please try again.',
+          title: "Error",
+          description: "Could not delete pixel. Please try again.",
         });
       }
     }
 
-    if (date && data.moodId !== 'reset') {
+    if (date && data.moodId !== "reset") {
       const pixel = {
         pixelDate: date,
         moodId: data.moodId,
         createdAt: new Date(),
-        id: '',
-        userId: '',
+        id: "",
+        userId: "",
       };
       try {
         FormSchema.parse(pixel);
@@ -125,22 +125,22 @@ export default function AddPixelDialog({
           setPixels(newPixels);
           setOpen(false);
           toast({
-            title: 'Pixel created successfully!',
+            title: "Pixel created successfully!",
           });
         }
       } catch (error) {
         if (error instanceof z.ZodError) {
           error.errors.forEach((err) => {
             toast({
-              title: 'Input error, verify the data',
+              title: "Input error, verify the data",
               description: err.message,
-              variant: 'destructive',
+              variant: "destructive",
             });
           });
         } else {
           toast({
-            title: 'Error',
-            description: 'Could not add pixel. Please try again.',
+            title: "Error",
+            description: "Could not add pixel. Please try again.",
           });
         }
       }
@@ -150,9 +150,9 @@ export default function AddPixelDialog({
 
   function getPlaceholder() {
     return userMood ? (
-      <div className='flex gap-3 items-center'>
+      <div className="flex gap-3 items-center">
         <div
-          className='h-4 w-4 rounded-md'
+          className="h-4 w-4 rounded-md"
           style={{
             backgroundColor: userMood.color.value,
           }}
@@ -160,13 +160,13 @@ export default function AddPixelDialog({
         <span>{userMood.name}</span>
       </div>
     ) : (
-      'Select a mood'
+      "Select a mood"
     );
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {/* {day.dayIndex} - {weekdayNames[day.weekdayIndex]} */}
@@ -180,50 +180,50 @@ export default function AddPixelDialog({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name='moodId'
+              name="moodId"
               render={({ field }) => (
                 <FormItem>
                   {loading ? (
-                    <div className='grid gap-4 py-4'>
-                      <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2'>
-                        <Skeleton className='h-4 text-left md:text-right md:col-span-1 col-span-full max-w-[100px]' />
-                        <Skeleton className='h-8 col-span-full md:col-span-3' />
-                        <Skeleton className='h-2 col-span-full md:col-start-2 md:col-span-3' />
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2">
+                        <Skeleton className="h-4 text-left md:text-right md:col-span-1 col-span-full max-w-[100px]" />
+                        <Skeleton className="h-8 col-span-full md:col-span-3" />
+                        <Skeleton className="h-2 col-span-full md:col-start-2 md:col-span-3" />
                       </div>
                     </div>
                   ) : userMoods.length > 0 ? (
-                    <div className='grid gap-4 py-4'>
-                      <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2'>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2">
                         <FormLabel
-                          htmlFor='mood'
-                          className='text-left md:text-right md:col-span-1 col-span-full'
+                          htmlFor="mood"
+                          className="text-left md:text-right md:col-span-1 col-span-full"
                         >
                           Mood
                         </FormLabel>
 
-                        <div className='col-span-full md:col-span-3'>
+                        <div className="col-span-full md:col-span-3">
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            name='select-mood'
+                            name="select-mood"
                           >
                             <FormControl>
                               <SelectTrigger
-                                id='mood'
-                                className='capitalize w-full'
+                                id="mood"
+                                className="capitalize w-full"
                               >
                                 <SelectValue placeholder={getPlaceholder()} />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className='overflow-y-auto max-h-[10rem]'>
+                            <SelectContent className="overflow-y-auto max-h-[10rem]">
                               {userMood && (
                                 <SelectItem
-                                  key='0'
-                                  value='reset'
-                                  className='capitalize'
+                                  key="0"
+                                  value="reset"
+                                  className="capitalize"
                                 >
-                                  <div className='flex gap-3 items-center'>
-                                    <div className='h-4 w-4 rounded-md'></div>
+                                  <div className="flex gap-3 items-center">
+                                    <div className="h-4 w-4 rounded-md"></div>
                                     <span>Reset</span>
                                   </div>
                                 </SelectItem>
@@ -232,11 +232,11 @@ export default function AddPixelDialog({
                                 <SelectItem
                                   key={userMood.id}
                                   value={userMood.id}
-                                  className='capitalize'
+                                  className="capitalize"
                                 >
-                                  <div className='flex gap-3 items-center'>
+                                  <div className="flex gap-3 items-center">
                                     <div
-                                      className='h-4 w-4 rounded-md'
+                                      className="h-4 w-4 rounded-md"
                                       style={{
                                         backgroundColor: userMood.color.value,
                                       }}
@@ -249,14 +249,14 @@ export default function AddPixelDialog({
                           </Select>
                         </div>
 
-                        <FormMessage className='col-span-full md:col-start-2 md:col-span-3' />
+                        <FormMessage className="col-span-full md:col-start-2 md:col-span-3" />
 
-                        <FormDescription className='col-span-full md:col-start-2 md:col-span-3'>
+                        <FormDescription className="col-span-full md:col-start-2 md:col-span-3">
                           <span>
-                            Manage your moods{' '}
+                            Manage your moods{" "}
                             <Link
-                              href='/moods'
-                              className='underline text-blue-300'
+                              href="/moods"
+                              className="underline text-blue-300"
                             >
                               here
                             </Link>
@@ -268,7 +268,7 @@ export default function AddPixelDialog({
                   ) : (
                     <div>
                       {`You don't have any moods yet, create them `}
-                      <Link href='/moods' className='underline text-blue-300'>
+                      <Link href="/moods" className="underline text-blue-300">
                         here
                       </Link>
                       .
@@ -278,7 +278,7 @@ export default function AddPixelDialog({
               )}
             />
             <DialogFooter>
-              <Button type='submit'>Save changes</Button>
+              <Button type="submit">Save changes</Button>
             </DialogFooter>
           </form>
         </Form>

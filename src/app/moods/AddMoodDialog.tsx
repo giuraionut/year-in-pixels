@@ -129,7 +129,7 @@ export default function AddMoodDialog({
                 name='color'
                 render={({ field }) => (
                   <FormItem>
-                    <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2 bg-slate-300'>
+                    <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2'>
                       <FormLabel
                         htmlFor='color'
                         className='text-left md:text-right md:col-span-1 col-span-full'

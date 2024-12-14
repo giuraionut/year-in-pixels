@@ -1,5 +1,5 @@
-import { ChevronRight, LayoutDashboard, Notebook, Smile } from 'lucide-react';
-import React, { ReactElement, useEffect, useState } from 'react';
+import { ChevronRight, LayoutDashboard, Notebook, Smile } from "lucide-react";
+import React, { ReactElement, useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,15 +11,15 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import Link from 'next/link';
-import { Url } from 'next/dist/shared/lib/router/router';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/collapsible";
+import Link from "next/link";
+import { Url } from "next/dist/shared/lib/router/router";
+import { useRouter } from "next/navigation";
 
 type MenuItem = {
   label: string;
@@ -31,25 +31,25 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   {
-    label: 'Dashboard',
-    icon: <LayoutDashboard className='mr-2' strokeWidth={2} />,
+    label: "Dashboard",
+    icon: <LayoutDashboard className="mr-2" strokeWidth={2} />,
     isCollapsible: false,
-    href: '/dashboard',
+    href: "/dashboard",
   },
   {
-    label: 'Pixels',
-    icon: <Notebook className='mr-2' strokeWidth={2} />,
+    label: "Pixels",
+    icon: <Notebook className="mr-2" strokeWidth={2} />,
     isCollapsible: false,
-    href: '/pixels',
+    href: "/pixels",
   },
   {
-    label: 'Moods',
-    icon: <Smile className='mr-2' strokeWidth={2} />,
+    label: "Moods",
+    icon: <Smile className="mr-2" strokeWidth={2} />,
     isCollapsible: false,
-    href: '/moods',
+    href: "/moods",
   },
 ];
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 
 export function SideBar() {
   const [isClient, setIsClient] = useState(false);
@@ -66,11 +66,11 @@ export function SideBar() {
   }
   return (
     <Sidebar>
-      <SidebarContent className='flex flex-col'>
+      <SidebarContent className="flex flex-col">
         <SidebarGroup>
           <SidebarGroupLabel>Year in Pixels</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className=''>
+            <SidebarMenu className="">
               {menuItems.map((item, index) => (
                 <React.Fragment key={index}>
                   {item.isCollapsible ? (
@@ -78,12 +78,12 @@ export function SideBar() {
                       <SidebarMenuItem>
                         <CollapsibleTrigger
                           asChild
-                          className='flex w-full items-center [&[data-state=open]>.chevron]:rotate-90'
+                          className="flex w-full items-center [&[data-state=open]>.chevron]:rotate-90"
                         >
-                          <SidebarMenuButton className='flex items-center'>
+                          <SidebarMenuButton className="flex items-center">
                             {item.icon}
                             {item.label}
-                            <ChevronRight className='ml-auto chevron transition-all ' />
+                            <ChevronRight className="ml-auto chevron transition-all " />
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
@@ -91,7 +91,7 @@ export function SideBar() {
                             {item.subItems?.map((subItem, subIndex) => (
                               <SidebarMenuSubItem key={subIndex}>
                                 <SidebarMenuButton>
-                                  <Link href={subItem.href ? subItem.href : ''}>
+                                  <Link href={subItem.href ? subItem.href : ""}>
                                     {subItem.label}
                                   </Link>
                                 </SidebarMenuButton>
@@ -103,13 +103,10 @@ export function SideBar() {
                     </Collapsible>
                   ) : (
                     <SidebarMenuItem>
-                      <Link href={item.href ? item.href : ''}>
+                      <Link href={item.href ? item.href : ""}>
                         <SidebarMenuButton
-                          className={`font-bold ${
-                            isActive(String(item.href) || '')
-                              ? 'bg-gray-200 hover:bg-gray-200'
-                              : ''
-                          }`}
+                          isActive={isActive(String(item.href))}
+                          className="font-bold"
                         >
                           {item.icon}
                           {item.label}

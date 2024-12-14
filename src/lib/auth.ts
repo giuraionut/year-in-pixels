@@ -13,9 +13,64 @@ declare module "next-auth" {
         };
     }
 }
+
+/**
+ * Utility: Fetch or Create User and Account
+ */
+const fetchOrCreateUser = async (
+    user: User,
+    account: { provider: string; id: string; type: string }
+) => {
+    const { email, name, image } = user;
+    const { provider, id: providerAccountId, type } = account;
+
+    if (!email) throw new Error("Email is required for OAuth");
+
+    const providerStr = String(provider);
+    const providerAccountIdStr = String(providerAccountId);
+
+    // Find or create user
+    let existingUser = await db.user.findUnique({ where: { email } });
+
+    if (!existingUser) {
+        console.log("Creating new user...");
+        existingUser = await db.user.create({
+            data: {
+                email,
+                name: name || "",
+                image: image || "",
+            },
+        });
+    }
+
+    // Check if account exists, else link the account
+    const existingAccount = await db.account.findUnique({
+        where: {
+            provider_providerAccountId: {
+                provider: providerStr,
+                providerAccountId: providerAccountIdStr,
+            },
+        },
+    });
+
+    if (!existingAccount) {
+        console.log("Linking new account...");
+        await db.account.create({
+            data: {
+                userId: existingUser.id,
+                type,
+                provider: providerStr,
+                providerAccountId: providerAccountIdStr,
+            },
+        });
+    }
+
+    return existingUser;
+};
+
 export const authOptions: AuthOptions = {
     pages: {
-        signIn: '/auth/signin'
+        signIn: "/auth/signin",
     },
     providers: [
         GoogleProvider({
@@ -23,121 +78,61 @@ export const authOptions: AuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
             authorization: {
                 params: {
-                    prompt: 'consent',
-                    access_type: 'offline',
-                    response_type: 'code',
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code",
                 },
             },
         }),
     ],
     callbacks: {
+        /**
+         * JWT Callback: Add user ID to the token
+         */
         async jwt({ token, user }: { token: JWT; user?: User }) {
-            if (user) {
-                token.id = String(user.id);
-            }
+            if (user) token.id = String(user.id);
             return token;
         },
+
+        /**
+         * Session Callback: Add user ID to the session
+         */
         async session({ session }: { session: Session }) {
             const email = session.user?.email;
             if (!email) {
-                console.error("Email is missing in session");
+                console.error("Session error: Missing email");
                 return session;
             }
 
-            const sessionUser = await db.user.findUnique({ where: { email } });
-
-            if (session.user && sessionUser) {
-                session.user.id = sessionUser.id;
+            const dbUser = await db.user.findUnique({ where: { email } });
+            if (dbUser) {
+                session.user.id = dbUser.id;
             } else {
-                console.error("User not found in session or DB");
+                console.error("Session error: User not found in database");
             }
 
             return session;
         },
-        async signIn({ user, account, profile }) {
-            console.log(profile);
 
-            if (!account) {
-                throw new Error('Missing account');
-            }
-
-            const email = user.email;
-            const provider = account.provider;
-            const providerAccountId = account?.id;
-            const accountType = account?.type || 'oauth';
-
-            if (!email) {
-                console.error('Email is missing in OAuth profile');
-                return false;
-            }
-
-            const providerStr = provider ? String(provider) : '';
-            const providerAccountIdStr = providerAccountId
-                ? String(providerAccountId)
-                : '';
-
+        /**
+         * Sign-In Callback: Handle user and account creation
+         */
+        async signIn({ user, account }) {
             try {
-                const existingUser = await db.user.findUnique({
-                    where: { email },
+                if (!account) throw new Error("Missing account information");
+
+                await fetchOrCreateUser(user, {
+                    provider: account.provider,
+                    id: String(account.id),
+                    type: account.type || "oauth",
                 });
 
-                if (!existingUser) {
-                    console.log("NO EXISTING USER FOUND");
-                    const newUser = await db.user.create({
-                        data: {
-                            email,
-                            name: user.name || '',
-                            image: user.image || '',
-                        },
-                    });
-                    if (newUser && newUser.id) {
-                        console.log("New user created:", newUser);
-                        await db.account.create({
-                            data: {
-                                userId: newUser.id,
-                                type: accountType,
-                                provider: providerStr,
-                                providerAccountId: providerAccountIdStr,
-                            },
-                        });
-                        return true;
-                    } else {
-                        console.error('Failed to create user');
-                        return false;
-                    }
-                } else {
-                    // Handle existing user logic here
-                }
-                console.log("USER ALREADY EXISTS");
-                // If the user exists, update the account (if needed)
-                const existingAccount = await db.account.findUnique({
-                    where: {
-                        provider_providerAccountId: {
-                            provider: providerStr,
-                            providerAccountId: providerAccountIdStr,
-                        },
-                    },
-                });
-
-                if (!existingAccount) {
-                    console.log("NO EXISTING ACCOUNT FOR PROVIDER");
-                    // If no account exists for this provider, create it
-                    await db.account.create({
-                        data: {
-                            userId: existingUser.id,
-                            type: accountType,
-                            provider: provider,
-                            providerAccountId: providerAccountIdStr, // Default to empty string if null
-                        },
-                    });
-                    console.log("Account linked to existing user:", existingUser.id);
-                }
-
+                console.log("Sign-in successful:", user.email);
                 return true;
             } catch (error) {
-                console.error('Error during signIn callback:', error);
-                return false;  // If there’s an error, prevent sign-in
+                console.error("Sign-in error:", error);
+                return false;
             }
         },
-    }
+    },
 };
