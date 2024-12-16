@@ -2,7 +2,7 @@
 import { Mood } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
 import { getUserMoods } from '@/actions/moodActions';
-import MoodsTable from './moodsTable';
+import MoodsTable from './MoodsTable';
 
 export default function MoodsComponent() {
   const [userMoods, setUserMoods] = useState<Mood[]>([]);
