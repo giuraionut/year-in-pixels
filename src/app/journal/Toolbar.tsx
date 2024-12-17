@@ -21,6 +21,16 @@ import {
   List,
   ListOrdered,
   Code2,
+  Heading1,
+  Heading,
+  Heading2,
+  Heading3,
+  Heading4,
+  Heading5,
+  Heading6,
+  Table,
+  Trash,
+  ListTodo,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 const Toolbar = ({ editor }: { editor: Editor }) => {
@@ -31,7 +41,16 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
   const [isCodeActive, setIsCodeActive] = useState(false);
   const [isBulletListActive, setIsBulletListActive] = useState(false);
   const [isOrderedListActive, setIsOrderedListActive] = useState(false);
-  const [isCodeBlockActive, setIsCodeBlockActive] = useState(false);
+  const [isTaskListActive, setIsTaskListActive] = useState(false);
+  const [isHeadingOneActive, setIsHeadingOneActive] = useState(false);
+  const [isHeadingTwoActive, setIsHeadingTwoActive] = useState(false);
+  const [isHeadingThreeActive, setIsHeadingThreeActive] = useState(false);
+  const [isHeadingFourActive, setIsHeadingFourActive] = useState(false);
+  const [isHeadingFiveActive, setIsHeadingFiveActive] = useState(false);
+  const [isHeadingSixActive, setIsHeadingSixActive] = useState(false);
+
+  const [isCodeBlockLowLightActive, setIsCodeBlocLowLightkActive] =
+    useState(false);
   useEffect(() => {
     if (!editor) return;
 
@@ -42,8 +61,15 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
       setIsStrikethroughActive(editor.isActive('strike'));
       setIsBulletListActive(editor.isActive('bulletList'));
       setIsOrderedListActive(editor.isActive('orderedList'));
+      setIsTaskListActive(editor.isActive('taskList'));
       setIsCodeActive(editor.isActive('code'));
-      setIsCodeBlockActive(editor.isActive('codeBlock'));
+      setIsCodeBlocLowLightkActive(editor.isActive('codeBlock'));
+      setIsHeadingOneActive(editor.isActive('heading', { level: 1 }));
+      setIsHeadingTwoActive(editor.isActive('heading', { level: 2 }));
+      setIsHeadingThreeActive(editor.isActive('heading', { level: 3 }));
+      setIsHeadingFourActive(editor.isActive('heading', { level: 4 }));
+      setIsHeadingFiveActive(editor.isActive('heading', { level: 5 }));
+      setIsHeadingSixActive(editor.isActive('heading', { level: 6 }));
     };
 
     editor.on('update', updateToolbarState);
@@ -88,6 +114,46 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
   const handleCodeBlock = () => {
     editor.chain().focus().toggleCodeBlock().run();
   };
+
+  const handleHeadingOne = () => {
+    editor.chain().focus().toggleHeading({ level: 1 }).run();
+  };
+
+  const handleHeadingTwo = () => {
+    editor.chain().focus().toggleHeading({ level: 2 }).run();
+  };
+
+  const handleHeadingThree = () => {
+    editor.chain().focus().toggleHeading({ level: 3 }).run();
+  };
+
+  const handleHeadingFour = () => {
+    editor.chain().focus().toggleHeading({ level: 4 }).run();
+  };
+
+  const handleHeadingFive = () => {
+    editor.chain().focus().toggleHeading({ level: 5 }).run();
+  };
+
+  const handleHeadingSix = () => {
+    editor.chain().focus().toggleHeading({ level: 6 }).run();
+  };
+
+  const handleCreateTable = (rows: number, cols: number) => {
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows, cols, withHeaderRow: true })
+      .run();
+  };
+
+  const handleDeleteTable = () => {
+    editor.chain().focus().deleteTable().run();
+  };
+
+  const handleTaskList = () => {
+    editor.chain().focus().toggleTaskList().run();
+  };
   return (
     <div className='flex h-5 items-center space-x-4 text-sm'>
       <Toggle
@@ -123,7 +189,8 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
             value='lists'
             aria-label='Lists'
             className={cn('', {
-              'bg-accent': isBulletListActive || isOrderedListActive,
+              'bg-accent':
+                isBulletListActive || isOrderedListActive || isTaskListActive,
             })}
           >
             <List className='h-4 w-4' />
@@ -150,6 +217,16 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
             Bullet List
             <ListBulletIcon className='h-4 w-4' />
           </Toggle>
+          <Toggle
+            value='tasklist'
+            aria-label='Toggle task list'
+            className='flex justify-between w-full'
+            onClick={handleTaskList}
+            pressed={isTaskListActive}
+          >
+            Todo List
+            <ListTodo className='h-4 w-4' />
+          </Toggle>
         </PopoverContent>
       </Popover>
       {/* More formatting options */}
@@ -159,7 +236,10 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
             value='more-formatting-options'
             aria-label='More formatting options'
             className={cn('', {
-              'bg-accent': isStrikethroughActive || isCodeActive,
+              'bg-accent':
+                isStrikethroughActive ||
+                isCodeActive ||
+                isCodeBlockLowLightActive,
             })}
           >
             <Ellipsis className='h-4 w-4' />
@@ -194,7 +274,7 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
             aria-label='Toggle codeblock'
             onClick={handleCodeBlock}
             className={cn('flex justify-between w-full', {
-              'bg-accent': isCodeActive,
+              'bg-accent': isCodeBlockLowLightActive,
             })}
           >
             Code Block
@@ -209,6 +289,143 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
           >
             Clear Formatting
             <Eraser className='h-4 w-4' />
+          </Toggle>
+        </PopoverContent>
+      </Popover>
+      {/* Headings */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Toggle
+            value='headings'
+            aria-label='Headings'
+            className={cn('', {
+              'bg-accent':
+                isHeadingOneActive ||
+                isHeadingTwoActive ||
+                isHeadingThreeActive ||
+                isHeadingFourActive ||
+                isHeadingFiveActive ||
+                isHeadingSixActive,
+            })}
+          >
+            <Heading className='h-4 w-4' />
+          </Toggle>
+        </PopoverTrigger>
+        <PopoverContent className='w-full'>
+          <Toggle
+            value='heading1'
+            aria-label='Toggle heading 1'
+            className={cn('flex justify-between w-full', {
+              'bg-accent': isHeadingOneActive,
+            })}
+            onClick={handleHeadingOne}
+          >
+            Heading 1
+            <Heading1 className='h-4 w-4' />
+          </Toggle>
+
+          <Toggle
+            value='heading2'
+            aria-label='Toggle heading 2'
+            className={cn('flex justify-between w-full', {
+              'bg-accent': isHeadingTwoActive,
+            })}
+            onClick={handleHeadingTwo}
+          >
+            Heading 2
+            <Heading2 className='h-4 w-4' />
+          </Toggle>
+
+          <Toggle
+            value='heading3'
+            aria-label='Toggle heading 3'
+            className={cn('flex justify-between w-full', {
+              'bg-accent': isHeadingThreeActive,
+            })}
+            onClick={handleHeadingThree}
+          >
+            Heading 3
+            <Heading3 className='h-4 w-4' />
+          </Toggle>
+
+          <Toggle
+            value='heading4'
+            aria-label='Toggle heading 4'
+            className={cn('flex justify-between w-full', {
+              'bg-accent': isHeadingFourActive,
+            })}
+            onClick={handleHeadingFour}
+          >
+            Heading 4
+            <Heading4 className='h-4 w-4' />
+          </Toggle>
+
+          <Toggle
+            value='heading5'
+            aria-label='Toggle heading 5'
+            className={cn('flex justify-between w-full', {
+              'bg-accent': isHeadingFiveActive,
+            })}
+            onClick={handleHeadingFive}
+          >
+            Heading 5
+            <Heading5 className='h-4 w-4' />
+          </Toggle>
+
+          <Toggle
+            value='heading6'
+            aria-label='Toggle heading 6'
+            className={cn('flex justify-between w-full', {
+              'bg-accent': isHeadingSixActive,
+            })}
+            onClick={handleHeadingSix}
+          >
+            Heading 6
+            <Heading6 className='h-4 w-4' />
+          </Toggle>
+        </PopoverContent>
+      </Popover>
+      {/* Table */}
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Toggle value='table' aria-label='Insert table'>
+            <Table className='h-4 w-4' />
+          </Toggle>
+        </PopoverTrigger>
+        <PopoverContent className='w-full'>
+          <Toggle
+            value='table-3x3'
+            aria-label='Create 3x3 table'
+            className='flex justify-between w-full'
+            onClick={() => handleCreateTable(3, 3)}
+          >
+            Table <span>3x3</span>
+          </Toggle>
+          <Toggle
+            value='table-4x4'
+            aria-label='Create 4x4 table'
+            className='flex justify-between w-full'
+            onClick={() => handleCreateTable(4, 4)}
+          >
+            Table <span>4x4</span>
+          </Toggle>
+          <Toggle
+            value='table-5x5'
+            aria-label='Create 5x5 table'
+            className='flex justify-between w-full'
+            onClick={() => handleCreateTable(5, 5)}
+          >
+            Table <span>5x5</span>
+          </Toggle>
+          <Toggle
+            value='delete-table'
+            aria-label='Delete table'
+            className='flex justify-between w-full'
+            onClick={handleDeleteTable}
+          >
+            Delete
+            <Trash className='h-4 w-4'></Trash>
           </Toggle>
         </PopoverContent>
       </Popover>

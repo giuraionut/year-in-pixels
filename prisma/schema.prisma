@@ -24,6 +24,7 @@ model User {
   Session  Session[]
   Mood     Mood[]
   Pixel    Pixel[]
+  Diary    Diary[]
 }
 
 model Account {
@@ -59,13 +60,12 @@ model Mood {
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  
+
   name  String
   color Json
   Pixel Pixel[]
 
   @@unique([id, userId])
-
 }
 
 model Pixel {
@@ -79,4 +79,14 @@ model Pixel {
   pixelDate DateTime @default(now())
 
   @@unique([userId, pixelDate])
+}
+
+model Diary {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  content   Json?
+
+  @@unique([id, userId])
 }
