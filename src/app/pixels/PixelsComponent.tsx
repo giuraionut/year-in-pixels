@@ -3,7 +3,7 @@
 import calendarUtils from '../../lib/calendarUtils';
 import { useEffect, useState } from 'react';
 import AddPixelDialog from './AddPixelDialog';
-import { PixelComponentProps } from './Pixels.type';
+import { PixelComponentProps } from './pixel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { getUserPixelsByRange } from '@/actions/pixelActions';

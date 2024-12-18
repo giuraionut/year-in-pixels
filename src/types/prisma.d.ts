@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Prisma } from '@prisma/client';
-import { Color } from '@/app/moods/Moods.types';
+import { Color } from '@/app/moods/mood';
 
 
 declare module '@prisma/client' {

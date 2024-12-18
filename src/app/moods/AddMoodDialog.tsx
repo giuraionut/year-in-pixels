@@ -11,10 +11,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import { AddMoodDialogProps } from './Moods.types';
+import { AddMoodDialogProps } from './mood';
 import { toast } from '@/hooks/use-toast';
 import { addUserMood } from '@/actions/moodActions';
-import { ColorPickerForm } from '@/components/color-picker-form';
+import ColorPickerForm from '@/components/color-picker-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';

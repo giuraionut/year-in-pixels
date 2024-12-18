@@ -19,7 +19,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-export function BarChartComponent({
+export default function BarChartComponent({
   className,
   data,
   config,

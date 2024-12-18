@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
-import { Color, MoodsTableProps } from './Moods.types';
+import { Color, MoodsTableProps } from './mood';
 import AddMoodDialog from './AddMoodDialog';
 import EditMoodDialog from './EditMoodDialog';
 import DeleteMoodModal from './ConfirmDeleteMoodDialog';

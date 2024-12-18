@@ -1,12 +1,8 @@
 import React, { Suspense } from 'react';
-import MoodsComponent from './MoodsComponent';
-import { Metadata } from 'next';
+import './styles.css';
 import { LoadingDots } from '@/components/loading-dots';
-export const metadata: Metadata = {
-  title: 'Moods',
-  description: 'Moods',
-};
-export default function Moods() {
+import DiaryComponent from './DiaryComponent';
+export default function Journal() {
   return (
     <Suspense
       fallback={
@@ -15,7 +11,7 @@ export default function Moods() {
         </div>
       }
     >
-      <MoodsComponent />
+      <DiaryComponent />
     </Suspense>
   );
 }

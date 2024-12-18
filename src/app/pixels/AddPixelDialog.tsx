@@ -34,7 +34,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { AddPixelDialogProps } from './Pixels.type';
+import { AddPixelDialogProps } from './pixel';
 import { CircleX } from 'lucide-react';
 import { getUserMoods } from '@/actions/moodActions';
 import { addUserPixel, deleteUserPixel } from '@/actions/pixelActions';

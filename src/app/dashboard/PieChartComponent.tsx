@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/chart';
 import { cn } from '@/lib/utils';
 
-export function PieChartComponent({
+export default function PieChartComponent({
   className,
   data,
   config,

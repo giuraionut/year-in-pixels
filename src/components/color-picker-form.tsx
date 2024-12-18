@@ -1,4 +1,4 @@
-import { Color } from '@/app/moods/Moods.types';
+import { Color } from '@/app/moods/mood';
 import { ColorPicker } from '@/components/color-picker';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -10,7 +10,7 @@ type ColorPickerFormProps = {
   defaultColor?: Color;
 };
 
-export function ColorPickerForm({
+export default function ColorPickerForm({
   value,
   onChange,
   className,

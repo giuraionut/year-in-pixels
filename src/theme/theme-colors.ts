@@ -228,32 +228,51 @@ const themes = {
 
 export default function setGlobalColorTheme(
     themeMode: 'light' | 'dark',
-    color: ThemeColors,
+    color?: ThemeColors,
     hue?: number
 ) {
-
     const saturation = 70;  // Default saturation
     const lightness = 50;   // Default lightness
-
+    const lightMode = themeMode === 'light';
     // Calculate colors dynamically based on hue and theme mode
     const customTheme = {
-        background: `hsl(${hue}, 100%, ${themeMode === 'light' ? '98%' : '10%'})`,
-        foreground: `hsl(${hue}, 10%, ${themeMode === 'light' ? '20%' : '90%'})`,
-        primary: `hsl(${hue}, 70%, 50%)`,
-        primaryForeground: `hsl(0, 0%, 100%)`,
-        secondary: `hsl(${hue}, 40%, 70%)`,
-        card: `hsl(${hue}, 20%, ${themeMode === 'light' ? '90%' : '15%'})`,
-        cardForeground: `hsl(${hue}, 10%, ${themeMode === 'light' ? '10%' : '90%'})`,
-        accent: `hsl(${hue}, 50%, 60%)`,
-        border: `hsl(${hue}, 10%, 85%)`,
+        background: lightMode ? "0 0% 100%" : `${hue} 84% 4.9%`, //0
+        foreground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240
+        card: lightMode ? "0 0% 100%" : "24 9.8% 10%", //0
+        cardForeground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240
+        popover: lightMode ? "0 0% 100%" : "0 0% 9%", //0
+        popoverForeground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240
+        primary: lightMode ? `${hue} 77.2% 49.8%` : `${hue} 77.2% 49.8%`, //346.8
+        primaryForeground: lightMode ? `${hue} 100% 97.3%` : `${hue} 100% 97.3%`, //355.7
+        secondary: lightMode ? "240 4.8% 95.9%" : "240 3.7% 15.9%", //240
+        secondaryForeground: lightMode ? "240 5.9% 10%" : "0 0% 98%", //240
+        muted: lightMode ? "240 4.8% 95.9%" : "0 0% 15%", //240
+        mutedForeground: lightMode ? "240 3.8% 46.1%" : "240 5% 64.9%",//240
+        accent: lightMode ? "240 4.8% 95.9%" : "12 6.5% 15.1%",//240
+        accentForeground: lightMode ? "240 5.9% 10%" : "0 0% 98%",//240
+        destructive: lightMode ? "0 84.2% 60.2%" : "0 62.8% 30.6%", //0
+        destructiveForeground: lightMode ? "0 0% 98%" : "0 85.7% 97.3%",
+        border: lightMode ? "240 5.9% 90%" : "240 3.7% 15.9%",//240
+        input: lightMode ? "240 5.9% 90%" : "240 3.7% 15.9%",//240
+        ring: lightMode ? `${hue} 77.2% 49.8%` : `${hue} 77.2% 49.8%`, //346.8
+        radius: '0.5rem',
+
     } as {
         [key: string]: string,
     };
-    const theme = themes[color][themeMode] as {
-        [key: string]: string,
+    if (color !== undefined) {
+        const theme = themes[color][themeMode] as {
+            [key: string]: string,
+        }
+
+        for (const key in theme) {
+            document.documentElement.style.setProperty(`--${key}`, theme[key]);
+        }
+    }
+    else {
+        for (const key in customTheme) {
+            document.documentElement.style.setProperty(`--${key}`, customTheme[key]);
+        }
     }
 
-    for (const key in theme) {
-        document.documentElement.style.setProperty(`--${key}`, hue ? customTheme[key] : theme[key]);
-    }
 }

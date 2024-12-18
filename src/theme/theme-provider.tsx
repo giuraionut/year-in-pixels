@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   ThemeProvider as NextThemesProvider,
   ThemeProviderProps,
-} from "next-themes";
-import ThemeDataProvider from "@/context/theme-data-provider";
+} from 'next-themes';
+import ThemeDataProvider from '@/theme/theme-data-provider';
 
 export default function ThemeProvider({
   children,

@@ -33,7 +33,7 @@ import {
   ListTodo,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-const Toolbar = ({ editor }: { editor: Editor }) => {
+export default function Toolbar({ editor }: { editor: Editor }) {
   const [isBoldActive, setIsBoldActive] = useState(false);
   const [isItalicActive, setIsItalicActive] = useState(false);
   const [isUnderlineActive, setIsUnderlineActive] = useState(false);
@@ -431,6 +431,4 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
       </Popover>
     </div>
   );
-};
-
-export default Toolbar;
+}

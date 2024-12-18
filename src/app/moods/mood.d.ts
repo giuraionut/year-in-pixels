@@ -20,3 +20,9 @@ export type Color = {
     value: string;
 };
 
+export type DeleteMoodModalProps = {
+    setUserMoods: React.Dispatch<React.SetStateAction<Mood[]>>;
+    children: React.ReactNode;
+} & ({ mood: Mood; moods?: never } | { moods: Mood[]; mood?: never });
+
+
