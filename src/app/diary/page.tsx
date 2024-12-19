@@ -2,6 +2,11 @@ import React, { Suspense } from 'react';
 import './styles.css';
 import { LoadingDots } from '@/components/loading-dots';
 import DiaryComponent from './DiaryComponent';
+import { Metadata } from 'next';
+export const metadata: Metadata = {
+  title: 'Diary',
+  description: 'Diary',
+};
 export default function Journal() {
   return (
     <Suspense

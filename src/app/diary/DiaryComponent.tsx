@@ -1,5 +1,10 @@
 'use client';
-import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
+import {
+  useEditor,
+  EditorContent,
+  ReactNodeViewRenderer,
+  Content,
+} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Card } from '@/components/ui/card';
 import Code from '@tiptap/extension-code';
@@ -13,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useCallback, useEffect, useState } from 'react';
 import { Diary } from '@prisma/client';
 import { debounce } from 'lodash';
-import { getUserDiaries, upsertUserDiary } from '@/actions/diaryActions';
+import { getUserDiaryByDate, upsertUserDiary } from '@/actions/diaryActions';
 import { sanitizeObject } from './sanitizeEditorContent';
 import Heading from '@tiptap/extension-heading';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
@@ -25,6 +30,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import CodeBlockComponent from './CodeBlockComponent';
 import EditorToolbarComponent from './EditorToolbarComponent';
+import { LoadingDots } from '@/components/loading-dots';
 const lowlight = createLowlight(all);
 
 export default function DiaryComponent() {
@@ -93,27 +99,29 @@ export default function DiaryComponent() {
     },
   });
 
-  const [diaries, setDiaries] = useState<Diary[]>([]);
-
+  const [diary, setDiary] = useState<Diary | undefined>();
+  const [date, setDate] = useState<Date>(new Date());
+  const [loading, setLoading] = useState<boolean>(true);
   const saveContent = useCallback(
     async (content: any) => {
       if (!editor) return;
 
-      const currentDiary = diaries[0] || {
+      const currentDiary = diary || {
         id: '', // No ID means this is a new diary
         userId: '', // Ensure userId is properly set
         createdAt: new Date(),
         content,
+        diaryDate: date,
       };
 
       const updatedDiary = { ...currentDiary, content };
       const savedDiary = await upsertUserDiary(updatedDiary);
 
       if (savedDiary) {
-        setDiaries([savedDiary]); // Update the state with the saved diary
+        setDiary(savedDiary); // Update the state with the saved diary
       }
     },
-    [diaries, editor]
+    [diary, editor]
   );
 
   // Persistent debounced version of saveContent
@@ -125,46 +133,51 @@ export default function DiaryComponent() {
     return jsonDoc ? sanitizeObject(jsonDoc) : {};
   };
 
-  const handleSaveContent = async () => {
-    if (!editor) return;
+  // const handleSaveContent = async () => {
+  //   if (!editor) return;
 
-    const content = getEditorContent();
-    const diary: Diary = {
-      content,
-      id: '', // New diary (no id)
-      userId: '', // Set userId properly
-      createdAt: new Date(),
-    };
+  //   const content = getEditorContent();
+  //   const diary: Diary = {
+  //     content,
+  //     id: '', // New diary (no id)
+  //     userId: '', // Set userId properly
+  //     createdAt: new Date(),
+  //     diaryDate: date,
+  //   };
 
-    // Use upsert to create or update the diary
-    const savedDiary = await upsertUserDiary(diary);
-    if (savedDiary) {
-      setDiaries([savedDiary]); // Update local state with the saved diary
-    }
-  };
+  //   // Use upsert to create or update the diary
+  //   const savedDiary = await upsertUserDiary(diary);
+  //   if (savedDiary) {
+  //     setDiaries([savedDiary]); // Update local state with the saved diary
+  //   }
+  // };
 
-  const handleUpdateContent = async () => {
-    if (!editor || !diaries.length) return;
+  // const handleUpdateContent = async () => {
+  //   if (!editor || !diaries.length) return;
 
-    const updatedDiary = { ...diaries[0], content: getEditorContent() };
-    const savedDiary = await upsertUserDiary(updatedDiary);
+  //   const updatedDiary = { ...diaries[0], content: getEditorContent() };
+  //   const savedDiary = await upsertUserDiary(updatedDiary);
 
-    if (savedDiary) {
-      setDiaries([savedDiary]);
-    }
-  };
+  //   if (savedDiary) {
+  //     setDiaries([savedDiary]);
+  //   }
+  // };
 
   useEffect(() => {
-    const fetchUserDiaries = async () => {
-      const fetchedDiaries = await getUserDiaries();
-      if (fetchedDiaries?.length) {
-        setDiaries(fetchedDiaries);
-        editor?.commands.setContent(fetchedDiaries[0].content);
+    const fetchUserDiary = async () => {
+      const fetchedDiary = await getUserDiaryByDate(date);
+      if (fetchedDiary) {
+        setDiary(fetchedDiary);
+        editor?.commands.setContent(fetchedDiary.content as Content);
+      } else {
+        setDiary(undefined);
+        editor?.commands.clearContent();
       }
+      setLoading(false);
     };
 
-    fetchUserDiaries();
-  }, [editor]);
+    fetchUserDiary();
+  }, [editor, date]);
 
   function handleClickOnCard() {
     if (editor) editor.chain().focus();
@@ -173,14 +186,21 @@ export default function DiaryComponent() {
     <div className='p-5 flex flex-col gap-3'>
       {editor && (
         <div>
-          <EditorToolbarComponent editor={editor} />
+          <EditorToolbarComponent
+            editor={editor}
+            date={date}
+            setDate={setDate}
+          />
         </div>
       )}
 
       <Card className='p-3 rounded-md' onClick={handleClickOnCard}>
-        <EditorContent
-          editor={editor}
-          className='
+        {loading ? (
+          <LoadingDots />
+        ) : (
+          <EditorContent
+            editor={editor}
+            className='
                focus:outline-none
                focus:ring-0
                focus-visible:outline-none
@@ -191,9 +211,9 @@ export default function DiaryComponent() {
                min-h-[150px]
                bg-background
              '
-        />
+          />
+        )}
       </Card>
-
       {/* <div className='flex gap-2'>
         <Button onClick={handleSaveContent}>Save to database</Button>
         <Button onClick={handleUpdateContent}>Update</Button>

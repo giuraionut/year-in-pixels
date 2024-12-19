@@ -40,12 +40,12 @@ export default function BarChartComponent({
       <CardHeader>
         <CardTitle className='flex items-center justify-between gap-6'>
           Moods Chart
-          <Button onClick={handleBarChartVertical} className='w-4 h-8'>
-            {barChartVertical ? (
-              <RectangleVertical strokeWidth={3} />
-            ) : (
-              <RectangleHorizontal strokeWidth={3} />
-            )}
+          <Button
+            onClick={handleBarChartVertical}
+            className='w-4 h-8'
+            variant={'outline'}
+          >
+            {barChartVertical ? <RectangleVertical /> : <RectangleHorizontal />}
           </Button>
         </CardTitle>
         <CardDescription>Based on date range</CardDescription>

@@ -20,21 +20,21 @@ export const LoadingDots = ({
       {...props}
     >
       <circle
-        cx='4'
+        cx='3'
         cy='12'
         r='3'
         fill='currentColor'
         className={cn('animate-bounce-delay-1', className)}
       ></circle>
       <circle
-        cx='10'
+        cx='11'
         cy='12'
         r='3'
         fill='currentColor'
         className={cn('animate-bounce-delay-2', className)}
       ></circle>
       <circle
-        cx='16'
+        cx='19'
         cy='12'
         r='3'
         fill='currentColor'

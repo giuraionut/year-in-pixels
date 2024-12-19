@@ -28,14 +28,14 @@ export default function SignIn() {
     };
 
     fetchProviders();
-
-    if (session) {
-      router.push('/dashboard');
-    }
   }, [session, router]);
 
-  if (status === 'loading' || !providers) return <LoadingDots />;
-  if (session) return null;
+  if (status === 'loading' || !providers)
+    return (
+      <div className='  h-full flex items-center justify-center'>
+        <LoadingDots />
+      </div>
+    );
   return (
     <div className='container px-6 py-6 mx-auto gap-6 max-w-[400px]'>
       <Card className='p-5 flex flex-col gap-5'>

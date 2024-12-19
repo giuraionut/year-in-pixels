@@ -10,7 +10,6 @@ export default {
 	theme: {
 		extend: {
 			keyframes: {
-
 				bounceDelay: {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-25%)' },

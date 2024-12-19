@@ -10,7 +10,7 @@ export default function Moods() {
   return (
     <Suspense
       fallback={
-        <div className='  h-full flex items-center justify-center'>
+        <div className='h-full flex items-center justify-center'>
           <LoadingDots />
         </div>
       }

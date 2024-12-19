@@ -13,7 +13,7 @@ export default function Dashboard() {
     <Suspense
       fallback={
         <div className='  h-full flex items-center justify-center'>
-          <LoadingDots></LoadingDots>
+          <LoadingDots />
         </div>
       }
     >

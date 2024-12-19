@@ -35,10 +35,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { AddPixelDialogProps } from './pixel';
-import { CircleX } from 'lucide-react';
 import { getUserMoods } from '@/actions/moodActions';
 import { addUserPixel, deleteUserPixel } from '@/actions/pixelActions';
 import React from 'react';
+import { format } from 'date-fns';
 
 export default function AddPixelDialog({
   date,
@@ -170,7 +170,7 @@ export default function AddPixelDialog({
         <DialogHeader>
           <DialogTitle>
             {/* {day.dayIndex} - {weekdayNames[day.weekdayIndex]} */}
-            {date.toLocaleDateString()}
+            {format(date, 'PPP')}
           </DialogTitle>
           <DialogDescription>
             {`Make changes to your day here. Click save when you're done.`}

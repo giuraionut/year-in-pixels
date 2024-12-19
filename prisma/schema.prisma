@@ -87,6 +87,7 @@ model Diary {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   content   Json?
+  diaryDate DateTime @default(now())
 
-  @@unique([id, userId])
+  @@unique([id, userId, diaryDate])
 }

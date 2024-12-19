@@ -41,6 +41,7 @@ import { Color, MoodsTableProps } from './mood';
 import AddMoodDialog from './AddMoodDialog';
 import EditMoodDialog from './EditMoodDialog';
 import DeleteMoodModal from './ConfirmDeleteMoodDialog';
+import { format } from 'date-fns';
 
 export default function MoodsTable({
   data,
@@ -112,7 +113,7 @@ export default function MoodsTable({
       header: 'Created At',
       cell: ({ row }) => (
         <div className='capitalize'>
-          {(row.getValue('createdAt') as Date).toDateString()}
+          {format(row.getValue('createdAt') as Date, 'PPP')}
         </div>
       ),
     },

@@ -12,7 +12,7 @@ export default function Header({ session }: { session: Session | null }) {
     <header
       className='sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur 
     supports-[backdrop-filter]:bg-background/60 dark:border-border
-    flex items-center p-2'
+    flex items-center gap-4 p-2'
     >
       {session && <SidebarTrigger />}
       <CustomizeUserInterface />

@@ -21,8 +21,12 @@ const availableThemeColors = [
 import * as SliderPrimitive from '@radix-ui/react-slider';
 
 import { Button } from '../components/ui/button';
-import { MoonIcon, SunIcon, SunMoon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../components/ui/popover';
+import { MoonIcon, Palette, SunIcon, SunMoon } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../components/ui/popover';
 import { Label } from '../components/ui/label';
 
 export default function CustomizeUserInterface() {
@@ -72,7 +76,10 @@ export default function CustomizeUserInterface() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant='outline'>Customize</Button>
+        <Button variant='ghost'>
+          Customize
+          <Palette />
+        </Button>
       </PopoverTrigger>
       <PopoverContent className='w-full'>
         <div className='flex flex-col space-y-4'>
@@ -116,13 +123,13 @@ export default function CustomizeUserInterface() {
 
           {/* Light/dark/system mode */}
           <div className='flex gap-3' id='mode-buttons'>
-            <Button onClick={() => setTheme('light')}>
+            <Button variant={'outline'} onClick={() => setTheme('light')}>
               <SunIcon className='h-[1.2rem] w-[1.2rem]' /> Light
             </Button>
-            <Button onClick={() => setTheme('dark')}>
+            <Button variant={'outline'} onClick={() => setTheme('dark')}>
               <MoonIcon className='h-[1.2rem] w-[1.2rem]' /> Dark
             </Button>
-            <Button onClick={() => setTheme('system')}>
+            <Button variant={'outline'} onClick={() => setTheme('system')}>
               <SunMoon className='h-[1.2rem] w-[1.2rem]' /> System
             </Button>
           </div>
