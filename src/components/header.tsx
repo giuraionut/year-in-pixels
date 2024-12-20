@@ -5,7 +5,7 @@ import { Profile } from './profile';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Session } from 'next-auth';
-import CustomizeUserInterface from '../theme/theme-color-toggle';
+import CustomizeUserInterface from '../theme/ThemeColorComponent';
 
 export default function Header({ session }: { session: Session | null }) {
   return (

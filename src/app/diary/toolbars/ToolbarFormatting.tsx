@@ -79,7 +79,7 @@ export default function ToolbarFormatting({ editor }: { editor: Editor }) {
   ];
 
   return (
-    <div className='flex'>
+    <div className='flex flex-wrap'>
       <div className='flex'>
         {formattingOptions.map(
           ({ name, popover, Icon, action }) =>

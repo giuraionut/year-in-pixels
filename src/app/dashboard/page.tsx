@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import DashboardComponent from './DashboardComponent';
-import { LoadingDots } from '@/components/loading-dots';
+import { LoadingDots } from '@/components/icons/loading-dots';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {

@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { LoadingDots } from '@/components/loading-dots';
+import { LoadingDots } from '@/components/icons/loading-dots';
 
 interface Providers {
   [key: string]: ClientSafeProvider;

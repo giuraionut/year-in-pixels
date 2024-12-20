@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import './styles.css';
-import { LoadingDots } from '@/components/loading-dots';
+import { LoadingDots } from '@/components/icons/loading-dots';
 import DiaryComponent from './DiaryComponent';
 import { Metadata } from 'next';
 export const metadata: Metadata = {

@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectLabel,
 } from '@/components/ui/select';
-import './styles.css';
+import '../styles.css';
 
 export default function CodeBlockComponent({
   node: {

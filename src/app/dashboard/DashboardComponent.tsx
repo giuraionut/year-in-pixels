@@ -13,7 +13,7 @@ import { getUserPixels, getUserPixelsByRange } from '@/actions/pixelActions';
 import { endOfYear, startOfYear } from 'date-fns';
 import PieChartComponent from './PieChartComponent';
 import BarChartComponent from './BarChartComponent';
-import generateChartData from './moodChartConfig';
+import generateChartData from './mood-chart-config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Pixel } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';

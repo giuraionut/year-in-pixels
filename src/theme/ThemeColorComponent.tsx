@@ -76,63 +76,81 @@ export default function CustomizeUserInterface() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant='ghost'>
-          Customize
+        <Button variant='ghost' className='flex items-center space-x-2'>
+          <span className='hidden md:block'>Customize</span>
           <Palette />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className='w-full'>
-        <div className='flex flex-col space-y-4'>
-          {/* Color options*/}
-          <Label htmlFor='color-select'>Color</Label>
+      <PopoverContent className='grid gap-6 p-4 w-full max-w-sm'>
+        {/* Color Options */}
+        <div>
+          <Label htmlFor='color-select' className='mb-2'>
+            Color
+          </Label>
           <Select
             name='color-select'
             onValueChange={(value) => handleSelect(value)}
             value={themeColor}
             key={themeColor || customHue}
           >
-            <SelectTrigger className='w-full ring-offset-transparent focus:ring-transparent'>
+            <SelectTrigger className='ring-offset-transparent focus:ring-transparent'>
               <SelectValue placeholder='Select Color' />
             </SelectTrigger>
             <SelectContent className='border-muted'>
               {createSelectItems()}
             </SelectContent>
           </Select>
-          {/* Custom hue slider for colors */}
-          <div className='w-full'>
-            <SliderPrimitive.Root
-              className={cn(
-                'relative flex w-full touch-none select-none items-center'
-              )}
-              id='huePicker'
-              value={[customHue ?? 0]}
-              onValueChange={handleHueChange}
-              max={360}
-              step={1}
-            >
-              <SliderPrimitive.Track
-                className='relative h-5 w-full grow overflow-hidden rounded-md'
-                style={{ background: generateHueGradient() }}
-              >
-                <SliderPrimitive.Range className='absolute h-full' />
-              </SliderPrimitive.Track>
-              <SliderPrimitive.Thumb className='block h-5 w-5 rounded-md border border-primary/50 bg-background/50 shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50' />
-            </SliderPrimitive.Root>
-          </div>
-          <Label htmlFor='mode-button'>Mode</Label>
+        </div>
 
-          {/* Light/dark/system mode */}
-          <div className='flex gap-3' id='mode-buttons'>
-            <Button variant={'outline'} onClick={() => setTheme('light')}>
-              <SunIcon className='h-[1.2rem] w-[1.2rem]' /> Light
-            </Button>
-            <Button variant={'outline'} onClick={() => setTheme('dark')}>
-              <MoonIcon className='h-[1.2rem] w-[1.2rem]' /> Dark
-            </Button>
-            <Button variant={'outline'} onClick={() => setTheme('system')}>
-              <SunMoon className='h-[1.2rem] w-[1.2rem]' /> System
-            </Button>
-          </div>
+        {/* Custom Hue Slider */}
+        <div>
+          <Label htmlFor='huePicker' className='mb-2'>
+            Custom Hue
+          </Label>
+          <SliderPrimitive.Root
+            className='relative flex touch-none select-none items-center w-full'
+            id='huePicker'
+            value={[customHue ?? 0]}
+            onValueChange={handleHueChange}
+            max={360}
+            step={1}
+          >
+            <SliderPrimitive.Track
+              className='relative h-4 w-full overflow-hidden rounded-sm'
+              style={{ background: generateHueGradient() }}
+            >
+              <SliderPrimitive.Range className='absolute h-full' />
+            </SliderPrimitive.Track>
+            <SliderPrimitive.Thumb className='block h-5 w-5 rounded-full border border-primary/50 bg-background/50 shadow-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50' />
+          </SliderPrimitive.Root>
+        </div>
+
+        {/* Mode Selection */}
+        <div className='grid grid-cols-3 gap-3'>
+          <Label htmlFor='mode-buttons' className='col-span-3 mb-2'>
+            Mode
+          </Label>
+          <Button
+            variant='outline'
+            onClick={() => setTheme('light')}
+            className='flex items-center justify-center gap-2'
+          >
+            <SunIcon className='h-5 w-5' /> Light
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => setTheme('dark')}
+            className='flex items-center justify-center gap-2'
+          >
+            <MoonIcon className='h-5 w-5' /> Dark
+          </Button>
+          <Button
+            variant='outline'
+            onClick={() => setTheme('system')}
+            className='flex items-center justify-center gap-2'
+          >
+            <SunMoon className='h-5 w-5' /> System
+          </Button>
         </div>
       </PopoverContent>
     </Popover>

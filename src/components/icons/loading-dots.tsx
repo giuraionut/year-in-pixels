@@ -1,22 +1,17 @@
 import { cn } from '@/lib/utils';
-
-export interface LoadingSpinnerProps extends React.SVGProps<SVGSVGElement> {
-  size?: number; // Optional size prop
-  className?: string; // Tailwind-compatible classes
-}
+import { IconProps } from '../components';
 
 export const LoadingDots = ({
   size = 24, // Default size
   className,
   ...props
-}: LoadingSpinnerProps) => {
+}: IconProps) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
       viewBox='0 0 24 24'
       width={size}
       height={size}
-      //   className={cn('animate-bounce', className)} // Adds Tailwind animations
       {...props}
     >
       <circle

@@ -16,19 +16,17 @@ import AddPixelDialog from './AddPixelDialog';
 import { Pixel } from '@prisma/client';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
 import { startOfMonth, endOfMonth } from 'date-fns';
-import { LoadingDots } from '@/components/loading-dots';
+import { LoadingDots } from '@/components/icons/loading-dots';
 
 export default function YearInPixels() {
-  const year = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState<number>(year);
+  const [date, setDate] = useState<Date>(new Date());
+  const [selectedYear, setSelectedYear] = useState<number>(date.getFullYear());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [pixels, setPixels] = useState<Pixel[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [date, setDate] = useState<Date>(new Date());
-
-  const years = Array.from({ length: 10 }, (_, i) => year - 5 + i);
+  const years = Array.from({ length: 10 }, (_, i) => selectedYear - 5 + i);
 
   const handleSelectYear = (value: string) => {
     const newYear = parseInt(value);
@@ -39,6 +37,8 @@ export default function YearInPixels() {
   };
 
   useEffect(() => {
+    setSelectedYear(date.getFullYear());
+    
     const fetchPixels = async () => {
       const from = startOfMonth(date);
       const to = endOfMonth(date);

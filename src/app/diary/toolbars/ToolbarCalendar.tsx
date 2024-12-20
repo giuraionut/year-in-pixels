@@ -13,7 +13,7 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { Pixel } from '@prisma/client';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
 import CalendarGrid from '@/components/calendar-grid';
-import { LoadingDots } from '@/components/loading-dots';
+import { LoadingDots } from '@/components/icons/loading-dots';
 import {
   Tooltip,
   TooltipContent,

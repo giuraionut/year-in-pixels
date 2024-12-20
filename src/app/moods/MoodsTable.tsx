@@ -194,19 +194,19 @@ export default function MoodsTable({
     actions: 'Actions',
   };
   return (
-    <div className='w-full'>
-      <div className='flex items-center gap-2 py-4'>
+    <div className='w-full flex flex-col gap-4'>
+      <div className='grid grid-cols-4 gap-4'>
         <Input
           placeholder='Filter names...'
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
             table.getColumn('name')?.setFilterValue(event.target.value)
           }
-          className='max-w-sm'
+          className='col-span-4 md:col-span-2'
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='outline' className='ml-auto'>
+            <Button variant='outline' className='col-span-2 md:col-span-1'>
               Columns <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
@@ -231,7 +231,7 @@ export default function MoodsTable({
           </DropdownMenuContent>
         </DropdownMenu>
         <AddMoodDialog setUserMoods={setUserMoods}>
-          <Button>Create new</Button>
+          <Button className='col-span-2 md:col-span-1'>Create new</Button>
         </AddMoodDialog>
       </div>
       {loading ? (
@@ -244,7 +244,7 @@ export default function MoodsTable({
         </div>
       ) : (
         <>
-          <Card>
+          <Card className='rounded-md p-2'>
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (

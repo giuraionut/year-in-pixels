@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import YearInPixels from './YearInPixels';
 import { Metadata } from 'next';
-import { LoadingDots } from '@/components/loading-dots';
+import { LoadingDots } from '@/components/icons/loading-dots';
 export const metadata: Metadata = {
   title: 'Pixels',
   description: 'Pixels',

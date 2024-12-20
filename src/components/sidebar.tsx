@@ -1,6 +1,7 @@
 import {
   ChevronRight,
   LayoutDashboard,
+  LayoutGrid,
   Notebook,
   NotebookPen,
   Smile,
@@ -43,7 +44,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: 'Pixels',
-    icon: <Notebook className='mr-2' strokeWidth={2} />,
+    icon: <LayoutGrid className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
     href: '/pixels',
   },

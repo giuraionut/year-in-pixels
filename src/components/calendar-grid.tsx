@@ -55,8 +55,11 @@ export default function CalendarGrid({
         <Button variant='outline' className='w-4' onClick={handlePrevMonth}>
           <ChevronLeft className='w-4 h-4' />
         </Button>
-        <small className='text-sm font-medium leading-none'>
+        <small className='text-sm font-medium leading-none hidden md:block'>
           {format(date, 'MMMM yyyy')}
+        </small>
+        <small className='text-sm font-medium leading-none md:hidden'>
+          {format(date, 'MMM yyyy')}
         </small>
         <Button variant='outline' className='w-4' onClick={handleNextMonth}>
           <ChevronRight className='w-4 h-4' />

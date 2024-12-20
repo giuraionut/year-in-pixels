@@ -1,11 +1,10 @@
 import { Card } from '@/components/ui/card';
-import ToolbarFormatting from './toolbar-modules/ToolbarFormatting';
+import ToolbarFormatting from './toolbars/ToolbarFormatting';
 import { Editor } from '@tiptap/react';
-import ToolbarHeadings from './toolbar-modules/ToolbarHeadings';
-import ToolbarLists from './toolbar-modules/ToolbarLists';
-import ToolbarTable from './toolbar-modules/ToolbarTable';
-import { Separator } from '@/components/ui/separator';
-import ToolbarCalendar from './toolbar-modules/ToolbarCalendar';
+import ToolbarHeadings from './toolbars/ToolbarHeadings';
+import ToolbarLists from './toolbars/ToolbarLists';
+import ToolbarTable from './toolbars/ToolbarTable';
+import ToolbarCalendar from './toolbars/ToolbarCalendar';
 
 type EditorToolbarComponentProps = {
   editor: Editor;
@@ -19,7 +18,7 @@ export default function EditorToolbarComponent({
   setDate,
 }: EditorToolbarComponentProps) {
   return (
-    <Card className='p-2 flex flex-wrap gap-4 text-sm items-center'>
+    <Card className='p-2 flex flex-wrap gap-4 text-sm items-center rounded-md'>
       <ToolbarFormatting editor={editor} />
       <ToolbarHeadings editor={editor} />
       <ToolbarLists editor={editor} />
