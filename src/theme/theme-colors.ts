@@ -235,43 +235,43 @@ export default function setGlobalColorTheme(
 ) {
     const lightMode = themeMode === 'light';
     const customTheme = {
-        background: lightMode ? "0 0% 100%" : `${hue} 84% 4.9%`, //0
-        foreground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240
-        card: lightMode ? "0 0% 100%" : "24 9.8% 10%", //0
-        cardForeground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240
-        popover: lightMode ? "0 0% 100%" : "0 0% 9%", //0
-        popoverForeground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240
-        primary: lightMode ? `${hue} 77.2% 49.8%` : `${hue} 77.2% 49.8%`, //346.8
-        primaryForeground: lightMode ? `${hue} 100% 97.3%` : `${hue} 100% 97.3%`, //355.7
-        secondary: lightMode ? "240 4.8% 95.9%" : "240 3.7% 15.9%", //240
-        secondaryForeground: lightMode ? "240 5.9% 10%" : "0 0% 98%", //240
-        muted: lightMode ? "240 4.8% 95.9%" : "0 0% 15%", //240
-        mutedForeground: lightMode ? "240 3.8% 46.1%" : "240 5% 64.9%",//240
-        accent: lightMode ? "240 4.8% 95.9%" : "12 6.5% 15.1%",//240
-        accentForeground: lightMode ? "240 5.9% 10%" : "0 0% 98%",//240
-        destructive: lightMode ? "0 84.2% 60.2%" : "0 62.8% 30.6%", //0
+        background: lightMode ? "0 0% 100%" : `${hue} 84% 4.9%`,
+        foreground: lightMode ? "240 10% 3.9%" : "0 0% 95%",
+        card: lightMode ? "0 0% 100%" : "24 9.8% 10%",
+        cardForeground: lightMode ? "240 10% 3.9%" : "0 0% 95%",
+        popover: lightMode ? "0 0% 100%" : "0 0% 9%",
+        popoverForeground: lightMode ? "240 10% 3.9%" : "0 0% 95%",
+        primary: `${hue ?? 0} 77.2% 49.8%`,
+        primaryForeground: `${hue ?? 0} 100% 97.3%`,
+        secondary: lightMode ? "240 4.8% 95.9%" : "240 3.7% 15.9%",
+        secondaryForeground: lightMode ? "240 5.9% 10%" : "0 0% 98%",
+        muted: lightMode ? "240 4.8% 95.9%" : "0 0% 15%",
+        mutedForeground: lightMode ? "240 3.8% 46.1%" : "240 5% 64.9%",
+        accent: lightMode ? "240 4.8% 95.9%" : "12 6.5% 15.1%",
+        accentForeground: lightMode ? "240 5.9% 10%" : "0 0% 98%",
+        destructive: lightMode ? "0 84.2% 60.2%" : "0 62.8% 30.6%",
         destructiveForeground: lightMode ? "0 0% 98%" : "0 85.7% 97.3%",
-        border: lightMode ? "240 5.9% 90%" : "240 3.7% 15.9%",//240
-        input: lightMode ? "240 5.9% 90%" : "240 3.7% 15.9%",//240
-        ring: lightMode ? `${hue} 77.2% 49.8%` : `${hue} 77.2% 49.8%`, //346.8
+        border: lightMode ? "240 5.9% 90%" : "240 3.7% 15.9%",
+        input: lightMode ? "240 5.9% 90%" : "240 3.7% 15.9%",
+        ring: `${hue ?? 0} 77.2% 49.8%`,
         radius: '0.5rem',
+    } as { [key: string]: string };
 
-    } as {
-        [key: string]: string,
-    };
-    if (color !== undefined) {
-        const theme = themes[color][themeMode] as {
-            [key: string]: string,
+    // If `hue` is provided, always use the custom theme
+    if (hue !== undefined && hue !== 0) {
+        for (const key in customTheme) {
+            document.documentElement.style.setProperty(`--${key}`, customTheme[key]);
         }
-
+    } else if (color !== undefined) {
+        // If `color` is provided and `hue` is not, use the predefined theme
+        const theme = themes[color][themeMode] as { [key: string]: string };
         for (const key in theme) {
             document.documentElement.style.setProperty(`--${key}`, theme[key]);
         }
-    }
-    else {
+    } else {
+        // Fallback to custom theme if no `color` is provided
         for (const key in customTheme) {
             document.documentElement.style.setProperty(`--${key}`, customTheme[key]);
         }
     }
-
 }

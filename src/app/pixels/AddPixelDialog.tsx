@@ -64,9 +64,14 @@ export default function AddPixelDialog({
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
-  const pixel = pixels.find(
-    (pixel) => pixel.pixelDate.getDate() === date.getDate()
-  );
+  const pixel = pixels.find((pixel) => {
+    const isSameDate =
+      pixel.pixelDate.getDate() === date.getDate() &&
+      pixel.pixelDate.getMonth() === date.getMonth() &&
+      pixel.pixelDate.getFullYear() === date.getFullYear();
+
+    return isSameDate;
+  });
 
   const FormSchema = z.object({
     moodId: z
@@ -101,8 +106,13 @@ export default function AddPixelDialog({
       }
 
       const events = pixel.events
-        ? userEvents.filter((e) => pixel.eventIds.includes(e.id))
+        ? userEvents.filter(
+            (e) =>
+              pixel.eventIds.includes(e.id) &&
+              userEvents.some((ue) => ue.id === e.id)
+          )
         : [];
+
       setSelectedEvents(events);
       if (events.length > 0) {
         form.setValue(
@@ -129,14 +139,9 @@ export default function AddPixelDialog({
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log(selectedEvents);
-  }, [selectedEvents]);
-
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const moodId = data.moodId || null;
     const eventIds = data.eventIds || [];
-    console.log('moodId', moodId);
 
     if (date) {
       const pixel = {

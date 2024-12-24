@@ -8,6 +8,6 @@ export type AddPixelDialogProps = {
     pixels: Pixel[];
     date: Date
 };
-export type PixelComponentProps = {
+export type PixelsCalendarComponentProps = {
     date: Date
 };

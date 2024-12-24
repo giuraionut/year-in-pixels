@@ -21,7 +21,6 @@ export const getUserDiaries = async (): Promise<Pixel[]> => {
 
 export const getUserDiaryByDate = async (date: Date): Promise<Diary | null> => {
     const normalizedDate = normalizeDate(date);
-    console.log(normalizedDate)
     try {
         const userId = await getSessionUserId();
         const diary = await db.diary.findFirst({

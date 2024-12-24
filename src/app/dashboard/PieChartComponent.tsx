@@ -71,7 +71,7 @@ export default function PieChartComponent({
                           y={viewBox.cy}
                           className='fill-foreground text-3xl font-bold'
                         >
-                          {totalMoods.toLocaleString()}
+                          {totalMoods}
                         </tspan>
                         <tspan
                           x={viewBox.cx}

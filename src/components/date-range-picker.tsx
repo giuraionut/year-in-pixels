@@ -28,7 +28,6 @@ export default function DatePickerWithRange({
     if (setDate) {
       setDate(date); // Only call setDate if it is defined
     }
-    console.log(date);
   };
   return (
     <div className={cn('grid gap-2', className)}>

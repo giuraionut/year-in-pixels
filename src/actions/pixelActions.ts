@@ -78,7 +78,6 @@ export const upsertUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
     delete (pixel as { id?: string }).id;
     const normalizedDate = normalizeDate(pixel.pixelDate);
     pixel.pixelDate = normalizedDate;
-    console.log("PIXEL", pixel);
     return await db.pixel.upsert({
       where: {
         userId_pixelDate: {

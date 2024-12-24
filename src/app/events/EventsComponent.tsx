@@ -20,26 +20,24 @@ export default function EventsComponent() {
   }, []);
 
   return (
-    <div className='relative'>
-      <section className='flex flex-col items-start gap-2 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
-        <div className='container px-6 flex mx-auto flex-wrap gap-6'>
-          <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
-            Manage your events
-            {loading && (
-              <div className='container px-6 py-6 mx-auto flex flex-col justify-between gap-6 max-w-[800px]'>
-                <LoadingDots />
-              </div>
-            )}
-          </h1>
-        </div>
+    <div className='relative flex flex-col items-start gap-2'>
+      <section className='container px-6 flex mx-auto flex-wrap gap-6 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
+        <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
+          Manage your events
+          {loading && (
+            <div className='container px-6 py-6 mx-auto flex flex-col justify-between gap-6 max-w-[800px]'>
+              <LoadingDots />
+            </div>
+          )}
+        </h1>
       </section>
-      <div className='container px-6 py-6 mx-auto gap-6 max-w-[600px]'>
+      <section className='container px-6 py-6 mx-auto gap-6 max-w-[600px]'>
         <EventsTable
           data={userEvents}
           setUserEvents={setUserEvents}
           loading={loading}
         />
-      </div>
+      </section>
     </div>
   );
 }

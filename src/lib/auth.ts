@@ -33,7 +33,6 @@ const fetchOrCreateUser = async (
     let existingUser = await db.user.findUnique({ where: { email } });
 
     if (!existingUser) {
-        console.log("Creating new user...");
         existingUser = await db.user.create({
             data: {
                 email,
@@ -54,7 +53,6 @@ const fetchOrCreateUser = async (
     });
 
     if (!existingAccount) {
-        console.log("Linking new account...");
         await db.account.create({
             data: {
                 userId: existingUser.id,
@@ -127,10 +125,8 @@ export const authOptions: AuthOptions = {
                     type: account.type || "oauth",
                 });
 
-                console.log("Sign-in successful:", user.email);
                 return true;
             } catch (error) {
-                console.error("Sign-in error:", error);
                 return false;
             }
         },

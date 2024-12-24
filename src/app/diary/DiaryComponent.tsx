@@ -95,7 +95,7 @@ export default function DiaryComponent() {
     onUpdate() {
       if (!editor) return;
       const content: JSONContent = getEditorContent();
-      console.log(content);
+      content;
       debouncedSaveContent(content); // Call saveContent on update
     },
   });
@@ -106,7 +106,6 @@ export default function DiaryComponent() {
 
   const saveContent = useCallback(
     async (content: JSONContent) => {
-      console.log('Saving content', content);
       if (!editor) return;
 
       const currentDiary = diary || {
@@ -158,25 +157,34 @@ export default function DiaryComponent() {
   }
 
   return (
-    <div className='p-5 flex flex-col gap-3'>
-      {editor && (
-        <div>
-          <EditorToolbarComponent
-            editor={editor}
-            date={date}
-            setDate={setDate}
-          />
-          <EditorBubbleMenus editor={editor} />
-        </div>
-      )}
+    <div className='relative flex flex-col items-start gap-2'>
+      <section className='container px-6 flex mx-auto flex-wrap gap-6 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
+        <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
+          Diary
+        </h1>
+        {loading && (
+          <div className='container px-6 py-6 mx-auto flex flex-col justify-between gap-6 max-w-[800px]'>
+            <LoadingDots />
+          </div>
+        )}
+      </section>
+      <section className='p-5 flex flex-col gap-3'>
+        {editor && (
+          <div>
+            <EditorToolbarComponent
+              editor={editor}
+              date={date}
+              setDate={setDate}
+            />
+            <EditorBubbleMenus editor={editor} />
+          </div>
+        )}
 
-      <Card className='p-3 rounded-md' onClick={handleClickOnCard}>
-        {loading ? (
-          <LoadingDots />
-        ) : (
-          <EditorContent
-            editor={editor}
-            className='
+        <Card className='p-3 rounded-md' onClick={handleClickOnCard}>
+          {!loading && (
+            <EditorContent
+              editor={editor}
+              className='
                focus:outline-none
                focus:ring-0
                focus-visible:outline-none
@@ -187,9 +195,10 @@ export default function DiaryComponent() {
                min-h-[150px]
                bg-background
              '
-          />
-        )}
-      </Card>
+            />
+          )}
+        </Card>
+      </section>
     </div>
   );
 }

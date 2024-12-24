@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Pixel } from '@prisma/client';
+import { Event, Pixel } from '@prisma/client';
 import {
   eachDayOfInterval,
   startOfMonth,
@@ -16,7 +16,7 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-type CalendarGrid = {
+type CalendarGridProps = {
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
   onDaySelect?: (date: Date) => void;
@@ -30,7 +30,7 @@ export default function CalendarGrid({
   onDaySelect,
   pixels,
   className,
-}: CalendarGrid) {
+}: CalendarGridProps) {
   const daysInMonth = eachDayOfInterval({
     start: startOfMonth(date),
     end: endOfMonth(date),
@@ -77,6 +77,7 @@ export default function CalendarGrid({
         {daysInMonth.map((day) => {
           const pixel = getPixelForDay(day);
           const moodColor = pixel?.mood?.color.value || '';
+          const events = pixel?.events || [];
           const isDisabled =
             isAfter(day, today) || isBefore(day, new Date('1900-01-01'));
           return (
@@ -88,7 +89,7 @@ export default function CalendarGrid({
               className='p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90'
               disabled={isDisabled}
             >
-              {format(day, 'd')}
+              {format(day, 'd')} {events.map((event: Event) => event.name)}
             </Button>
           );
         })}

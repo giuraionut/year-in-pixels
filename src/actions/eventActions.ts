@@ -20,7 +20,6 @@ export const addUserEvent = async (event: Event): Promise<Event | null> => {
         const userId = await getSessionUserId();
         event.userId = userId;
         delete (event as { id?: string }).id;
-        console.log(event);
 
         return await db.event.create({ data: event });
     } catch (error) {

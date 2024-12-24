@@ -127,10 +127,8 @@ export default function CustomizeUserInterface() {
         </div>
 
         {/* Mode Selection */}
-        <div className='grid grid-cols-3 gap-3'>
-          <Label htmlFor='mode-buttons' className='col-span-3 mb-2'>
-            Mode
-          </Label>
+        <Label htmlFor='mode-buttons'>Mode</Label>
+        <div className='grid grid-cols-3 gap-3' id='mode-buttons'>
           <Button
             variant='outline'
             onClick={() => setTheme('light')}
