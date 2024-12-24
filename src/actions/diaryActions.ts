@@ -14,7 +14,7 @@ export const getUserDiaries = async (): Promise<Pixel[]> => {
 
         return diaries;
     } catch (error) {
-        handleServerError(error, "retrieving diaries");
+        handleServerError(error, "retrieving diaries.");
         return [];
     }
 };
@@ -33,72 +33,11 @@ export const getUserDiaryByDate = async (date: Date): Promise<Diary | null> => {
 
         return diary;
     } catch (error) {
-        handleServerError(error, "retrieving diary");
+        handleServerError(error, "retrieving diary by date.");
         return null;
     }
 };
 
-
-export const addUserDiary = async (diary: Diary): Promise<Diary | null> => {
-    const normalizedDiaryDate = normalizeDate(diary.diaryDate)
-    diary.diaryDate = normalizedDiaryDate;
-    try {
-        const userId = await getSessionUserId();
-        diary.userId = userId;
-
-        // Sanitize the content
-        diary.content = JSON.parse(JSON.stringify(diary.content));
-
-        delete (diary as { id?: string }).id;
-        console.dir(diary, { depth: null });
-
-        return await db.diary.create({
-            data: diary,
-        });
-    } catch (error) {
-        handleServerError(error, "adding diary for user");
-        return null;
-    }
-};
-
-
-// export const updateUserDiary = async (diary: Diary): Promise<Diary | null> => {
-//     const normalizedDiaryDate = normalizeDate(diary.diaryDate)
-//     diary.diaryDate = normalizedDiaryDate;
-//     try {
-//         const userId = await getSessionUserId();
-
-//         const existingDiary = await db.diary.findUnique({
-//             where: {
-//                 id_userId_diaryDate: {
-//                     id: diary.id,
-//                     userId: userId,
-//                     diaryDate: diary.diaryDate
-//                 },
-//             },
-//         });
-
-//         if (existingDiary) {
-//             return await db.diary.update({
-//                 where: {
-//                     id_userId_diaryDate: {
-//                         id: diary.id,
-//                         userId: userId,
-//                         diaryDate: diary.diaryDate
-//                     },
-//                 },
-//                 data: {
-//                     content: diary.content,
-//                 },
-//             });
-//         }
-
-//         return null;
-//     } catch (error) {
-//         handleServerError(error, "updating diary for user");
-//         return null;
-//     }
-// };
 
 export const upsertUserDiary = async (diary: Diary): Promise<Diary | null> => {
 
@@ -108,7 +47,6 @@ export const upsertUserDiary = async (diary: Diary): Promise<Diary | null> => {
         diary.diaryDate = normalizedDiaryDate;
         diary.userId = userId;
         if (!diary.id) {
-            // If no ID exists, explicitly create a new diary
             return await db.diary.create({
                 data: {
                     userId,
@@ -118,7 +56,6 @@ export const upsertUserDiary = async (diary: Diary): Promise<Diary | null> => {
             });
         }
 
-        // If ID exists, use upsert to update or create
         return await db.diary.upsert({
             where: {
                 id_userId_diaryDate: {
@@ -138,7 +75,7 @@ export const upsertUserDiary = async (diary: Diary): Promise<Diary | null> => {
             },
         });
     } catch (error) {
-        handleServerError(error, "upserting diary for user");
+        handleServerError(error, "upserting diary for user.");
         return null;
     }
 };

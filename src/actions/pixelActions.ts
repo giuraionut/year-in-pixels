@@ -9,18 +9,25 @@ export const getUserPixels = async (): Promise<Pixel[]> => {
     const pixels = await db.pixel.findMany({
       where: {
         userId,
+        OR: [
+          { moodId: { not: null } },
+          { eventIds: { isEmpty: false } }
+        ]
       },
       include: {
         mood: true,
+        events: true
       },
     });
 
     return pixels;
+
   } catch (error) {
-    handleServerError(error, "retrieving pixels");
+    handleServerError(error, "retrieving pixels.");
     return [];
   }
 };
+
 export const getUserPixelsByRange = async (
   from: Date,
   to?: Date
@@ -43,9 +50,14 @@ export const getUserPixelsByRange = async (
           lte: toDate,
         },
         userId,
+        OR: [
+          { moodId: { not: null } },
+          { eventIds: { isEmpty: false } }
+        ]
       },
       include: {
         mood: true,
+        events: true
       },
     });
 
@@ -53,19 +65,20 @@ export const getUserPixelsByRange = async (
   } catch (error) {
     handleServerError(
       error,
-      `retrieving pixels by range ${fromDate} - ${toDate}`
+      `retrieving pixels by range ${fromDate} - ${toDate}.`
     );
     return [];
   }
 };
 
-export const addUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
+export const upsertUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
   try {
     const userId = await getSessionUserId();
     pixel.userId = userId;
     delete (pixel as { id?: string }).id;
     const normalizedDate = normalizeDate(pixel.pixelDate);
     pixel.pixelDate = normalizedDate;
+    console.log("PIXEL", pixel);
     return await db.pixel.upsert({
       where: {
         userId_pixelDate: {
@@ -83,23 +96,11 @@ export const addUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
       },
       include: {
         mood: true,
+        events: true
       },
     });
   } catch (error) {
-    handleServerError(error, "adding pixel for user");
-    return null;
-  }
-};
-
-export const deleteUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
-  try {
-    const userId = await getSessionUserId();
-    pixel.userId = userId;
-    return await db.pixel.delete({
-      where: { id: pixel.id, userId: pixel.userId },
-    });
-  } catch (error) {
-    handleServerError(error, "deleting pixel");
+    handleServerError(error, "adding pixel for user.");
     return null;
   }
 };

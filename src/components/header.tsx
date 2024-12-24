@@ -1,7 +1,7 @@
 'use client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import React from 'react';
-import { Profile } from './profile';
+import Profile from './profile';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Session } from 'next-auth';

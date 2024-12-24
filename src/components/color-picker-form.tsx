@@ -1,5 +1,5 @@
 import { Color } from '@/app/moods/mood';
-import { ColorPicker } from '@/components/color-picker';
+import ColorPicker from '@/components/color-picker';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 

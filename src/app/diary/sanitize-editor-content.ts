@@ -1,4 +1,5 @@
+import { JSONContent } from "@tiptap/react";
 
-export function sanitizeObject(obj: any): any {
+export function sanitizeObject(obj: JSONContent) {
     return structuredClone(obj);
 }

@@ -1,7 +1,5 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import PixelsComponent from './PixelsComponent';
 import {
   Select,
   SelectContent,
@@ -38,7 +36,7 @@ export default function YearInPixels() {
 
   useEffect(() => {
     setSelectedYear(date.getFullYear());
-    
+
     const fetchPixels = async () => {
       const from = startOfMonth(date);
       const to = endOfMonth(date);
@@ -56,6 +54,10 @@ export default function YearInPixels() {
     setSelectedDate(selectedDay);
     if (!open) setOpen(true);
   };
+
+  useEffect(() => {
+    console.log('pixels', pixels);
+  }, [pixels]);
   return (
     <div className='relative'>
       <section className='flex flex-col items-start gap-2 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>

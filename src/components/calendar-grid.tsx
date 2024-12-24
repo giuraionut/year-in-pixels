@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Pixel } from '@prisma/client';
 import {
-  addDays,
   eachDayOfInterval,
   startOfMonth,
   endOfMonth,
@@ -46,7 +45,6 @@ export default function CalendarGrid({
     );
 
   const today = startOfDay(new Date());
-  const tomorrow = addDays(today, 1);
   const handlePrevMonth = () => setDate(addMonths(date, -1));
   const handleNextMonth = () => setDate(addMonths(date, 1));
   return (
@@ -76,7 +74,6 @@ export default function CalendarGrid({
         ))}
       </div>
       <div className='grid grid-cols-7 gap-2'>
-        {/* <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-7 gap-2'> */}
         {daysInMonth.map((day) => {
           const pixel = getPixelForDay(day);
           const moodColor = pixel?.mood?.color.value || '';

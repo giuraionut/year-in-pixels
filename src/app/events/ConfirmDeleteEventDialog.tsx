@@ -9,40 +9,40 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
 import { toast } from '@/hooks/use-toast';
-import { DeleteMoodModalProps } from './mood';
+import { ConfirmDeleteEventModalProps } from './event';
+import { deleteUserEvent, deleteUserEventsBulk } from '@/actions/eventActions';
 
-export default function DeleteMoodModal({
-  moods,
-  mood,
-  setUserMoods,
+export default function ConfirmDeleteEventModal({
+  events,
+  event,
+  setUserEvents,
   children,
-}: DeleteMoodModalProps) {
+}: ConfirmDeleteEventModalProps) {
   const [open, setOpen] = useState(false);
 
   const handleConfirmDelete = async () => {
-    if (mood) {
-      const deletedMood = await deleteUserMood(mood);
+    if (event) {
+      const deletedMood = await deleteUserEvent(event);
 
       if (deletedMood) {
-        setUserMoods((prevMoods) =>
-          prevMoods.filter((item) => item.id !== mood.id)
+        setUserEvents((prevEvents) =>
+          prevEvents.filter((prevEvent) => prevEvent.id !== event.id)
         );
-        toast({ title: 'Mood deleted successfully!' });
+        toast({ title: 'Event deleted successfully!' });
       } else {
         toast({ title: 'There was an error, please try again!' });
       }
     }
-    if (moods) {
-      const selectedMoodsIds = moods.map((mood) => mood.id);
+    if (events) {
+      const selectedEventsIds = events.map((event) => event.id);
 
-      const deletedUserMoods = await deleteUserMoodsBulk(selectedMoodsIds);
-      if (deletedUserMoods) {
-        setUserMoods((prevMoods) =>
-          prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
+      const deletedUserEvents = await deleteUserEventsBulk(selectedEventsIds);
+      if (deletedUserEvents) {
+        setUserEvents((prevEvents) =>
+          prevEvents.filter((item) => !selectedEventsIds.includes(item.id))
         );
-        toast({ title: 'Moods deleted successfully!' });
+        toast({ title: 'Events deleted successfully!' });
       } else {
         toast({ title: 'There was an error, please try again!' });
       }
@@ -57,13 +57,12 @@ export default function DeleteMoodModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mood && 'Are you sure you want to delete this mood?'}
-            {moods && 'Are you sure you want to all the selected moods?'}
+            {event && 'Are you sure you want to delete this event?'}
+            {events && 'Are you sure you want to all the selected evemts?'}
           </DialogTitle>
           <DialogDescription>
-            {mood && 'You have one or more pixels associated with this mood.'}
-            {moods &&
-              'You have one or more pixels associated with these moods.'}
+            {event && 'Pixels associated with it will be deleted as well.'}
+            {events && 'Pixels associated with them will be deleted as well.'}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

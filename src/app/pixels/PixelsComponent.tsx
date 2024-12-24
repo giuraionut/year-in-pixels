@@ -61,22 +61,24 @@ export default function PixelsComponent({ date }: PixelComponentProps) {
   const tomorrow = addDays(today, 1);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
+    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2'>
       {daysInMonth.map((day) => {
         const pixel = getPixelForDay(day);
         const moodColor = pixel?.mood?.color.value || '';
-        const isDisabled = isAfter(day, tomorrow) || isBefore(day, new Date('1900-01-01'));
-        const isToday = format(day, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+        const isDisabled =
+          isAfter(day, tomorrow) || isBefore(day, new Date('1900-01-01'));
+        const isToday =
+          format(day, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
 
         return loading ? (
-          <Skeleton key={day.toISOString()} className="h-[40px]" />
+          <Skeleton key={day.toISOString()} className='h-[40px]' />
         ) : (
           <Button
             variant={'outline'}
             style={{ backgroundColor: moodColor }}
             key={day.toISOString()}
             onClick={() => handleSelectDay(day)}
-            className="p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90"
+            className='p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90'
             disabled={isDisabled}
           >
             {format(day, 'd')} - {weekdayNames[getDay(day)]}

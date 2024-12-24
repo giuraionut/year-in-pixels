@@ -11,5 +11,6 @@ declare module '@prisma/client' {
     }
     type Pixel = Pixel & {
         mood: Mood;
+        events: Event[]
     }
 }

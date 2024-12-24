@@ -10,7 +10,7 @@ export const getUserMoods = async (): Promise<Mood[]> => {
       where: { userId },
     });
   } catch (error) {
-    handleServerError(error, 'getting user moods');
+    handleServerError(error, 'retrieving user moods.');
     return [];
   }
 };
@@ -22,7 +22,7 @@ export const addUserMood = async (mood: Mood): Promise<Mood | null> => {
     delete (mood as { id?: string }).id;
     return await db.mood.create({ data: mood });
   } catch (error) {
-    handleServerError(error, 'adding user mood');
+    handleServerError(error, 'adding user mood.');
     return null;
   }
 };
@@ -45,7 +45,7 @@ export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
     });
     return newUserMood;
   } catch (error) {
-    handleServerError(error, 'editing user moods');
+    handleServerError(error, 'editing user mood.');
     return null;
   }
 };
@@ -56,21 +56,6 @@ export const deleteUserMood = async (
   try {
     const userId = await getSessionUserId();
     mood.userId = userId;
-    const pixelCount = await db.pixel.count({
-      where: {
-        moodId: mood.id,
-        userId,
-      },
-    });
-
-    if (pixelCount > 0) {
-      await db.pixel.deleteMany({
-        where: {
-          moodId: mood.id,
-          userId,
-        },
-      });
-    }
 
     const deletedMood = await db.mood.delete({
       where: {
@@ -81,7 +66,7 @@ export const deleteUserMood = async (
 
     return deletedMood;
   } catch (error) {
-    handleServerError(error, 'deleting user mood');
+    handleServerError(error, 'deleting user mood.');
     return null;
   }
 };
@@ -93,36 +78,30 @@ export const deleteUserMoodsBulk = async (
     const userId = await getSessionUserId();
 
     const deletedMoods: Mood[] = [];
-    for (const moodId of moodIds) {
-      const pixelCount = await db.pixel.count({
-        where: {
-          moodId,
-          userId,
+
+    const moodsToDelete = await db.mood.findMany({
+      where: {
+        id: {
+          in: moodIds,
         },
-      });
+        userId,
+      },
+    })
 
-      if (pixelCount > 0) {
-        await db.pixel.deleteMany({
-          where: {
-            moodId,
-            userId,
-          },
-        });
-      }
-
+    await Promise.all(moodsToDelete.map(async (mood) => {
       const deletedMood = await db.mood.delete({
         where: {
-          id: moodId,
+          id: mood.id,
           userId,
         },
       });
 
       deletedMoods.push(deletedMood);
-    }
+    }));
 
     return deletedMoods;
   } catch (error) {
-    handleServerError(error, 'deleting moods and pixels');
+    handleServerError(error, 'deleting moods.');
     return [];
   }
 };

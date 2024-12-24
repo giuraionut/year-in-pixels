@@ -1,3 +1,5 @@
+import { ThemeColors } from "./theme.types";
+
 const themes = {
     Orange: {
         light: {
@@ -231,10 +233,7 @@ export default function setGlobalColorTheme(
     color?: ThemeColors,
     hue?: number
 ) {
-    const saturation = 70;  // Default saturation
-    const lightness = 50;   // Default lightness
     const lightMode = themeMode === 'light';
-    // Calculate colors dynamically based on hue and theme mode
     const customTheme = {
         background: lightMode ? "0 0% 100%" : `${hue} 84% 4.9%`, //0
         foreground: lightMode ? "240 10% 3.9%" : "0 0% 95%", //240

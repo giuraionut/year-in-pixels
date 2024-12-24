@@ -1,5 +1,5 @@
 'use client';
-import { DatePickerWithRange } from '@/components/date-range-picker';
+import DatePickerWithRange from '@/components/date-range-picker';
 import {
   Card,
   CardContent,

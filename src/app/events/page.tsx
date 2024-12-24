@@ -1,14 +1,12 @@
-import type { Metadata } from 'next';
-import DashboardComponent from './DashboardComponent';
+import React, { Suspense } from 'react';
+import { Metadata } from 'next';
 import { LoadingDots } from '@/components/icons/loading-dots';
-import { Suspense } from 'react';
-
+import EventsComponent from './EventsComponent';
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Dashboard',
+  title: 'Events',
+  description: 'Events',
 };
-
-export default function Dashboard() {
+export default function Events() {
   return (
     <Suspense
       fallback={
@@ -17,7 +15,7 @@ export default function Dashboard() {
         </div>
       }
     >
-      <DashboardComponent />
+      <EventsComponent />
     </Suspense>
   );
 }

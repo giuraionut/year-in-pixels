@@ -20,5 +20,5 @@ export const handleServerError = (error: unknown, context: string): never => {
 
 export const normalizeDate = (date: Date | string): Date => {
     const parsedDate = new Date(date);
-    return new Date(format(parsedDate, "yyyy-MM-dd")); // Example: "2024-12-11"
+    return new Date(format(parsedDate, "yyyy-MM-dd"));
 };

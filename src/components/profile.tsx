@@ -20,7 +20,7 @@ const handleLogout = () => {
   signOut({ callbackUrl: 'http://localhost:3000/' });
 };
 
-export function Profile({ className }: { className?: string }) {
+export default function Profile({ className }: { className?: string }) {
   const { data: session } = useSession();
   return (
     session && (

@@ -19,7 +19,7 @@ type DatePickerWithRangeProps = {
   date: DateRange | undefined;
   setDate?: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
 };
-export function DatePickerWithRange({
+export default function DatePickerWithRange({
   className,
   date,
   setDate,

@@ -21,10 +21,11 @@ model User {
   image         String?
 
   accounts Account[]
-  Session  Session[]
-  Mood     Mood[]
-  Pixel    Pixel[]
-  Diary    Diary[]
+  sessions Session[]
+  moods    Mood[]
+  events   Event[]
+  pixels   Pixel[]
+  diaries  Diary[]
 }
 
 model Account {
@@ -61,9 +62,23 @@ model Mood {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  name  String
-  color Json
-  Pixel Pixel[]
+  name   String
+  color  Json
+  pixels Pixel[]
+
+  @@unique([id, userId])
+}
+
+model Event {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  name String
+
+  pixelIds String[] @db.ObjectId
+  pixels   Pixel[]  @relation(fields: [pixelIds], references: [id])
 
   @@unique([id, userId])
 }
@@ -74,8 +89,11 @@ model Pixel {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
-  mood      Mood     @relation(fields: [moodId], references: [id])
-  moodId    String   @db.ObjectId
+  mood   Mood?   @relation(fields: [moodId], references: [id], onDelete: SetNull)
+  moodId String? @db.ObjectId
+
+  eventIds  String[] @db.ObjectId
+  events    Event[]  @relation(fields: [eventIds], references: [id])
   pixelDate DateTime @default(now())
 
   @@unique([userId, pixelDate])

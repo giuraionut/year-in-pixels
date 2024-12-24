@@ -1,6 +1,6 @@
-type ThemeColors = "Zinc" | "Rose" | "Blue" | "Green" | "Orange" | undefined
+export type ThemeColors = "Zinc" | "Rose" | "Blue" | "Green" | "Orange" | undefined
 
-type ThemeContextParams = {
+export type ThemeContextParams = {
     themeColor: ThemeColors;
     setThemeColor: (color: ThemeColors) => void;
     customHue: number | undefined;

@@ -11,10 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import { EditMoodDialogProps } from './mood';
 import { toast } from '@/hooks/use-toast';
-import { editUserMood } from '@/actions/moodActions';
-import ColorPickerForm from '@/components/color-picker-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -26,53 +23,42 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import React from 'react';
+import { AddEventDialogProps } from './event';
+import { addUserEvent } from '@/actions/eventActions';
+import { Event } from '@prisma/client';
 
 const FormSchema = z.object({
-  name: z.string().min(1, { message: 'Mood name is required' }),
-  color: z
-    .object({
-      name: z.string().min(1),
-      value: z
-        .string()
-        .regex(/^#[0-9A-Fa-f]{6}$/, { message: 'Invalid color value' }),
-    })
-    .refine((data) => data.name.length > 0 && data.value.length === 7, {
-      message: 'Invalid color data',
-    }),
+  name: z.string().min(1, { message: 'Event name is required' }),
 });
 
-export default function EditMoodDialog({
-  mood,
+export default function AddEventDialog({
   children,
-  setUserMoods,
-}: EditMoodDialogProps) {
+  setUserEvents,
+}: AddEventDialogProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: mood.name,
-      color: { name: mood.color.name, value: mood.color.value },
+      name: '',
     },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-
-    const moodData = mood;
-    moodData.name = data.name;
-    moodData.color = data.color;
+    const event: Event = {
+      name: data.name,
+      userId: '',
+      id: '',
+      createdAt: new Date(),
+      pixelIds: [],
+    };
 
     try {
-      FormSchema.parse(moodData);
-      const newMood = await editUserMood(moodData);
-      if (newMood) {
-        setUserMoods((prevMoods) =>
-          prevMoods.map((prevMood) =>
-            prevMood.id === newMood.id ? newMood : prevMood
-          )
-        );
+      FormSchema.parse(event);
+      const newEvent = await addUserEvent(event);
+      if (newEvent) {
+        setUserEvents((prevEvents) => [...prevEvents, newEvent]);
         setOpen(false);
-        toast({ title: 'Mood changed successfully!' });
+        toast({ title: 'Event created successfully!' });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -85,7 +71,7 @@ export default function EditMoodDialog({
       } else {
         toast({
           title: 'Error',
-          description: 'Could not modify the mood. Please try again later.',
+          description: 'Could not add event. Please try again later.',
         });
       }
     }
@@ -96,9 +82,9 @@ export default function EditMoodDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>Edit {mood.name} mood</DialogTitle>
+          <DialogTitle>Add new event</DialogTitle>
           <DialogDescription>
-            {`Here, you can edit the mood "${mood.name}". Click save when you're done.`}
+            {`Here, you can add a new event. Click save when you're done.`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -111,7 +97,7 @@ export default function EditMoodDialog({
                   <FormItem>
                     <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2'>
                       <FormLabel
-                        htmlFor='mood'
+                        htmlFor='event'
                         className='text-left md:text-right md:col-span-1 col-span-full'
                       >
                         Name
@@ -119,30 +105,6 @@ export default function EditMoodDialog({
                       <Input
                         className='col-span-full md:col-span-3'
                         {...field}
-                      />
-                      <FormMessage className='col-span-full md:col-start-2 md:col-span-3' />
-                    </div>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='color'
-                render={({ field }) => (
-                  <FormItem>
-                    <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2'>
-                      <FormLabel
-                        htmlFor='color'
-                        className='text-left md:text-right md:col-span-1 col-span-full'
-                      >
-                        Color
-                      </FormLabel>
-
-                      <ColorPickerForm
-                        className='col-span-full md:col-span-3'
-                        value={field.value || { name: '', value: '#000000' }}
-                        onChange={(color) => field.onChange(color)}
-                        defaultColor={mood.color}
                       />
                       <FormMessage className='col-span-full md:col-start-2 md:col-span-3' />
                     </div>

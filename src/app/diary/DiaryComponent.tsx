@@ -4,6 +4,7 @@ import {
   EditorContent,
   ReactNodeViewRenderer,
   Content,
+  JSONContent,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Card } from '@/components/ui/card';
@@ -14,7 +15,7 @@ import BulletList from '@tiptap/extension-bullet-list';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { all, createLowlight } from 'lowlight';
 import OrderedList from '@tiptap/extension-ordered-list';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Diary } from '@prisma/client';
 import { debounce } from 'lodash';
 import { getUserDiaryByDate, upsertUserDiary } from '@/actions/diaryActions';
@@ -93,7 +94,7 @@ export default function DiaryComponent() {
     autofocus: true,
     onUpdate() {
       if (!editor) return;
-      const content = getEditorContent();
+      const content: JSONContent = getEditorContent();
       console.log(content);
       debouncedSaveContent(content); // Call saveContent on update
     },
@@ -102,8 +103,10 @@ export default function DiaryComponent() {
   const [diary, setDiary] = useState<Diary | undefined>();
   const [date, setDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
+
   const saveContent = useCallback(
-    async (content: any) => {
+    async (content: JSONContent) => {
+      console.log('Saving content', content);
       if (!editor) return;
 
       const currentDiary = diary || {
@@ -121,14 +124,16 @@ export default function DiaryComponent() {
         setDiary(savedDiary); // Update the state with the saved diary
       }
     },
-    [diary, editor]
+    [diary, editor, date]
   );
 
-  const debouncedSaveContent = useCallback(debounce(saveContent, 1000), [
-    saveContent,
-  ]);
+  const debouncedSaveContent = useMemo(
+    () => debounce(saveContent, 1000),
+    [saveContent]
+  );
+
   const getEditorContent = () => {
-    const jsonDoc = editor?.getJSON();
+    const jsonDoc: JSONContent = editor?.getJSON() ?? [];
     return jsonDoc ? sanitizeObject(jsonDoc) : {};
   };
 

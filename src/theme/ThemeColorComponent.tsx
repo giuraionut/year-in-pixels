@@ -28,6 +28,7 @@ import {
   PopoverTrigger,
 } from '../components/ui/popover';
 import { Label } from '../components/ui/label';
+import { ThemeColors } from './theme.types';
 
 export default function CustomizeUserInterface() {
   const { themeColor, setThemeColor, customHue, setCustomHue } =

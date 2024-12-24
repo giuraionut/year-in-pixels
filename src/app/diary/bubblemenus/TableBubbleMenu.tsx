@@ -12,8 +12,6 @@ import type { GetReferenceClientRect } from 'tippy.js';
 import { sticky } from 'tippy.js';
 import { DeleteColumn } from '../../../components/icons/delete-column';
 import { DeleteRow } from '@/components/icons/delete-row';
-import { AddRowBefore } from '@/components/icons/add-row-before';
-import { AddRowAfter } from '@/components/icons/add-row-after';
 
 type TableBubbleMenuProps = {
   editor: Editor | null;

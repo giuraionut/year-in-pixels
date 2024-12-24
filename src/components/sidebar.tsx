@@ -1,8 +1,8 @@
 import {
+  Calendar,
   ChevronRight,
   LayoutDashboard,
   LayoutGrid,
-  Notebook,
   NotebookPen,
   Smile,
 } from 'lucide-react';
@@ -53,6 +53,12 @@ const menuItems: MenuItem[] = [
     icon: <Smile className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
     href: '/moods',
+  },
+  {
+    label: 'Events',
+    icon: <Calendar className='mr-2' strokeWidth={2} />,
+    isCollapsible: false,
+    href: '/events',
   },
   {
     label: 'Diary',

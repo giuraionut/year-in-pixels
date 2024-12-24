@@ -20,11 +20,11 @@ export const metadata: Metadata = {
   title: 'Year in Pixels',
   description: 'Year in Pixels application',
 };
-const RootLayout = async ({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) => {
+}>) {
   const session = await getServerSession(authOptions);
 
   return (
@@ -37,6 +37,4 @@ const RootLayout = async ({
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}

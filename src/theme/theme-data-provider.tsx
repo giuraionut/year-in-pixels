@@ -2,6 +2,7 @@
 import setGlobalColorTheme from '@/theme/theme-colors';
 import { ThemeProviderProps, useTheme } from 'next-themes';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { ThemeColors, ThemeContextParams } from './theme.types';
 
 const ThemeContext = createContext<ThemeContextParams>(
   {} as ThemeContextParams
@@ -12,6 +13,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     try {
       return (localStorage.getItem('themeColor') as ThemeColors) || 'Zinc';
     } catch (error) {
+      console.log('Error getting theme color:', error);
       return 'Zinc';
     }
   };
@@ -20,6 +22,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     try {
       return Number(localStorage.getItem('customHue')) || undefined;
     } catch (error) {
+      console.log('Error getting custom hue:', error);
       return undefined;
     }
   };
@@ -31,7 +34,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     getSavedCustomHue()
   );
   const [isMounted, setIsMounted] = useState(false);
-  const { theme, resolvedTheme } = useTheme(); // Use `resolvedTheme` for actual applied theme
+  const { resolvedTheme } = useTheme(); // Use `resolvedTheme` for actual applied theme
 
   useEffect(() => {
     if (!isMounted) {
@@ -39,13 +42,11 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
       return;
     }
 
-    // Save the current themeColor and customHue in localStorage
     if (themeColor) localStorage.setItem('themeColor', themeColor);
     if (customHue !== undefined) {
       localStorage.setItem('customHue', customHue.toString());
     }
 
-    // Apply the global theme
     setGlobalColorTheme(
       (resolvedTheme as 'light' | 'dark') || 'light',
       themeColor,
