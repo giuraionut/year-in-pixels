@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -26,6 +25,7 @@ import React from 'react';
 import { AddEventDialogProps } from './event';
 import { addUserEvent } from '@/actions/eventActions';
 import { Event } from '@prisma/client';
+import { toast } from 'sonner';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Event name is required' }),
@@ -58,19 +58,17 @@ export default function AddEventDialog({
       if (newEvent) {
         setUserEvents((prevEvents) => [...prevEvents, newEvent]);
         setOpen(false);
-        toast({ title: 'Event created successfully!' });
+        toast.success('Event created successfully!');
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
-          toast({
-            title: 'Input error, verify the data',
+          toast.error('Input error, verify the data', {
             description: err.message,
           });
         });
       } else {
-        toast({
-          title: 'Error',
+        toast.error('Error', {
           description: 'Could not add event. Please try again later.',
         });
       }

@@ -24,7 +24,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
@@ -47,6 +46,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
 
 export type FormSchema = {
   moodId: string;
@@ -162,22 +162,31 @@ export default function AddPixelDialog({
           newPixels.push(newPixel);
           setPixels(newPixels);
           setOpen(false);
-          toast({
-            title: 'Pixel created successfully!',
+          toast.success('Pixel created successfully!', {
+            description: (
+              <div>
+                <p>Mood: {newPixel.mood.name}</p>
+                {newPixel.events.length > 0 && (
+                  <p>
+                    Events:{' '}
+                    {newPixel.events
+                      .map((event: Event) => event.name)
+                      .join(', ')}
+                  </p>
+                )}
+              </div>
+            ),
           });
         }
       } catch (error) {
         if (error instanceof z.ZodError) {
           error.errors.forEach((err) => {
-            toast({
-              title: 'Input error, verify the data',
+            toast.error('Input error, verify the data', {
               description: err.message,
-              variant: 'destructive',
             });
           });
         } else {
-          toast({
-            title: 'Error',
+          toast.error('Error', {
             description: 'Could not add pixel. Please try again.',
           });
         }

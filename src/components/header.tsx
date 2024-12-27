@@ -15,6 +15,10 @@ export default function Header({ session }: { session: Session | null }) {
     flex items-center gap-4 p-2'
     >
       {session && <SidebarTrigger />}
+
+      <Link href='/'>
+        <h1 className='text-2xl font-bold text-primary/80'>Year in Pixels</h1>
+      </Link>
       <CustomizeUserInterface />
       {session ? (
         <Profile className='w-6 h-6 ml-auto mr-2' />

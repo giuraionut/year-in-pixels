@@ -24,7 +24,7 @@ export default function EditorToolbarComponent({
       <ToolbarLists editor={editor} />
       <ToolbarTable editor={editor} />
 
-      <ToolbarCalendar date={date} setDate={setDate} className='ml-auto ' />
+      <ToolbarCalendar date={date} setDate={setDate} className='md:ml-auto' />
     </Card>
   );
 }

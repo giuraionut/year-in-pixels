@@ -12,7 +12,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { EditMoodDialogProps } from './mood';
-import { toast } from '@/hooks/use-toast';
 import { editUserMood } from '@/actions/moodActions';
 import ColorPickerForm from '@/components/color-picker-form';
 import { z } from 'zod';
@@ -26,6 +25,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import React from 'react';
+import { toast } from 'sonner';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Mood name is required' }),
@@ -56,7 +56,6 @@ export default function EditMoodDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-
     const moodData = mood;
     moodData.name = data.name;
     moodData.color = data.color;
@@ -71,19 +70,17 @@ export default function EditMoodDialog({
           )
         );
         setOpen(false);
-        toast({ title: 'Mood changed successfully!' });
+        toast.success('Mood changed successfully!');
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
-          toast({
-            title: 'Input error, verify the data',
+          toast.error('Input error, verify the data', {
             description: err.message,
           });
         });
       } else {
-        toast({
-          title: 'Error',
+        toast.error('Error', {
           description: 'Could not modify the mood. Please try again later.',
         });
       }

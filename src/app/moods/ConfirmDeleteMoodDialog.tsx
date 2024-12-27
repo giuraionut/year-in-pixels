@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
-import { toast } from '@/hooks/use-toast';
 import { DeleteMoodModalProps } from './mood';
+import { toast } from 'sonner';
 
 export default function DeleteMoodModal({
   moods,
@@ -29,9 +29,11 @@ export default function DeleteMoodModal({
         setUserMoods((prevMoods) =>
           prevMoods.filter((item) => item.id !== mood.id)
         );
-        toast({ title: 'Mood deleted successfully!' });
+        toast.success('Mood deleted successfully!');
       } else {
-        toast({ title: 'There was an error, please try again!' });
+        toast.error('Error', {
+          description: 'There was an error, please try again!',
+        });
       }
     }
     if (moods) {
@@ -42,9 +44,11 @@ export default function DeleteMoodModal({
         setUserMoods((prevMoods) =>
           prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
         );
-        toast({ title: 'Moods deleted successfully!' });
+        toast.success('Moods deleted successfully!');
       } else {
-        toast({ title: 'There was an error, please try again!' });
+        toast.error('Error', {
+          description: 'There was an error, please try again!',
+        });
       }
     }
 

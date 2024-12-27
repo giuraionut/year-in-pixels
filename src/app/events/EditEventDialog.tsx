@@ -12,7 +12,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { EditEventDialogProps } from './event';
-import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -25,6 +24,7 @@ import {
 } from '@/components/ui/form';
 import React from 'react';
 import { editUserEvent } from '@/actions/eventActions';
+import { toast } from 'sonner';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Event name is required' }),
@@ -54,7 +54,7 @@ export default function EditEventDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    (data);
+    data;
 
     const eventData = event;
     event.name = data.name;
@@ -69,19 +69,17 @@ export default function EditEventDialog({
           )
         );
         setOpen(false);
-        toast({ title: 'Event changed successfully!' });
+        toast.success('Event changed successfully!');
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
-          toast({
-            title: 'Input error, verify the data',
+          toast.error('Input error, verify the data', {
             description: err.message,
           });
         });
       } else {
-        toast({
-          title: 'Error',
+        toast.error('Error', {
           description: 'Could not modify the event. Please try again later.',
         });
       }

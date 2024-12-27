@@ -83,7 +83,10 @@ export default function CalendarGrid({
           return (
             <Button
               variant={'outline'}
-              style={{ backgroundColor: moodColor }}
+              style={{
+                backgroundColor: moodColor,
+                transitionDuration: '0.25s',
+              }}
               key={day.toISOString()}
               onClick={() => onDaySelect?.(day)}
               className='p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90'

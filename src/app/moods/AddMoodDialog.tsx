@@ -12,7 +12,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { AddMoodDialogProps } from './mood';
-import { toast } from '@/hooks/use-toast';
 import { addUserMood } from '@/actions/moodActions';
 import ColorPickerForm from '@/components/color-picker-form';
 import { z } from 'zod';
@@ -26,6 +25,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import React from 'react';
+import { toast } from 'sonner';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Mood name is required' }),
@@ -55,7 +55,6 @@ export default function AddMoodDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-
     const mood = {
       name: data.name,
       color: data.color,
@@ -70,19 +69,17 @@ export default function AddMoodDialog({
       if (newMood) {
         setUserMoods((prevMoods) => [...prevMoods, newMood]);
         setOpen(false);
-        toast({ title: 'Mood created successfully!' });
+        toast.success('Mood created successfully!');
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
-          toast({
-            title: 'Input error, verify the data',
+          toast.error('Input error, verify the data', {
             description: err.message,
           });
         });
       } else {
-        toast({
-          title: 'Error',
+        toast.error('Error', {
           description: 'Could not add mood. Please try again later.',
         });
       }

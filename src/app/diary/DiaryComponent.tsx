@@ -168,7 +168,7 @@ export default function DiaryComponent() {
           </div>
         )}
       </section>
-      <section className='p-5 flex flex-col gap-3'>
+      <section className='p-5 flex flex-col w-full gap-3 '>
         {editor && (
           <div>
             <EditorToolbarComponent

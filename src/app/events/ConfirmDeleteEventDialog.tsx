@@ -9,9 +9,9 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
 import { ConfirmDeleteEventModalProps } from './event';
 import { deleteUserEvent, deleteUserEventsBulk } from '@/actions/eventActions';
+import { toast } from 'sonner';
 
 export default function ConfirmDeleteEventModal({
   events,
@@ -29,9 +29,11 @@ export default function ConfirmDeleteEventModal({
         setUserEvents((prevEvents) =>
           prevEvents.filter((prevEvent) => prevEvent.id !== event.id)
         );
-        toast({ title: 'Event deleted successfully!' });
+        toast.success('Event deleted successfully!');
       } else {
-        toast({ title: 'There was an error, please try again!' });
+        toast.error('Error', {
+          description: 'There was an error, please try again!',
+        });
       }
     }
     if (events) {
@@ -42,9 +44,11 @@ export default function ConfirmDeleteEventModal({
         setUserEvents((prevEvents) =>
           prevEvents.filter((item) => !selectedEventsIds.includes(item.id))
         );
-        toast({ title: 'Events deleted successfully!' });
+        toast.success('Events deleted successfully!');
       } else {
-        toast({ title: 'There was an error, please try again!' });
+        toast.error('Error', {
+          description: 'There was an error, please try again!',
+        });
       }
     }
 
