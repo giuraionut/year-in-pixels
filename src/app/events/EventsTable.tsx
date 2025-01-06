@@ -38,10 +38,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import { EventsTableProps } from './event';
 import { format } from 'date-fns';
-import EditEventDialog from './EditEventDialog';
 import ConfirmDeleteEventModal from './ConfirmDeleteEventDialog';
 import AddEventDialog from './AddEventDialog';
 import { Event } from '@prisma/client';
+import EditEventDialog from './EditEventDialog';
 export default function EventsTable({
   data,
   setUserEvents,

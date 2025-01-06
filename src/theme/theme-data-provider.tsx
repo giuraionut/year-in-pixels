@@ -10,35 +10,48 @@ const ThemeContext = createContext<ThemeContextParams>(
 );
 
 export default function ThemeDataProvider({ children }: ThemeProviderProps) {
-  const [themeColor, setThemeColor] = useState<ThemeColors | null>(null); // Use `null` to detect hydration issues
+  const [themeColor, setThemeColor] = useState<ThemeColors | undefined>(
+    undefined
+  ); // Null indicates hydration incomplete
   const [customHue, setCustomHue] = useState<number | undefined>(undefined);
-  const { resolvedTheme } = useTheme(); // Get the current resolved theme (light/dark/system)
+  const { resolvedTheme } = useTheme();
 
-  // Load saved values from localStorage (client-side only)
+  // Load saved values from localStorage on hydration
   useEffect(() => {
-    if (typeof window === 'undefined') return; // Ensure this only runs client-side
+    if (typeof window === 'undefined') return;
     try {
       const savedThemeColor = localStorage.getItem('themeColor') as ThemeColors;
-      const savedCustomHue = Number(localStorage.getItem('customHue'));
+      const savedCustomHue = localStorage.getItem('customHue');
+      const parsedCustomHue = savedCustomHue
+        ? Number(savedCustomHue)
+        : undefined;
 
-      setThemeColor(savedThemeColor || 'Zinc'); // Default to 'Zinc' if nothing is stored
-      setCustomHue(!isNaN(savedCustomHue) ? savedCustomHue : undefined);
+      // Prioritize customHue if defined
+      if (parsedCustomHue !== undefined && !isNaN(parsedCustomHue)) {
+        setCustomHue(parsedCustomHue);
+        setThemeColor(undefined); // Use `null` to indicate custom hue
+      } else {
+        setThemeColor(savedThemeColor || 'Zinc'); // Default to Zinc if undefined
+      }
     } catch (error) {
       console.error('Error loading theme settings from localStorage:', error);
     }
   }, []);
 
-  // Save values to localStorage and apply the theme whenever they change
+  // Save changes to localStorage
   useEffect(() => {
-    if (themeColor === null) return; // Skip until hydration is complete
+    if (themeColor === undefined && customHue === undefined) return; // Skip incomplete state
     try {
-      localStorage.setItem('themeColor', themeColor || 'Zinc');
       if (customHue !== undefined) {
         localStorage.setItem('customHue', customHue.toString());
+        localStorage.removeItem('themeColor'); // Remove themeColor if customHue is set
+      } else {
+        localStorage.setItem('themeColor', themeColor || 'Zinc');
+        localStorage.removeItem('customHue'); // Remove customHue if themeColor is set
       }
       setGlobalColorTheme(
         (resolvedTheme as 'light' | 'dark') || 'light',
-        themeColor,
+        themeColor || 'Zinc',
         customHue
       );
     } catch (error) {
@@ -47,7 +60,7 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
   }, [themeColor, customHue, resolvedTheme]);
 
   // Avoid rendering the provider until hydration is complete
-  if (themeColor === null) return null;
+  if (themeColor === undefined && customHue === undefined) return null;
 
   return (
     <ThemeContext.Provider

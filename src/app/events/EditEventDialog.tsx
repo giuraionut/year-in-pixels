@@ -28,16 +28,6 @@ import { toast } from 'sonner';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Event name is required' }),
-  color: z
-    .object({
-      name: z.string().min(1),
-      value: z
-        .string()
-        .regex(/^#[0-9A-Fa-f]{6}$/, { message: 'Invalid color value' }),
-    })
-    .refine((data) => data.name.length > 0 && data.value.length === 7, {
-      message: 'Invalid color data',
-    }),
 });
 
 export default function EditEventDialog({
@@ -54,11 +44,8 @@ export default function EditEventDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    data;
-
     const eventData = event;
     event.name = data.name;
-
     try {
       FormSchema.parse(eventData);
       const newEvent = await editUserEvent(eventData);

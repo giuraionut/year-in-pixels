@@ -19,10 +19,6 @@ export default function ToolbarTable({ editor }: { editor: Editor }) {
       .run();
   };
 
-  const handleDeleteTable = () => {
-    editor.chain().focus().deleteTable().run();
-  };
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -45,15 +41,6 @@ export default function ToolbarTable({ editor }: { editor: Editor }) {
             </span>
           </Toggle>
         ))}
-        <Toggle
-          value='delete-table'
-          aria-label='Delete table'
-          className='flex justify-between w-full'
-          onClick={handleDeleteTable}
-        >
-          Delete
-          <Trash className='h-4 w-4' />
-        </Toggle>
       </PopoverContent>
     </Popover>
   );

@@ -35,13 +35,15 @@ export default function CustomizeUserInterface() {
     useThemeContext();
   const { theme, setTheme } = useTheme();
 
+  // Handle hue change with slider
   const handleHueChange = (value: number[]) => {
     if (value.length > 0) {
       setCustomHue(value[0]);
-      setThemeColor(undefined);
+      setThemeColor(undefined); // Automatically switch to "Custom"
     }
   };
 
+  // Create select items for predefined colors
   const createSelectItems = () => {
     return availableThemeColors.map(({ name, light, dark }) => (
       <SelectItem key={name} value={name}>
@@ -60,18 +62,22 @@ export default function CustomizeUserInterface() {
     ));
   };
 
+  // Generate hue gradient for the slider
   const generateHueGradient = () => {
     return `linear-gradient(to right, hsl(0, 100%, 50%) 0%, hsl(60, 100%, 50%) 16.67%, hsl(120, 100%, 50%) 33.33%, hsl(180, 100%, 50%) 50%, hsl(240, 100%, 50%) 66.67%, hsl(300, 100%, 50%) 83.33%, hsl(360, 100%, 50%) 100%)`;
   };
 
+  // Handle selection of predefined colors
   const handleSelect = (value: string) => {
-    const selectedThemeColor = availableThemeColors.find(
-      (theme) => theme.name === value
-    );
-    if (selectedThemeColor && selectedThemeColor.name === 'Zinc')
-      setCustomHue(0);
-    else if (selectedThemeColor) setCustomHue(selectedThemeColor.hue);
-    setThemeColor(value as ThemeColors);
+    if (value !== 'Custom') {
+      const selectedThemeColor = availableThemeColors.find(
+        (theme) => theme.name === value
+      );
+      if (selectedThemeColor) {
+        setThemeColor(value as ThemeColors);
+        setCustomHue(undefined); // Clear custom hue
+      }
+    }
   };
 
   return (
@@ -91,14 +97,33 @@ export default function CustomizeUserInterface() {
           <Select
             name='color-select'
             onValueChange={(value) => handleSelect(value)}
-            value={themeColor}
-            key={themeColor || customHue}
+            // Automatically show "Custom" when customHue is set
+            value={
+              customHue !== undefined && customHue !== null
+                ? 'Custom'
+                : themeColor
+            }
           >
             <SelectTrigger className='ring-offset-transparent focus:ring-transparent'>
               <SelectValue placeholder='Select Color' />
             </SelectTrigger>
             <SelectContent className='border-muted'>
               {createSelectItems()}
+              <SelectItem
+                key='custom'
+                value='Custom'
+                disabled // Disable manual selection
+              >
+                <div className='flex items-center space-x-3'>
+                  <div
+                    className='rounded-full w-[20px] h-[20px]'
+                    style={{
+                      backgroundColor: `hsl(${customHue}, 100%, 50%)`,
+                    }}
+                  ></div>
+                  <div className='text-sm'>Custom</div>
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

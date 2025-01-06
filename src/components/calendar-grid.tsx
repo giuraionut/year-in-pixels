@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Event, Pixel } from '@prisma/client';
+import { Pixel } from '@prisma/client';
 import {
   eachDayOfInterval,
   startOfMonth,
@@ -15,6 +15,7 @@ import {
   addMonths,
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 type CalendarGridProps = {
   date: Date;
@@ -81,19 +82,32 @@ export default function CalendarGrid({
           const isDisabled =
             isAfter(day, today) || isBefore(day, new Date('1900-01-01'));
           return (
-            <Button
-              variant={'outline'}
-              style={{
-                backgroundColor: moodColor,
-                transitionDuration: '0.25s',
-              }}
-              key={day.toISOString()}
-              onClick={() => onDaySelect?.(day)}
-              className='p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90'
-              disabled={isDisabled}
-            >
-              {format(day, 'd')} {events.map((event: Event) => event.name)}
-            </Button>
+            <div className='relative inline-flex' key={day.toISOString()}>
+              <Button
+                variant={'outline'}
+                style={{
+                  backgroundColor: moodColor,
+                  transitionDuration: '0.25s',
+                }}
+                onClick={() => onDaySelect?.(day)}
+                className='p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90 w-full'
+                disabled={isDisabled}
+              >
+                {format(day, 'd')}
+              </Button>
+              {events.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className='absolute top-0.5 right-0.5 grid w-5 h-5 translate-x-1/3 -translate-y-1/3 place-items-center rounded-full bg-accent py-1 px-1 text-[0.5rem]'>
+                      {events.length}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {events.length > 1 ? 'Events' : 'Event'}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           );
         })}
       </div>

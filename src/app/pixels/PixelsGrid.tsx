@@ -33,7 +33,7 @@ const getWeeksPerMonth = (dates: Date[]) => {
   }, {} as Record<number, number>);
 };
 
-const PixelsByYear = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
+const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   const matrix = React.useMemo(() => getDateMatrix(year), []);
   const weeksPerMonth = React.useMemo(
     () => getWeeksPerMonth(matrix[0]),
@@ -86,7 +86,6 @@ const PixelsByYear = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
 
     const colorValue = pixel.mood.color.value;
     if (filterColor === colorValue) {
-      // Toggle filter off if clicked again
       setFilterColor(null);
     } else {
       setFilterColor(colorValue);
@@ -98,7 +97,6 @@ const PixelsByYear = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
       style={styles.graph}
       className='text-[0.6rem] leading-3 py-2 overflow-auto'
     >
-      {/* Months Row */}
       <ul style={styles.months} className='border-b border-border pb-1'>
         {[
           'Jan',
@@ -118,14 +116,12 @@ const PixelsByYear = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
         ))}
       </ul>
 
-      {/* Days Column */}
       <ul style={styles.days} className='border-r border-border pr-1'>
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
           <li key={day}>{day}</li>
         ))}
       </ul>
 
-      {/* Squares (Pixels) */}
       <ul style={styles.squares}>
         {[
           ...pixels,
@@ -164,4 +160,4 @@ const PixelsByYear = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   );
 };
 
-export default PixelsByYear;
+export default PixelsGrid;

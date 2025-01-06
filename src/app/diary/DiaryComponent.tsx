@@ -32,6 +32,7 @@ import CodeBlockComponent from './extensions/CodeBlockExtension';
 import EditorToolbarComponent from './EditorToolbar';
 import { LoadingDots } from '@/components/icons/loading-dots';
 import EditorBubbleMenus from './EditorBubbleMenus';
+import { format } from 'date-fns';
 const lowlight = createLowlight(all);
 
 export default function DiaryComponent() {
@@ -159,9 +160,12 @@ export default function DiaryComponent() {
   return (
     <div className='relative flex flex-col items-start gap-2'>
       <section className='container px-6 flex mx-auto flex-wrap gap-6 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
-        <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
-          Diary
-        </h1>
+        <div>
+          <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
+            Diary
+          </h1>
+          <small className='text-xs leading-3'>{format(date, 'PPP')}</small>
+        </div>
         {loading && (
           <div className='container px-6 py-6 mx-auto flex flex-col justify-between gap-6 max-w-[800px]'>
             <LoadingDots />

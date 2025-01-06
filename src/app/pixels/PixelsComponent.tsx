@@ -16,8 +16,8 @@ import { Pixel } from '@prisma/client';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
 import { startOfYear, endOfYear } from 'date-fns';
 import { LoadingDots } from '@/components/icons/loading-dots';
-import PixelsByYear from './PixelsByYear';
-import { Button } from '@/components/ui/button';
+import PixelsGrid from './PixelsGrid';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function YearInPixels() {
   const [date, setDate] = useState<Date>(new Date()); // Single state for date
@@ -27,7 +27,6 @@ export default function YearInPixels() {
   const [pixelsCache, setPixelsCache] = useState<Record<number, Pixel[]>>({}); // Cache pixels by year
   const [pixelsByRange, setPixelsByRange] = useState<Pixel[]>([]);
   const [initialLoading, setInitialLoading] = useState<boolean>(true); // Initial page load
-  const [showCalendar, setShowCalendar] = useState<boolean>(true);
 
   const years = Array.from(
     { length: 10 },
@@ -95,14 +94,14 @@ export default function YearInPixels() {
         )}
       </section>
       {!initialLoading && (
-        <>
-          <section className='container px-6 py-6 mx-auto flex flex-col gap-6 max-w-[800px]'>
-            <div className='container flex items-center mx-auto gap-6'>
+        <section className='container px-6 py-6 mx-auto flex flex-col gap-6 max-w-[900px]'>
+          <Tabs defaultValue='calendar'>
+            <TabsList className='w-full gap-3 grid grid-cols-5'>
               <Select
                 onValueChange={handleSelectYear}
                 value={date.getFullYear().toString()} // Use the year from the date
               >
-                <SelectTrigger className='max-w-[180px]'>
+                <SelectTrigger className='max-w-[100px] h-7 col-span-2'>
                   <SelectValue placeholder={date.getFullYear().toString()} />
                 </SelectTrigger>
                 <SelectContent className='max-h-48 overflow-y-auto'>
@@ -116,18 +115,13 @@ export default function YearInPixels() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+              <div className='col-span-3'>
+                <TabsTrigger value='calendar'>Calendar</TabsTrigger>
+                <TabsTrigger value='grid'>Pixels</TabsTrigger>
+              </div>
+            </TabsList>
 
-              <Button
-                variant='secondary'
-                onClick={() => setShowCalendar((prev) => !prev)}
-              >
-                {showCalendar ? 'Show All Pixels' : 'Show Calendar'}
-              </Button>
-            </div>
-          </section>
-
-          {showCalendar ? (
-            <section className='container px-6 py-6 mx-auto flex flex-col gap-6 max-w-[800px]'>
+            <TabsContent value='calendar'>
               <CalendarGrid
                 date={date}
                 setDate={setDate}
@@ -150,13 +144,12 @@ export default function YearInPixels() {
                   pixels={pixelsByRange}
                 />
               )}
-            </section>
-          ) : (
-            <section className='container px-6 py-6 mx-auto grid gap-6 max-w-[900px]'>
-              <PixelsByYear pixels={pixelsByRange} year={date.getFullYear()} />
-            </section>
-          )}
-        </>
+            </TabsContent>
+            <TabsContent value='grid'>
+              <PixelsGrid pixels={pixelsByRange} year={date.getFullYear()} />
+            </TabsContent>
+          </Tabs>
+        </section>
       )}
     </div>
   );

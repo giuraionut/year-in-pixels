@@ -35,7 +35,10 @@ export default function PieChartComponent({
       0
     );
   }, [data]);
-
+  const processedData = data.map((item: any) => ({
+    ...item,
+    moodName: item.moodName.charAt(0).toUpperCase() + item.moodName.slice(1),
+  }));
   return (
     <Card className={cn('p-4 flex flex-col', className)}>
       <CardHeader className='items-center pb-0'>
@@ -50,7 +53,7 @@ export default function PieChartComponent({
           <PieChart>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Pie
-              data={data}
+              data={processedData}
               dataKey='quantity'
               nameKey='moodName'
               innerRadius={50}

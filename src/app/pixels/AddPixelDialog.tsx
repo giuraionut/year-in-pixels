@@ -64,6 +64,7 @@ export default function AddPixelDialog({
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
+
   const pixel = pixels.find((pixel) => {
     const isSameDate =
       pixel.pixelDate.getDate() === date.getDate() &&
@@ -165,12 +166,20 @@ export default function AddPixelDialog({
           toast.success('Pixel created successfully!', {
             description: (
               <div>
-                <p>Mood: {newPixel.mood.name}</p>
+                <p>
+                  Mood:{' '}
+                  {newPixel.mood.name.charAt(0).toUpperCase() +
+                    newPixel.mood.name.slice(1)}
+                </p>
                 {newPixel.events.length > 0 && (
                   <p>
                     Events:{' '}
                     {newPixel.events
-                      .map((event: Event) => event.name)
+                      .map(
+                        (event: Event) =>
+                          event.name.charAt(0).toUpperCase() +
+                          event.name.slice(1)
+                      )
                       .join(', ')}
                   </p>
                 )}

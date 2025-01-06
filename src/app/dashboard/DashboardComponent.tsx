@@ -18,6 +18,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Pixel, Event } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Color } from '../moods/mood';
+import RadarChartComponent from './RadarChartComponent';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export default function DashboardComponent() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,7 +44,6 @@ export default function DashboardComponent() {
     data: { quantity: number; color: Color };
   }>();
 
-  const [events, setEvents] = useState<Event[]>([]);
   const [sortedEvents, setSortedEvents] = useState<
     { event: { name: string }; count: number }[]
   >([]);
@@ -95,6 +100,7 @@ export default function DashboardComponent() {
         startOfYear(new Date()),
         endOfYear(new Date())
       );
+
       setMostUsedMood(getMostUsedMood(pixelsTotal));
       setMostUsedMoodByYear(getMostUsedMood(pixelsByYear));
 
@@ -108,6 +114,7 @@ export default function DashboardComponent() {
         setSortedEvents(eventClassament);
       } else {
         const eventClassament = getEventClassament(pixelsTotal);
+        setPixels(pixelsTotal);
         setSortedEvents(eventClassament);
       }
 
@@ -159,14 +166,25 @@ export default function DashboardComponent() {
                       }}
                       className='w-3 h-3 rounded'
                     ></div>
-                    <h4 className='text-md font-extrabold tracking-tighter inline'>
-                      {mostUsedMoodByYear.moodName.toUpperCase()}
+                    <h4 className='text-sm font-extrabold tracking-tighter inline'>
+                      {mostUsedMoodByYear.moodName.length > 10
+                        ? `${mostUsedMoodByYear.moodName
+                            .charAt(0)
+                            .toUpperCase()}${mostUsedMoodByYear.moodName.slice(
+                            1,
+                            10
+                          )}...`
+                        : `${mostUsedMoodByYear.moodName
+                            .charAt(0)
+                            .toUpperCase()}${mostUsedMoodByYear.moodName.slice(
+                            1
+                          )}`}
                     </h4>
                   </div>
                   <small className='text-sm text-muted-foreground'>
                     {mostUsedMoodByYear.data.quantity >= 1
-                      ? mostUsedMoodByYear.data.quantity + ' time'
-                      : mostUsedMoodByYear.data.quantity + ' times'}
+                      ? `${mostUsedMoodByYear.data.quantity} times`
+                      : ` ${mostUsedMoodByYear.data.quantity} + time`}
                   </small>
                 </CardContent>
               </Card>
@@ -189,14 +207,23 @@ export default function DashboardComponent() {
                       }}
                       className='w-3 h-3 rounded'
                     ></div>
-                    <h4 className='text-md font-extrabold tracking-tighter inline'>
-                      {mostUsedMood.moodName.toUpperCase()}
+                    <h4 className='text-sm font-extrabold tracking-tighter inline'>
+                      {mostUsedMood.moodName.length > 10
+                        ? ` ${mostUsedMood.moodName
+                            .charAt(0)
+                            .toUpperCase()}${mostUsedMood.moodName.slice(
+                            1,
+                            10
+                          )}...`
+                        : `${mostUsedMood.moodName
+                            .charAt(0)
+                            .toUpperCase()}${mostUsedMood.moodName.slice(1)}`}
                     </h4>
                   </div>
                   <small className='text-sm text-muted-foreground'>
                     {mostUsedMood.data.quantity >= 1
-                      ? mostUsedMood.data.quantity + ' time'
-                      : mostUsedMood.data.quantity + ' times'}
+                      ? `${mostUsedMood.data.quantity} times`
+                      : `${mostUsedMood.data.quantity} time`}
                   </small>
                 </CardContent>
               </Card>
@@ -209,17 +236,28 @@ export default function DashboardComponent() {
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Card 3</CardTitle>
-                <CardDescription>Card 3 description</CardDescription>
+                <CardTitle>Top events</CardTitle>
+                <CardDescription>Your top events this year</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul>
                   {sortedEvents.map(({ event, count }) => (
                     <li key={event.name} className=''>
-                      <h4 className='flex justify-between text-md font-extrabold tracking-tighter inline'>
-                        <span>{event.name}</span>
-                        <span>{count} times</span>
-                      </h4>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <h4 className='flex justify-between text-sm font-extrabold tracking-tighter inline'>
+                            <span>
+                              {event.name.length > 25
+                                ? `${event.name.slice(0, 25)}...`
+                                : `${event.name}`}
+                            </span>
+                            <span>{count} </span>
+                          </h4>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{event.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </li>
                   ))}
                 </ul>
@@ -250,17 +288,21 @@ export default function DashboardComponent() {
           ) : (
             <Tabs
               defaultValue='bar'
-              className='col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2 max-w-[400px]'
+              className='col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2 max-w-[450px]'
             >
-              <TabsList className='grid grid-cols-2'>
+              <TabsList className='grid grid-cols-3'>
                 <TabsTrigger value='bar'>Bar Chart</TabsTrigger>
                 <TabsTrigger value='pie'>Pie Chart</TabsTrigger>
+                <TabsTrigger value='radar'>Radar Chart</TabsTrigger>
               </TabsList>
               <TabsContent value='bar'>
                 <BarChartComponent config={config} data={data} />
               </TabsContent>
               <TabsContent value='pie'>
                 <PieChartComponent config={config} data={data} />
+              </TabsContent>
+              <TabsContent value='radar'>
+                <RadarChartComponent config={config} data={data} />
               </TabsContent>
             </Tabs>
           )}
