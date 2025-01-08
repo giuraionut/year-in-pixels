@@ -1,7 +1,9 @@
 import db from "@/lib/db";
+import bcrypt from "bcrypt";
 import { AuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 declare module "next-auth" {
     interface Session {
@@ -82,6 +84,38 @@ export const authOptions: AuthOptions = {
                 },
             },
         }),
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: { label: "Email", type: "email" },
+                password: { label: "Password", type: "password" },
+            },
+            async authorize(credentials) {
+                const { email, password } = credentials || {};
+                if (!email || !password) {
+                    throw new Error("Email and password are required");
+                }
+
+                // Find user in the database
+                const user = await db.user.findUnique({ where: { email } });
+                if (!user || !user.password) {
+                    throw new Error("Invalid credentials");
+                }
+
+                // Verify password
+                const isValid = await bcrypt.compare(password, user.password);
+                if (!isValid) {
+                    throw new Error("Invalid credentials");
+                }
+
+                return {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                };
+            },
+        }),
     ],
     callbacks: {
         /**
@@ -115,20 +149,23 @@ export const authOptions: AuthOptions = {
         /**
          * Sign-In Callback: Handle user and account creation
          */
-        async signIn({ user, account }) {
-            try {
-                if (!account) throw new Error("Missing account information");
-
-                await fetchOrCreateUser(user, {
-                    provider: account.provider,
-                    id: String(account.id),
-                    type: account.type || "oauth",
-                });
-
-                return true;
-            } catch (error) {
+        async signIn({ user, account, credentials }) {
+            if (account?.provider === "credentials" && !user) {
                 return false;
             }
+            if (account) {
+                try {
+                    await fetchOrCreateUser(user, {
+                        provider: account.provider,
+                        id: String(account.id),
+                        type: account.type || "oauth",
+                    });
+                } catch (error) {
+                    console.error("Sign-In error:", error);
+                    return false;
+                }
+            }
+            return true;
         },
     },
 };

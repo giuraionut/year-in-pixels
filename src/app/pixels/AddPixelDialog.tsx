@@ -464,7 +464,7 @@ export default function AddPixelDialog({
             <Link href={type === 'moods' ? '/moods' : '/events'}>
               <Button
                 variant='link'
-                className='text-left p-0 hover:underline text-primary pl-0 capitalize'
+                className='text-left p-0 hover:underline hover:pointer text-primary pl-0'
               >
                 Add a {type === 'moods' ? 'mood' : 'event'} first.
               </Button>

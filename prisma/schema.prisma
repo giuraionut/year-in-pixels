@@ -19,13 +19,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-
-  accounts Account[]
-  sessions Session[]
-  moods    Mood[]
-  events   Event[]
-  pixels   Pixel[]
-  diaries  Diary[]
+  password      String?
+  accounts      Account[]
+  sessions      Session[]
+  moods         Mood[]
+  events        Event[]
+  pixels        Pixel[]
+  diaries       Diary[]
 }
 
 model Account {
