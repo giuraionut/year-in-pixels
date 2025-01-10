@@ -123,39 +123,42 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
       </ul>
 
       <ul style={styles.squares}>
-        {[
-          ...pixels,
-          ...Array(getDaysInYear(new Date(year, 0)) - pixels.length),
-        ].map((pixel, index) => (
-          <Tooltip key={index}>
-            <TooltipTrigger asChild>
-              <li
-                onClick={() => handleClickOnPixel(pixel)}
-                style={{
-                  backgroundColor:
-                    filterColor === null ||
-                    pixel?.mood?.color?.value === filterColor
-                      ? pixel?.mood?.color?.value || 'gray'
-                      : 'lightgray',
-                  width: `${SQUARE_SIZE}px`,
-                  height: `${SQUARE_SIZE}px`,
-                  transitionDuration: '0.25s',
-                }}
-                className='rounded-[2px] cursor-pointer'
-              ></li>
-            </TooltipTrigger>
-            <TooltipContent>
-              {pixel?.mood?.name
-                ? pixel.mood.name.charAt(0).toUpperCase() +
-                  pixel.mood.name.slice(1)
-                : 'Not set yet.'}{' '}
-              {pixel?.pixelDate
-                ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`
-                : ''}
-            </TooltipContent>
-          </Tooltip>
-        ))}
-      </ul>
+  {[
+    ...pixels,
+    ...Array(
+      Math.max(0, getDaysInYear(new Date(year, 0)) - pixels.length)
+    ), // Ensure the length is never negative
+  ].map((pixel, index) => (
+    <Tooltip key={index}>
+      <TooltipTrigger asChild>
+        <li
+          onClick={() => pixel && handleClickOnPixel(pixel)} // Avoid null pixels
+          style={{
+            backgroundColor:
+              filterColor === null ||
+              pixel?.mood?.color?.value === filterColor
+                ? pixel?.mood?.color?.value || 'gray'
+                : 'lightgray',
+            width: `${SQUARE_SIZE}px`,
+            height: `${SQUARE_SIZE}px`,
+            transitionDuration: '0.25s',
+          }}
+          className='rounded-[2px] cursor-pointer'
+        ></li>
+      </TooltipTrigger>
+      <TooltipContent>
+        {pixel?.mood?.name
+          ? pixel.mood.name.charAt(0).toUpperCase() +
+            pixel.mood.name.slice(1)
+          : 'Not set yet.'}{' '}
+        {pixel?.pixelDate
+          ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`
+          : ''}
+      </TooltipContent>
+    </Tooltip>
+  ))}
+</ul>
+
     </div>
   );
 };

@@ -5,36 +5,29 @@ import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-declare module "next-auth" {
-    interface Session {
-        user: {
-            id: string;
-            name: string;
-            email: string;
-            image?: string;
-        };
-    }
-}
 
 /**
  * Utility: Fetch or Create User and Account
  */
+
+
 const fetchOrCreateUser = async (
     user: User,
-    account: { provider: string; id: string; type: string }
+    account: { provider: string; providerAccountId: string; id: string; type: string }
 ) => {
     const { email, name, image } = user;
-    const { provider, id: providerAccountId, type } = account;
+    const { provider, providerAccountId, type } = account;
 
     if (!email) throw new Error("Email is required for OAuth");
 
     const providerStr = String(provider);
     const providerAccountIdStr = String(providerAccountId);
 
-    // Find or create user
+    // Find or create the user based on email
     let existingUser = await db.user.findUnique({ where: { email } });
 
     if (!existingUser) {
+        // If user doesn't exist, create a new one
         existingUser = await db.user.create({
             data: {
                 email,
@@ -44,17 +37,17 @@ const fetchOrCreateUser = async (
         });
     }
 
-    // Check if account exists, else link the account
-    const existingAccount = await db.account.findUnique({
+    // Check if the account already exists
+    const existingAccount = await db.account.findFirst({
         where: {
-            provider_providerAccountId: {
-                provider: providerStr,
-                providerAccountId: providerAccountIdStr,
-            },
+            provider: providerStr,
+            providerAccountId: providerAccountIdStr,
+            userId: existingUser.id,
         },
     });
 
     if (!existingAccount) {
+        // Create the account entry if it doesn't exist
         await db.account.create({
             data: {
                 userId: existingUser.id,
@@ -121,7 +114,14 @@ export const authOptions: AuthOptions = {
         /**
          * JWT Callback: Add user ID to the token
          */
-        async jwt({ token, user }: { token: JWT; user?: User }) {
+        async jwt({ token, user, trigger, session }: { token: JWT; user?: User, trigger?: string, session?: Session }) {
+            if (trigger === 'update' && session) {
+                if (session.user.image) token.image = session.user.image;
+                if (session.user.email) token.email = session.user.email;
+                if (session.user.name) token.name = session.user.name;
+                if (token.image) { token.image = session.user.image; }
+                if (token.picture) { token.picture = session.user.image; }
+            }
             if (user) token.id = String(user.id);
             return token;
         },
@@ -157,6 +157,7 @@ export const authOptions: AuthOptions = {
                 try {
                     await fetchOrCreateUser(user, {
                         provider: account.provider,
+                        providerAccountId: account.providerAccountId,
                         id: String(account.id),
                         type: account.type || "oauth",
                     });

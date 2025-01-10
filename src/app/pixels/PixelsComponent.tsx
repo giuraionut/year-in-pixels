@@ -14,18 +14,25 @@ import CalendarGrid from '@/components/calendar-grid';
 import AddPixelDialog from './AddPixelDialog';
 import { Pixel } from '@prisma/client';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
-import { startOfYear, endOfYear } from 'date-fns';
+import {
+  startOfYear,
+  endOfYear,
+  addMonths,
+  startOfDay,
+  endOfDay,
+} from 'date-fns';
 import { LoadingDots } from '@/components/icons/loading-dots';
 import PixelsGrid from './PixelsGrid';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function YearInPixels() {
-  const [date, setDate] = useState<Date>(new Date()); // Single state for date
+  const [date, setDate] = useState<Date>(() => new Date()); // Use lazy initialization
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
   const [pixelsCache, setPixelsCache] = useState<Record<number, Pixel[]>>({}); // Cache pixels by year
   const [pixelsByRange, setPixelsByRange] = useState<Pixel[]>([]);
+  const [pixelsForGrid, setPixelsForGrid] = useState<Pixel[]>([]); // Separate state for PixelsGrid
   const [initialLoading, setInitialLoading] = useState<boolean>(true); // Initial page load
 
   const years = Array.from(
@@ -42,20 +49,39 @@ export default function YearInPixels() {
     if (pixelsCache[year]) {
       // If pixels are cached for this year, use them
       setPixelsByRange(pixelsCache[year]);
+      setPixelsForGrid(
+        pixelsCache[year].filter(
+          (pixel) =>
+            pixel.pixelDate >= startOfYear(new Date(year, 0, 1)) &&
+            pixel.pixelDate <= endOfYear(new Date(year, 11, 31))
+        )
+      );
       return;
     }
 
-    const from = startOfYear(new Date(year, 0, 1));
-    const to = endOfYear(new Date(year, 11, 31));
+    // Adjust the "from" and "to" range here in YearInPixels
+    const from = startOfYear(new Date(year, 0, 1)); // January 1st of the selected year
+    const to = endOfYear(new Date(year, 11, 31)); // December 31st of the selected year
 
-    // Fetch pixels from the server
-    const fetchedPixels = await getUserPixelsByRange(from, to);
+    // Calculate the previous month's range (to fill in the beginning of the calendar)
+    const adjustedFrom = startOfDay(addMonths(from, -1)); // Start from December of the previous year
+    const adjustedTo = endOfDay(to); // End of the current year's December 31st
+
+    // Fetch pixels from the server with adjusted range
+    const fetchedPixels = await getUserPixelsByRange(adjustedFrom, adjustedTo);
     if (fetchedPixels) {
       setPixelsCache((prevCache) => ({
         ...prevCache,
         [year]: fetchedPixels, // Cache the fetched pixels
       }));
       setPixelsByRange(fetchedPixels);
+
+      // Filter exact one-year range for PixelsGrid
+      setPixelsForGrid(
+        fetchedPixels.filter(
+          (pixel) => pixel.pixelDate >= from && pixel.pixelDate <= to
+        )
+      );
     }
   };
 
@@ -63,7 +89,6 @@ export default function YearInPixels() {
     const currentYear = date.getFullYear();
 
     const loadPixels = async () => {
-      // Only show loading indicator on the first fetch
       if (initialLoading) {
         setInitialLoading(true);
       }
@@ -99,7 +124,7 @@ export default function YearInPixels() {
             <TabsList className='w-full gap-3 grid grid-cols-5'>
               <Select
                 onValueChange={handleSelectYear}
-                value={date.getFullYear().toString()} // Use the year from the date
+                value={date.getFullYear().toString()}
               >
                 <SelectTrigger className='max-w-[100px] h-7 col-span-2'>
                   <SelectValue placeholder={date.getFullYear().toString()} />
@@ -135,7 +160,6 @@ export default function YearInPixels() {
                   setOpen={setOpen}
                   setPixels={(updatedPixels) => {
                     setPixelsByRange(updatedPixels);
-                    // Update the cache as well
                     setPixelsCache((prevCache: Record<number, Pixel[]>) => ({
                       ...prevCache,
                       [date.getFullYear()]: updatedPixels as Pixel[],
@@ -146,7 +170,7 @@ export default function YearInPixels() {
               )}
             </TabsContent>
             <TabsContent value='grid'>
-              <PixelsGrid pixels={pixelsByRange} year={date.getFullYear()} />
+              <PixelsGrid pixels={pixelsForGrid} year={date.getFullYear()} />
             </TabsContent>
           </Tabs>
         </section>

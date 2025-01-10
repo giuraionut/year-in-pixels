@@ -14,3 +14,4 @@ declare module '@prisma/client' {
         events: Event[]
     }
 }
+
