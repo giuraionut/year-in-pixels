@@ -78,7 +78,7 @@ export default function SignUp() {
   return (
     <div className='container px-6 py-6 mx-auto gap-6 max-w-[400px]'>
       <Card className='p-5 flex flex-col gap-5'>
-        <h3 className='scroll-m-20 text-2xl font-semibold tracking-tight'>
+        <h3 className='scroll-m-20 text-2xl font-semibold tracking-tight text-center'>
           Create an Account
         </h3>
         <Form {...form}>
@@ -107,7 +107,7 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder='Email' {...field} />
+                    <Input placeholder='email@example.com' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,9 +151,9 @@ export default function SignUp() {
             </Button>
           </form>
         </Form>
-        <p className='text-sm text-gray-500'>
+        <p className='text-sm text-gray-500 text-center'>
           Already have an account?{' '}
-          <a href='/auth/signin' className='text-blue-500 underline'>
+          <a href='/api/auth/signin' className='text-blue-500 underline'>
             Sign in
           </a>
         </p>

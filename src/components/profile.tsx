@@ -1,3 +1,4 @@
+'use client'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -10,18 +11,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AvatarImage } from '@radix-ui/react-avatar';
-import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import { User, Settings, LifeBuoy, Cloud, LogOut } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import React from 'react';
-
-const handleLogout = () => {
-  signOut({ callbackUrl: 'http://localhost:3000/' });
-};
 
 export default function Profile({ className }: { className?: string }) {
   const { data: session } = useSession();
+  const router = useRouter();
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
+
+  const navigateToProfile = () => {
+    router.push('/profile');
+  };
   return (
     session && (
       <DropdownMenu>
@@ -51,22 +56,12 @@ export default function Profile({ className }: { className?: string }) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={navigateToProfile}>
               <User />
               <span>Profile</span>
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings />
-              <span>Settings</span>
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-            </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <GitHubLogoIcon />
-            <span>GitHub</span>
-          </DropdownMenuItem>
           <DropdownMenuItem>
             <LifeBuoy />
             <span>Support</span>

@@ -57,24 +57,24 @@ export const setPassword = async ({
 }): Promise<{ success: boolean; message: string }> => {
     try {
         if (!email || !newPassword) {
-            throw new Error('Email and new password are required');
+            throw new Error('Email and new password are required!');
         }
 
         // Find the user
         const user = await db.user.findUnique({ where: { email } });
         if (!user) {
-            return { success: false, message: 'User not found' };
+            return { success: false, message: 'User not found.' };
         }
 
         // If currentPassword is provided, verify it
         if (currentPassword) {
             const isMatch = await bcrypt.compare(currentPassword, user.password || '');
             if (!isMatch) {
-                return { success: false, message: 'Current password is incorrect' };
+                return { success: false, message: 'Current password is incorrect.' };
             }
         } else if (user.password) {
             // If currentPassword is not provided but a password exists, reject
-            return { success: false, message: 'Current password is required to set a new password' };
+            return { success: false, message: 'Current password is required to set a new password.' };
         }
 
         // Hash the new password
@@ -86,10 +86,10 @@ export const setPassword = async ({
             data: { password: hashedPassword },
         });
 
-        return { success: true, message: 'Password updated successfully' };
+        return { success: true, message: 'Password updated successfully.' };
     } catch (error) {
         console.error('Error setting password:', error);
-        return { success: false, message: 'Internal server error' };
+        return { success: false, message: 'Internal server error.' };
     }
 };
 // Get connected providers for a user
@@ -110,7 +110,7 @@ export const getConnectedProviders = async ({
         });
 
         if (!user) {
-            return { success: false, message: 'User not found' };
+            return { success: false, message: 'User not found.' };
         }
 
         const accounts = await db.account.findMany({
@@ -128,7 +128,7 @@ export const getConnectedProviders = async ({
         };
     } catch (error) {
         handleServerError(error, 'retrieving connected providers.');
-        return { success: false, message: 'Internal server error' };
+        return { success: false, message: 'Internal server error.' };
     }
 };
 
@@ -144,7 +144,7 @@ export const updateUserProfile = async ({
 }): Promise<{ success: boolean; message: string }> => {
     try {
         if (!userId) {
-            throw new Error('User ID is required');
+            throw new Error('User ID is required.');
         }
 
         const updatedUser = await db.user.update({
@@ -156,13 +156,13 @@ export const updateUserProfile = async ({
         });
 
         if (!updatedUser) {
-            return { success: false, message: 'Failed to update user profile' };
+            return { success: false, message: 'Failed to update user profile.' };
         }
 
-        return { success: true, message: 'Profile updated successfully' };
+        return { success: true, message: 'Profile updated successfully.' };
     } catch (error) {
         handleServerError(error, 'updating the user profile.');
-        return { success: false, message: 'Internal server error' };
+        return { success: false, message: 'Internal server error.' };
     }
 };
 
