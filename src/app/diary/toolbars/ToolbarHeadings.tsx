@@ -46,7 +46,7 @@ export default function ToolbarHeadings({ editor }: { editor: Editor }) {
             ),
           })}
         >
-          <Heading className='h-4 w-4' />
+          <Heading />
         </Toggle>
       </PopoverTrigger>
       <PopoverContent className='w-full'>
@@ -61,7 +61,7 @@ export default function ToolbarHeadings({ editor }: { editor: Editor }) {
             onClick={() => handleHeading(level)}
           >
             Heading {level}
-            <Icon className='h-4 w-4' />
+            <Icon />
           </Toggle>
         ))}
       </PopoverContent>

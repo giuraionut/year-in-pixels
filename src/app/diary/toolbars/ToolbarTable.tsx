@@ -23,7 +23,7 @@ export default function ToolbarTable({ editor }: { editor: Editor }) {
     <Popover>
       <PopoverTrigger asChild>
         <Toggle value='table' aria-label='Insert table'>
-          <Table className='h-4 w-4' />
+          <Table />
         </Toggle>
       </PopoverTrigger>
       <PopoverContent className='w-full'>

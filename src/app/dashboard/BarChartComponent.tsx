@@ -1,6 +1,5 @@
 'use client';
 
-import { RectangleHorizontal, RectangleVertical } from 'lucide-react';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 
 import {
@@ -18,6 +17,7 @@ import {
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { IconChartBar } from '@tabler/icons-react';
 
 export default function BarChartComponent({
   className,
@@ -63,7 +63,7 @@ export default function BarChartComponent({
             className='w-4 h-8'
             variant={'outline'}
           >
-            {barChartVertical ? <RectangleVertical /> : <RectangleHorizontal />}
+            {barChartVertical ? <IconChartBar style={{transform: 'rotate(90deg)' }} /> : <IconChartBar />}
           </Button>
         </CardTitle>
         <CardDescription>Based on date range</CardDescription>

@@ -62,7 +62,7 @@ export default function ToolbarCalendar({
                 className
               )}
             >
-              <CalendarIcon className='' />
+              <CalendarIcon/>
             </Button>
           </TooltipTrigger>
         </PopoverTrigger>

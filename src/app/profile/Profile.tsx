@@ -27,8 +27,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { getConnectedProviders, setPassword } from '@/actions/authActions';
 import { updateUserImage } from '@/actions/userActions';
 import { GoogleIcon } from '@/components/icons/google';
-import { Badge } from '@/components/ui/badge';
-import { Key } from 'lucide-react';
+import { IconKeyFilled } from '@tabler/icons-react';
 
 export default function Profile() {
   const { data: session, update } = useSession();
@@ -151,9 +150,9 @@ export default function Profile() {
     <div className='relative flex flex-col items-start gap-2'>
       <section
         id='dashboard-header'
-        className='flex flex-col items-start gap-2 border-b border-border/40 py-2 dark:border-border md:py-10 lg:py-12
+        className='flex flex-col items-start border-b border-border/40 py-2 dark:border-border md:py-10 lg:py-12
           bg-background/95 backdrop-blur 
-        supports-[backdrop-filter]:bg-background/60 sticky top-10 z-50 container px-6 flex mx-auto flex-wrap gap-6'
+        supports-[backdrop-filter]:bg-background/60 sticky top-10 z-50 container px-6 mx-auto flex-wrap gap-6'
       >
         <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
           User Profile
@@ -323,7 +322,9 @@ export default function Profile() {
                       {provider.provider === 'google' && (
                         <GoogleIcon size={12} />
                       )}
-                      {provider.provider === 'credentials' && <Key size={12} />}
+                      {provider.provider === 'credentials' && (
+                        <IconKeyFilled size={16} />
+                      )}
                       | connected on{' '}
                       {new Date(provider.createdAt).toLocaleString()}
                     </Card>

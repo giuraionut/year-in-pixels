@@ -93,7 +93,7 @@ export default function ToolbarFormatting({ editor }: { editor: Editor }) {
                 })}
                 onClick={action}
               >
-                <Icon className='h-4 w-4' />
+                <Icon />
               </Toggle>
             )
         )}
@@ -109,7 +109,7 @@ export default function ToolbarFormatting({ editor }: { editor: Editor }) {
                 editor.isActive('codeBlock'),
             })}
           >
-            <Ellipsis className='h-4 w-4' />
+            <Ellipsis />
           </Toggle>
         </PopoverTrigger>
         <PopoverContent className='w-full'>
@@ -126,7 +126,7 @@ export default function ToolbarFormatting({ editor }: { editor: Editor }) {
                   onClick={action}
                 >
                   {name.charAt(0).toUpperCase() + name.slice(1)}
-                  <Icon className='h-4 w-4' />
+                  <Icon />
                 </Toggle>
               )
           )}

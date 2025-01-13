@@ -128,7 +128,7 @@ export default function DashboardComponent() {
     <div className='relative flex flex-col items-start gap-2'>
       <section
         id='dashboard-header'
-        className='flex flex-col items-start gap-2 border-b border-border/40 py-2 dark:border-border md:py-10 lg:py-12
+        className=' flex-col items-start border-b border-border/40 py-2 dark:border-border md:py-10 lg:py-12
       bg-background/95 backdrop-blur 
     supports-[backdrop-filter]:bg-background/60 sticky top-10 z-50 container px-6 flex mx-auto flex-wrap gap-6'
       >
@@ -245,7 +245,7 @@ export default function DashboardComponent() {
                     <li key={event.name} className=''>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <h4 className='flex justify-between text-sm font-extrabold tracking-tighter inline'>
+                          <h4 className='flex justify-between text-sm font-extrabold tracking-tighter'>
                             <span>
                               {event.name.length > 25
                                 ? `${event.name.slice(0, 25)}...`

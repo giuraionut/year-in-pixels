@@ -5,14 +5,25 @@ import {
   ChevronRight,
   TableCellsMerge,
   TableCellsSplit,
-  Trash,
 } from 'lucide-react';
 import { useCallback } from 'react';
 import type { GetReferenceClientRect } from 'tippy.js';
 import { sticky } from 'tippy.js';
-import { DeleteColumn } from '../../../components/icons/delete-column';
-import { DeleteRow } from '@/components/icons/delete-row';
-
+import {
+  IconColumnInsertLeft,
+  IconColumnInsertRight,
+  IconColumnRemove,
+  IconRowInsertBottom,
+  IconRowInsertTop,
+  IconRowRemove,
+  IconTableMinus,
+  IconTableSpark,
+} from '@tabler/icons-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 type TableBubbleMenuProps = {
   editor: Editor | null;
 };
@@ -50,6 +61,17 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
     return rect;
   };
   if (!editor) return null;
+
+  const wrapWithTooltip = (
+    button: React.ReactElement,
+    tooltipText: string
+  ): React.ReactElement => (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent sideOffset={12}>{tooltipText}</TooltipContent>
+    </Tooltip>
+  );
+
   return (
     <BubbleMenu
       editor={editor}
@@ -59,6 +81,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
         popperOptions: {
           modifiers: [{ name: 'flip', enabled: false }],
         },
+
         maxWidth: 'auto',
         getReferenceClientRect,
         plugins: [sticky],
@@ -66,64 +89,83 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
       }}
       shouldShow={shouldShow}
     >
-      <Card className='p-2 flex gap-3'>
-        <button onClick={() => editor.chain().focus().addColumnBefore().run()}>
-          Add column before
-        </button>
-        <button onClick={() => editor.chain().focus().addColumnAfter().run()}>
-          Add column after
-        </button>
-        <button onClick={() => editor.chain().focus().deleteColumn().run()}>
-          <DeleteColumn className='w-4 h-4' />
-        </button>
-        <button onClick={() => editor.chain().focus().addRowBefore().run()}>
-          add row before
-        </button>
-        <button onClick={() => editor.chain().focus().addRowAfter().run()}>
-          add row after
-        </button>
-        <button onClick={() => editor.chain().focus().deleteRow().run()}>
-          <DeleteRow className='w-4 h-4' />
-        </button>
-        <button onClick={() => editor.chain().focus().deleteTable().run()}>
-          <Trash className='w-4 h-4' />
-        </button>
-        <button onClick={() => editor.chain().focus().mergeCells().run()}>
-          <TableCellsMerge className='w-4 h-4' />
-        </button>
-        <button onClick={() => editor.chain().focus().splitCell().run()}>
-          <TableCellsSplit className='w-4 h-4' />
-        </button>
-        <button
-          onClick={() => editor.chain().focus().toggleHeaderColumn().run()}
-        >
-          Toggle header column
-        </button>
-        <button onClick={() => editor.chain().focus().toggleHeaderRow().run()}>
-          Toggle header row
-        </button>
-        <button onClick={() => editor.chain().focus().toggleHeaderCell().run()}>
-          Toggle header cell
-        </button>
-        <button onClick={() => editor.chain().focus().mergeOrSplit().run()}>
-          Merge or split
-        </button>
-        <button
-          onClick={() =>
-            editor.chain().focus().setCellAttribute('colspan', 2).run()
-          }
-        >
-          Set cell attribute
-        </button>
-        <button onClick={() => editor.chain().focus().fixTables().run()}>
-          Fix tables
-        </button>
-        <button onClick={() => editor.chain().focus().goToPreviousCell().run()}>
-          <ChevronLeft className='w-4 h-4' />
-        </button>
-        <button onClick={() => editor.chain().focus().goToNextCell().run()}>
-          <ChevronRight className='w-4 h-4' />
-        </button>
+      <Card className='p-2 flex gap-3 rounded-md'>
+        {wrapWithTooltip(
+          <button
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+          >
+            <IconColumnInsertLeft className='w-4 h-4' />
+          </button>,
+          'Add Column Before'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().addColumnAfter().run()}>
+            <IconColumnInsertRight className='w-4 h-4' />
+          </button>,
+          'Add Column After'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().deleteColumn().run()}>
+            <IconColumnRemove className='w-4 h-4' />
+          </button>,
+          'Delete Column'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().addRowBefore().run()}>
+            <IconRowInsertBottom className='w-4 h-4' />
+          </button>,
+          'Add Row Before'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().addRowAfter().run()}>
+            <IconRowInsertTop className='w-4 h-4' />
+          </button>,
+          'Add Row After'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().deleteRow().run()}>
+            <IconRowRemove className='w-4 h-4' />
+          </button>,
+          'Delete Row'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().deleteTable().run()}>
+            <IconTableMinus className='w-4 h-4' />
+          </button>,
+          'Delete Table'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().mergeCells().run()}>
+            <TableCellsMerge className='w-4 h-4' />
+          </button>,
+          'Merge Cells'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().splitCell().run()}>
+            <TableCellsSplit className='w-4 h-4' />
+          </button>,
+          'Split Cell'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().fixTables().run()}>
+            <IconTableSpark className='w-4 h-4' />
+          </button>,
+          'Fix Table'
+        )}
+        {wrapWithTooltip(
+          <button
+            onClick={() => editor.chain().focus().goToPreviousCell().run()}
+          >
+            <ChevronLeft className='w-4 h-4' />
+          </button>,
+          'Go to Previous Cell'
+        )}
+        {wrapWithTooltip(
+          <button onClick={() => editor.chain().focus().goToNextCell().run()}>
+            <ChevronRight className='w-4 h-4' />
+          </button>,
+          'Go to Next Cell'
+        )}
       </Card>
     </BubbleMenu>
   );

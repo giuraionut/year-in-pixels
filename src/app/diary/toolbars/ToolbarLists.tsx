@@ -34,7 +34,7 @@ export default function ToolbarLists({ editor }: { editor: Editor }) {
             'bg-accent': listOptions.some(({ name }) => editor.isActive(name)),
           })}
         >
-          <List className='h-4 w-4' />
+          <List />
         </Toggle>
       </PopoverTrigger>
       <PopoverContent className='w-full'>
@@ -49,7 +49,7 @@ export default function ToolbarLists({ editor }: { editor: Editor }) {
             onClick={() => toggleList(name)}
           >
             {name.replace(/([A-Z])/g, ' $1')}
-            <Icon className='h-4 w-4' />
+            <Icon />
           </Toggle>
         ))}
       </PopoverContent>
