@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { format, getDaysInYear } from 'date-fns';
+import { format } from 'date-fns';
 import { Pixel } from '@prisma/client';
 import {
   Tooltip,
@@ -11,6 +11,18 @@ import { toast } from 'sonner';
 const SQUARE_SIZE = 13.4;
 const SQUARE_GAP = 2;
 const WEEK_WIDTH = SQUARE_SIZE + SQUARE_GAP;
+
+const getCalendarDays = (year: number) => {
+  const days = [];
+  let date = new Date(year, 0, 1);
+
+  while (date.getFullYear() === year) {
+    days.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return days;
+};
 
 const getDateMatrix = (year: number) => {
   const matrix: Date[][] = Array.from({ length: 7 }, () => []);
@@ -34,11 +46,23 @@ const getWeeksPerMonth = (dates: Date[]) => {
 };
 
 const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
+  const calendarDays = React.useMemo(() => getCalendarDays(year), [year]);
   const matrix = React.useMemo(() => getDateMatrix(year), []);
+  const [filterColor, setFilterColor] = useState<string | null>(null);
+  
   const weeksPerMonth = React.useMemo(
     () => getWeeksPerMonth(matrix[0]),
     [matrix]
   );
+
+  const dayToPixelMap = React.useMemo(() => {
+    const map = new Map<string, Pixel>();
+    pixels.forEach((pixel) => {
+      const dateStr = format(new Date(pixel.pixelDate), 'yyyy-MM-dd');
+      map.set(dateStr, pixel);
+    });
+    return map;
+  }, [pixels]);
 
   const styles = React.useMemo(
     () => ({
@@ -75,8 +99,6 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
     }),
     [weeksPerMonth]
   );
-
-  const [filterColor, setFilterColor] = useState<string | null>(null);
 
   const handleClickOnPixel = (pixel: Pixel) => {
     if (!pixel || !pixel.mood || !pixel.mood.color) {
@@ -123,42 +145,41 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
       </ul>
 
       <ul style={styles.squares}>
-  {[
-    ...pixels,
-    ...Array(
-      Math.max(0, getDaysInYear(new Date(year, 0)) - pixels.length)
-    ), // Ensure the length is never negative
-  ].map((pixel, index) => (
-    <Tooltip key={index}>
-      <TooltipTrigger asChild>
-        <li
-          onClick={() => pixel && handleClickOnPixel(pixel)} // Avoid null pixels
-          style={{
-            backgroundColor:
-              filterColor === null ||
-              pixel?.mood?.color?.value === filterColor
-                ? pixel?.mood?.color?.value || 'gray'
-                : 'lightgray',
-            width: `${SQUARE_SIZE}px`,
-            height: `${SQUARE_SIZE}px`,
-            transitionDuration: '0.25s',
-          }}
-          className='rounded-[2px] cursor-pointer'
-        ></li>
-      </TooltipTrigger>
-      <TooltipContent>
-        {pixel?.mood?.name
-          ? pixel.mood.name.charAt(0).toUpperCase() +
-            pixel.mood.name.slice(1)
-          : 'Not set yet.'}{' '}
-        {pixel?.pixelDate
-          ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`
-          : ''}
-      </TooltipContent>
-    </Tooltip>
-  ))}
-</ul>
+        {calendarDays.map((day, index) => {
+          const dateStr = format(day, 'yyyy-MM-dd');
+          const pixel = dayToPixelMap.get(dateStr);
 
+          return (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <li
+                  onClick={() => handleClickOnPixel(pixel || null)}
+                  style={{
+                    backgroundColor:
+                      filterColor === null ||
+                      pixel?.mood?.color?.value === filterColor
+                        ? pixel?.mood?.color?.value || 'gray'
+                        : 'lightgray',
+                    width: `${SQUARE_SIZE}px`,
+                    height: `${SQUARE_SIZE}px`,
+                    transitionDuration: '0.25s',
+                  }}
+                  className='rounded-[2px] cursor-pointer'
+                ></li>
+              </TooltipTrigger>
+              <TooltipContent>
+                {pixel?.mood?.name
+                  ? pixel.mood.name.charAt(0).toUpperCase() +
+                    pixel.mood.name.slice(1)
+                  : 'Not set yet.'}{' '}
+                {pixel?.pixelDate
+                  ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`
+                  : ''}
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </ul>
     </div>
   );
 };
