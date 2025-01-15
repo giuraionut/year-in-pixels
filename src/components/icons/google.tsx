@@ -1,15 +1,13 @@
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { IconProps } from '../components';
 
-export interface DeleteColumnProps extends React.SVGProps<SVGSVGElement> {
-  size?: number; // Optional size prop
-  className?: string; // Tailwind-compatible classes
-}
+
 export const GoogleIcon = ({
   size = 18, // Default size
   className,
   ...props
-}: DeleteColumnProps) => {
+}: IconProps) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
