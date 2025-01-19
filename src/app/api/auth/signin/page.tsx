@@ -20,6 +20,7 @@ import { signIn, getProviders, ClientSafeProvider } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleIcon } from '@/components/icons/google';
+import Link from 'next/link';
 
 const LoginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -148,10 +149,10 @@ export default function SignIn() {
         </div>
 
         <p className='text-sm text-gray-500 text-center'>
-          Don't have an account yet?{' '}
-          <a href='/api/auth/signup' className='text-blue-500 underline'>
+          Don&apos;t have an account yet?{' '}
+          <Link href='/api/auth/signup' className='text-blue-500 underline'>
             Sign up
-          </a>
+          </Link>
         </p>
       </Card>
     </div>

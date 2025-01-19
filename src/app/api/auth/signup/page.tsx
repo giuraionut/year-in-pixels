@@ -19,6 +19,7 @@ import { LoadingDots } from '@/components/icons/loading-dots';
 import { useRouter } from 'next/navigation';
 import { createUser } from '@/actions/authActions';
 import { useState } from 'react';
+import Link from 'next/link';
 
 const SignUpSchema = z
   .object({
@@ -66,9 +67,9 @@ export default function SignUp() {
 
       // Redirect to sign-in page after successful registration
       router.push('/api/auth/signin');
-    } catch (err: any) {
+    } catch (err: unknown) {
       form.setError('email', {
-        message: err.message || 'An unexpected error occurred',
+        message: (err as Error).message || 'An unexpected error occurred',
       });
     } finally {
       setIsSubmitting(false);
@@ -153,9 +154,9 @@ export default function SignUp() {
         </Form>
         <p className='text-sm text-gray-500 text-center'>
           Already have an account?{' '}
-          <a href='/api/auth/signin' className='text-blue-500 underline'>
+          <Link href='/api/auth/signin' className='text-blue-500 underline'>
             Sign in
-          </a>
+          </Link>
         </p>
       </Card>
     </div>
