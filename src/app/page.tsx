@@ -140,7 +140,7 @@ export default async function Home() {
       </section>
 
       {/* Dynamic Sections */}
-      {sections.map((sec, index) => (
+      {sections.map((sec) => (
         <section key={sec.id} id={sec.id} className={`py-20 ${sec.bg}`}>
           <div
             className={`px-20 flex flex-col md:flex-row items-center ${
