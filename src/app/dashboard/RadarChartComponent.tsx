@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -24,6 +25,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+interface EventData {
+  [key: string]: number;
+}
+
+interface DataItem {
+  moodName: string;
+  quantity: number;
+  events: EventData;
+}
+
 export default function RadarChartComponent({
   className,
   data,
@@ -31,15 +42,14 @@ export default function RadarChartComponent({
 }: {
   className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: any;
+  data: DataItem[];
+  config: ChartConfig;
 }) {
   const [selectedEvent, setSelectedEvent] = React.useState<string>(
     Object.keys(data[0]?.events || {})[0] || ''
   );
 
-  const processedData = data.map((item: any) => ({
+  const processedData = data.map((item: DataItem) => ({
     ...item,
     moodName: item.moodName.charAt(0).toUpperCase() + item.moodName.slice(1),
     selectedEventCount: item.events[selectedEvent] || 0,

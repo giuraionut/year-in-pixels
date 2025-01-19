@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -18,6 +19,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { IconChartBar } from '@tabler/icons-react';
+interface DataItem {
+  moodName: string;
+  quantity: number;
+}
 
 export default function BarChartComponent({
   className,
@@ -25,10 +30,9 @@ export default function BarChartComponent({
   config,
 }: {
   className?: string;
+  data: DataItem[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: any;
+  config: ChartConfig;
 }) {
   const [barChartVertical, setBarChartVertical] = useState<boolean>(false);
 
@@ -37,21 +41,34 @@ export default function BarChartComponent({
   }
 
   // Capitalize moodName in data
-  const processedData = data.map((item: any) => ({
+
+  const processedData = data.map((item: DataItem) => ({
     ...item,
     moodName: item.moodName.charAt(0).toUpperCase() + item.moodName.slice(1),
   }));
 
   // Capitalize keys and labels in config
-  const processedConfig = Object.keys(config).reduce((acc, key) => {
-    const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-    acc[capitalizedKey] = {
-      ...config[key],
-      label:
-        config[key].label.charAt(0).toUpperCase() + config[key].label.slice(1),
-    };
+  /**
+   * Capitalize keys and labels in config
+   *
+   * @param {Record<string, { label: string }>} config
+   * @returns {Record<string, { label: string }>}
+   */
+  const processedConfig: Record<string, { label: string }> = Object.keys(
+    config
+  ).reduce((acc, key): Record<string, { label: string }> => {
+    const configItem = config[key];
+    if (configItem && typeof configItem.label === 'string') {
+      // Ensure label is a string
+      const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+      acc[capitalizedKey] = {
+        ...configItem,
+        label:
+          configItem.label.charAt(0).toUpperCase() + configItem.label.slice(1),
+      };
+    }
     return acc;
-  }, {} as any);
+  }, {} as Record<string, { label: string }>);
 
   return (
     <Card className={cn('', className)}>
@@ -63,7 +80,11 @@ export default function BarChartComponent({
             className='w-4 h-8'
             variant={'outline'}
           >
-            {barChartVertical ? <IconChartBar style={{transform: 'rotate(90deg)' }} /> : <IconChartBar />}
+            {barChartVertical ? (
+              <IconChartBar style={{ transform: 'rotate(90deg)' }} />
+            ) : (
+              <IconChartBar />
+            )}
           </Button>
         </CardTitle>
         <CardDescription>Based on date range</CardDescription>

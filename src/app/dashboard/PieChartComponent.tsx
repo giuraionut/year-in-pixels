@@ -11,11 +11,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { cn } from '@/lib/utils';
+interface DataItem {
+  quantity: number;
+  moodName: string;
+}
 
 export default function PieChartComponent({
   className,
@@ -23,19 +28,18 @@ export default function PieChartComponent({
   config,
 }: {
   className?: string;
+  data: DataItem[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: any;
+  config: ChartConfig;
 }) {
   const totalMoods = React.useMemo(() => {
     return data.reduce(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (acc: any, curr: { quantity: any }) => acc + curr.quantity,
+      (acc: number, curr: { quantity: number }) => acc + curr.quantity,
       0
     );
   }, [data]);
-  const processedData = data.map((item: any) => ({
+
+  const processedData = data.map((item: DataItem) => ({
     ...item,
     moodName: item.moodName.charAt(0).toUpperCase() + item.moodName.slice(1),
   }));

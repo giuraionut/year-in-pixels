@@ -9,7 +9,20 @@ export default function generateChartData(pixels: Pixel[]) {
   }));
 
   // Reduce moods to consolidate data, merge events, and count event occurrences
-  const data = moods.reduce((acc: any[], curr) => {
+  interface MoodData {
+    moodName: string;
+    quantity: number;
+    fill: string;
+    events: Record<string, number>;
+  }
+
+  /**
+   * Consolidates mood data by aggregating occurrences and event counts.
+   * 
+   * @param moods Array of mood objects containing moodName, moodColor, and events.
+   * @returns Array of aggregated mood data with moodName, quantity, fill, and events.
+   */
+  const data: MoodData[] = moods.reduce((acc: MoodData[], curr): MoodData[] => {
     const existingMood = acc.find((mood) => mood.moodName === curr.moodName);
 
     if (existingMood) {
@@ -23,11 +36,11 @@ export default function generateChartData(pixels: Pixel[]) {
         quantity: 1,
         fill: curr.moodColor,
         events: curr.events.reduce(
-          (eventCounts: any, event: string) => ({
+          (eventCounts: Record<string, number>, event: string) => ({
             ...eventCounts,
             [event]: 1,
           }),
-          {}
+          {} as Record<string, number>
         ),
       });
     }
@@ -35,9 +48,9 @@ export default function generateChartData(pixels: Pixel[]) {
   }, []);
 
   // Create config object with labels and colors
-  const config = moods.reduce((acc: any, curr) => {
+  const config = moods.reduce((acc: { [key: string]: { label: string; fill: string } }, curr) => {
     if (!acc.quantity) {
-      acc.quantity = { label: "Value" };
+      acc.quantity = { label: "Value", fill: "" };
     }
     acc[curr.moodName] = {
       label: curr.moodName.charAt(0).toUpperCase() + curr.moodName.slice(1),
