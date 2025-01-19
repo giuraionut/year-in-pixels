@@ -149,7 +149,9 @@ export const authOptions: AuthOptions = {
         /**
          * Sign-In Callback: Handle user and account creation
          */
-        async signIn({ user, account, credentials }) {
+        async signIn({ user, account,
+            // credentials
+        }) {
             if (account?.provider === "credentials" && !user) {
                 return false;
             }

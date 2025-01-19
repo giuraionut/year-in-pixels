@@ -99,7 +99,10 @@ export const getConnectedProviders = async ({
     userId: string;
 }): Promise<{
     success: boolean;
-    providers?: any[];
+    providers?: {
+        provider: string;
+        createdAt: Date;
+    }[];
     hasPassword?: boolean;
     message?: string;
 }> => {
