@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AvatarImage } from '@radix-ui/react-avatar';
-import { User, Settings, LifeBuoy, Cloud, LogOut } from 'lucide-react';
+import { User, LifeBuoy, Cloud, LogOut } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
