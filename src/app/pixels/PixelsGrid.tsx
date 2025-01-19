@@ -14,7 +14,7 @@ const WEEK_WIDTH = SQUARE_SIZE + SQUARE_GAP;
 
 const getCalendarDays = (year: number) => {
   const days = [];
-  let date = new Date(year, 0, 1);
+  const date = new Date(year, 0, 1);
 
   while (date.getFullYear() === year) {
     days.push(new Date(date));
@@ -26,7 +26,7 @@ const getCalendarDays = (year: number) => {
 
 const getDateMatrix = (year: number) => {
   const matrix: Date[][] = Array.from({ length: 7 }, () => []);
-  let date = new Date(year, 0);
+  const date = new Date(year, 0);
 
   for (let i = 0; i < 365; i++) {
     const rowIndex = i % 7;
@@ -47,7 +47,7 @@ const getWeeksPerMonth = (dates: Date[]) => {
 
 const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   const calendarDays = React.useMemo(() => getCalendarDays(year), [year]);
-  const matrix = React.useMemo(() => getDateMatrix(year), []);
+  const matrix = React.useMemo(() => getDateMatrix(year), [year]);
   const [filterColor, setFilterColor] = useState<string | null>(null);
   
   const weeksPerMonth = React.useMemo(

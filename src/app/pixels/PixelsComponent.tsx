@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -45,7 +45,7 @@ export default function YearInPixels() {
     setDate(new Date(newYear, 0, 1)); // Update date to the selected year's January 1st
   };
 
-  const fetchPixelsByRange = async (year: number) => {
+  const fetchPixelsByRange = useCallback(async (year: number) => {
     if (pixelsCache[year]) {
       // If pixels are cached for this year, use them
       setPixelsByRange(pixelsCache[year]);
@@ -83,7 +83,7 @@ export default function YearInPixels() {
         )
       );
     }
-  };
+  }, []);
 
   useEffect(() => {
     const currentYear = date.getFullYear();
@@ -99,7 +99,7 @@ export default function YearInPixels() {
     };
 
     loadPixels();
-  }, [date]);
+  }, [date, fetchPixelsByRange, initialLoading]);
 
   const handleSelectDay = (selectedDay: Date) => {
     setSelectedDate(selectedDay);
