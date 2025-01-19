@@ -96,7 +96,6 @@ export default function DiaryComponent() {
     onUpdate() {
       if (!editor) return;
       const content: JSONContent = getEditorContent();
-      content;
       debouncedSaveContent(content); // Call saveContent on update
     },
   });

@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Toggle } from '@/components/ui/toggle';
-import { Table, Trash } from 'lucide-react';
+import { Table } from 'lucide-react';
 import { Editor } from '@tiptap/react';
 
 export default function ToolbarTable({ editor }: { editor: Editor }) {
