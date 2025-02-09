@@ -83,7 +83,7 @@ export default function YearInPixels() {
         )
       );
     }
-  }, []);
+  }, [pixelsCache]);
 
   useEffect(() => {
     const currentYear = date.getFullYear();

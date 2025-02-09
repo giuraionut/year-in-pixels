@@ -28,6 +28,7 @@ import { getConnectedProviders, setPassword } from '@/actions/authActions';
 import { updateUserImage } from '@/actions/userActions';
 import { GoogleIcon } from '@/components/icons/google';
 import { IconKeyFilled } from '@tabler/icons-react';
+import { backupDatabase } from '@/actions/dbActions';
 
 export default function Profile() {
   const { data: session, update } = useSession();
@@ -88,7 +89,15 @@ export default function Profile() {
             userId: session.user.id,
           });
           if (response.success) {
-            setConnectedProviders(response.providers || []);
+            setConnectedProviders(
+              (response.providers || []).map((provider) => ({
+                ...provider,
+                createdAt:
+                  provider.createdAt instanceof Date
+                    ? provider.createdAt.toISOString()
+                    : provider.createdAt, // Ensure it's a string
+              }))
+            );
             setHasPassword(response.hasPassword || false);
           }
         } catch (error) {
@@ -140,6 +149,31 @@ export default function Profile() {
       console.error('Error setting/changing password:', error);
       setPasswordMessage('An error occurred. Please try again.');
     }
+  };
+
+  const handleBackup = async () => {
+    const response = await backupDatabase();
+
+    if (!response.success) {
+      console.error('Backup failed:', response.message);
+      return;
+    }
+
+    const fileContent = response.fileContent;
+
+    if (!fileContent) {
+      console.error('No backup data returned.');
+      return;
+    }
+
+    // Save the file or let the user choose where to save
+    // For example, you could trigger a download in a browser environment:
+
+    const blob = new Blob([fileContent], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'year_in_pixels_db_backup.json'; // Set the desired file name
+    link.click(); // Trigger download
   };
 
   if (!session) {
@@ -336,6 +370,9 @@ export default function Profile() {
             )}
           </CardContent>
         </Card>
+      </section>
+      <section className='container px-6 py-6 mx-auto'>
+        <Button onClick={handleBackup}>Backup</Button>
       </section>
     </div>
   );
