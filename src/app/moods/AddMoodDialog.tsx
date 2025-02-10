@@ -55,19 +55,33 @@ export default function AddMoodDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const mood = {
-      name: data.name,
-      color: data.color,
-      userId: '',
-      id: '',
-      createdAt: new Date(),
-    };
-
     try {
-      FormSchema.parse(mood);
+      const mood = {
+        name: data.name,
+        color: JSON.stringify(data.color), // Ensure color is string before submission
+        userId: '',
+        id: '',
+        createdAt: new Date(),
+      };
+
       const newMood = await addUserMood(mood);
+
       if (newMood) {
-        setUserMoods((prevMoods) => [...prevMoods, newMood]);
+        // Deserialize color before setting state:
+        let deserializedMood = newMood;
+        try {
+          if (newMood.color) {
+            deserializedMood = {
+              ...newMood,
+              color: JSON.parse(newMood.color), // Deserialize
+            };
+          }
+        } catch (parseError) {
+          console.error('Error deserializing color in onSubmit:', parseError);
+          // Handle the error appropriately (e.g., set color to null/default value, log error).
+        }
+
+        setUserMoods((prevMoods) => [...prevMoods, deserializedMood]);
         setOpen(false);
         toast.success('Mood created successfully!');
       }
@@ -79,6 +93,7 @@ export default function AddMoodDialog({
           });
         });
       } else {
+        console.error('Non-zod error', error);
         toast.error('Error', {
           description: 'Could not add mood. Please try again later.',
         });

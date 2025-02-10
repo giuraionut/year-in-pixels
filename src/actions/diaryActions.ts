@@ -1,81 +1,74 @@
 "use server";
 import db from "@/lib/db";
-import { Diary, Pixel } from "@prisma/client";
+import { Diary } from "@prisma/client";
 import { getSessionUserId, handleServerError, normalizeDate } from "./actionUtils";
 
-export const getUserDiaries = async (): Promise<Pixel[]> => {
-    try {
-        const userId = await getSessionUserId();
-        const diaries = await db.diary.findMany({
-            where: {
-                userId,
-            },
-        });
+export const getUserDiaries = async (): Promise<Diary[]> => {
+  try {
+    const userId = await getSessionUserId(); // Remains a String
+    const diaries = await db.diary.findMany({
+      where: {
+        userId, // Stays as String
+      },
+    });
 
-        return diaries;
-    } catch (error) {
-        handleServerError(error, "retrieving diaries.");
-        return [];
-    }
+    return diaries;
+  } catch (error) {
+    handleServerError(error, "retrieving diaries.");
+    return [];
+  }
 };
 
 export const getUserDiaryByDate = async (date: Date): Promise<Diary | null> => {
-    const normalizedDate = normalizeDate(date);
-    try {
-        const userId = await getSessionUserId();
-        const diary = await db.diary.findFirst({
-            where: {
-                userId,
-                diaryDate: normalizedDate,
-            },
-        });
+  const normalizedDate = normalizeDate(date);
+  try {
+    const userId = await getSessionUserId(); // Remains a String
+    const diary = await db.diary.findFirst({
+      where: {
+        userId, // Stays as String
+        diaryDate: normalizedDate,
+      },
+    });
 
-        return diary;
-    } catch (error) {
-        handleServerError(error, "retrieving diary by date.");
-        return null;
-    }
+    return diary;
+  } catch (error) {
+    handleServerError(error, "retrieving diary by date.");
+    return null;
+  }
 };
-
 
 export const upsertUserDiary = async (diary: Diary): Promise<Diary | null> => {
+  try {
+    const userId = await getSessionUserId(); // Remains a String
+    const normalizedDiaryDate = normalizeDate(diary.diaryDate);
 
-    try {
-        const userId = await getSessionUserId();
-        const normalizedDiaryDate = normalizeDate(diary.diaryDate)
-        diary.diaryDate = normalizedDiaryDate;
-        diary.userId = userId;
-        if (!diary.id) {
-            return await db.diary.create({
-                data: {
-                    userId,
-                    content: diary.content ?? {},
-                    diaryDate: normalizedDiaryDate
-                },
-            });
-        }
+    // Serialize content to string before storing
+    const serializedContent = diary.content ? JSON.stringify(diary.content) : null;
 
-        return await db.diary.upsert({
-            where: {
-                id_userId_diaryDate: {
-                    id: diary.id,
-                    userId: userId,
-                    diaryDate: normalizedDiaryDate
-                },
-            },
-            update: {
-                content: diary.content ?? {},
-            },
-            create: {
-                id: diary.id,
-                userId,
-                content: diary.content ?? {},
-                diaryDate: normalizedDiaryDate
-            },
-        });
-    } catch (error) {
-        handleServerError(error, "upserting diary for user.");
-        return null;
+
+    if (diary.id) {
+      const updatedDiary = await db.diary.update({
+        where: {
+          id: diary.id, // String ID
+        },
+        data: {
+          content: serializedContent, // Store as string
+        },
+      });
+      return updatedDiary;
+    } else {
+
+      const createdDiary = await db.diary.create({
+        data: {
+          userId,
+          content: serializedContent, // Store as string
+          diaryDate: normalizedDiaryDate
+        },
+      });
+      return createdDiary;
     }
+  } catch (error) {
+    handleServerError(error, "upserting diary for user.");
+    return null;
+  }
 };
-

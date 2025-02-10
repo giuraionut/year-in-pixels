@@ -63,7 +63,7 @@ export default function CalendarGrid({
   const handleNextMonth = () => setDate(addMonths(date, 1));
   const renderDayButton = (day: Date, isDisabled: boolean = false) => {
     const pixel = getPixelForDay(day);
-    const moodColor = pixel?.mood?.color.value || '';
+    const moodColor = pixel ? JSON.parse(pixel.mood?.color).value : {};
     const events = pixel?.events || [];
 
     return (

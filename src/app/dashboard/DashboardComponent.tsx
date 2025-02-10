@@ -70,22 +70,15 @@ export default function DashboardComponent() {
   }
 
   function getEventClassament(pixels: Pixel[]) {
-    // Create an object to store event frequencies
     const eventCount: { [key: string]: number } = {};
-
-    // Loop through the array of objects
     pixels.forEach((pixel) => {
-      // Loop through the events in each object
       pixel.events.forEach((event: Event) => {
-        // If event exists in eventCount, increment its count, otherwise set it to 1
         eventCount[event.name] = (eventCount[event.name] || 0) + 1;
       });
     });
 
-    // Convert the eventCount object to an array of [event, count] pairs
-    const sortedEvents = Object.entries(eventCount).sort((a, b) => b[1] - a[1]); // Sort by frequency in descending order
+    const sortedEvents = Object.entries(eventCount).sort((a, b) => b[1] - a[1]); 
 
-    // Return the sorted events with their counts
     return sortedEvents.map(([eventName, count]) => ({
       event: { name: eventName },
       count,
@@ -100,7 +93,7 @@ export default function DashboardComponent() {
         startOfYear(new Date()),
         endOfYear(new Date())
       );
-
+      
       setMostUsedMood(getMostUsedMood(pixelsTotal));
       setMostUsedMoodByYear(getMostUsedMood(pixelsByYear));
 

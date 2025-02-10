@@ -1,20 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
+// Datasource for SQLite
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./year_in_pixels.db"
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(uuid()) // String ID using UUID
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -29,17 +24,17 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String   @db.ObjectId
+  id                String   @id @default(uuid())  // String ID using UUID
+  userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.String
-  access_token      String?  @db.String
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.String
+  id_token          String?
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -47,62 +42,62 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(uuid())  // String ID using UUID
   sessionToken String   @unique
-  userId       String   @db.ObjectId
+  userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id])
 }
 
 model Mood {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  id        String   @id @default(uuid())  // String ID using UUID
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   name   String
-  color  Json
+  color  String
   pixels Pixel[]
 
   @@unique([id, userId])
 }
 
 model Event {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  id        String   @id @default(uuid())  // String ID using UUID
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   name String
 
-  pixelIds String[] @db.ObjectId
-  pixels   Pixel[]  @relation(fields: [pixelIds], references: [id])
+  pixelIds String // Store Pixel IDs as a comma-separated string
+  pixels   Pixel[]
 
   @@unique([id, userId])
 }
 
 model Pixel {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  id        String   @id @default(uuid())  // String ID using UUID
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
   mood   Mood?   @relation(fields: [moodId], references: [id], onDelete: SetNull)
-  moodId String? @db.ObjectId
+  moodId String?
 
-  eventIds  String[] @db.ObjectId
-  events    Event[]  @relation(fields: [eventIds], references: [id])
+  eventIds  String  // Store Event IDs as a comma-separated string
+  events    Event[]
   pixelDate DateTime @default(now())
 
   @@unique([userId, pixelDate])
 }
 
 model Diary {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  id        String   @id @default(uuid())  // String ID using UUID
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
-  content   Json?
+  content   String?
   diaryDate DateTime @default(now())
 
   @@unique([id, userId, diaryDate])

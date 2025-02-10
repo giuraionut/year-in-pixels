@@ -49,7 +49,7 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   const calendarDays = React.useMemo(() => getCalendarDays(year), [year]);
   const matrix = React.useMemo(() => getDateMatrix(year), [year]);
   const [filterColor, setFilterColor] = useState<string | null>(null);
-  
+
   const weeksPerMonth = React.useMemo(
     () => getWeeksPerMonth(matrix[0]),
     [matrix]
@@ -101,12 +101,12 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   );
 
   const handleClickOnPixel = (pixel: Pixel) => {
-    if (!pixel || !pixel.mood || !pixel.mood.color) {
+    if (!pixel || !pixel.mood || !JSON.parse(pixel.mood.color)) {
       toast.error('No mood set for this pixel.');
       return;
     }
 
-    const colorValue = pixel.mood.color.value;
+    const colorValue = JSON.parse(pixel.mood.color).value;
     if (filterColor === colorValue) {
       setFilterColor(null);
     } else {
@@ -148,7 +148,8 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
         {calendarDays.map((day, index) => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const pixel = dayToPixelMap.get(dateStr);
-
+          const pixelColor = pixel ? JSON.parse(pixel?.mood?.color) : {};
+          console.log('pixelColor', pixelColor);
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
@@ -156,9 +157,8 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
                   onClick={() => handleClickOnPixel(pixel || null)}
                   style={{
                     backgroundColor:
-                      filterColor === null ||
-                      pixel?.mood?.color?.value === filterColor
-                        ? pixel?.mood?.color?.value || 'gray'
+                      filterColor === null || pixelColor.value === filterColor
+                        ? pixelColor.value || 'gray'
                         : 'lightgray',
                     width: `${SQUARE_SIZE}px`,
                     height: `${SQUARE_SIZE}px`,

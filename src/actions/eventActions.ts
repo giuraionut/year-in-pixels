@@ -6,6 +6,7 @@ import { getSessionUserId, handleServerError } from './actionUtils';
 export const getUserEvents = async (): Promise<Event[]> => {
     try {
         const userId = await getSessionUserId();
+
         return await db.event.findMany({
             where: { userId },
         });
@@ -18,10 +19,16 @@ export const getUserEvents = async (): Promise<Event[]> => {
 export const addUserEvent = async (event: Event): Promise<Event | null> => {
     try {
         const userId = await getSessionUserId();
-        event.userId = userId;
-        delete (event as { id?: string }).id;
 
-        return await db.event.create({ data: event });
+        const newEvent = await db.event.create({
+            data: {
+                userId,
+                name: event.name,
+                pixelIds: "", // Initialize pixelIds as an empty string when creating a new event
+            },
+        });
+
+        return newEvent;
     } catch (error) {
         handleServerError(error, 'adding user event.');
         return null;
@@ -31,13 +38,10 @@ export const addUserEvent = async (event: Event): Promise<Event | null> => {
 export const editUserEvent = async (event: Event): Promise<Event | null> => {
     try {
         const userId = await getSessionUserId();
-        event.userId = userId;
+
         const newUserEvent = await db.event.update({
             where: {
-                id_userId: {
-                    id: event.id,
-                    userId: userId,
-                },
+                id: event.id,
             },
             data: {
                 name: event.name,
@@ -50,42 +54,50 @@ export const editUserEvent = async (event: Event): Promise<Event | null> => {
     }
 };
 
+//Helper function
+const parseIntegerList = (str: string | null): number[] => {
+    if (!str) {
+        return [];
+    }
+    return str.split(',').map(Number).filter(Number.isInteger);
+};
+
 export const deleteUserEvent = async (
     event: Event
 ): Promise<Event | null> => {
     try {
         const userId = await getSessionUserId();
-        event.userId = userId;
 
         const deletedEvent = await db.event.delete({
             where: {
                 id: event.id,
-                userId,
             },
         });
 
-        const pixels = await db.pixel.findMany({
+        // Update pixels to remove the event ID
+        const pixelsToUpdate = await db.pixel.findMany({
             where: {
-                eventIds: {
-                    has: deletedEvent.id,
-                },
+                NOT: {
+                    eventIds: ""
+                }
             },
-
         });
-        await Promise.all(pixels.map(async (pixel) => {
+
+        for (const pixel of pixelsToUpdate) {
+            let eventIds = parseIntegerList(pixel.eventIds);
+            const updatedEventIds = eventIds.filter((id) => id.toString() !== deletedEvent.id);
+
             await db.pixel.update({
                 where: {
                     id: pixel.id,
                 },
                 data: {
-                    eventIds: {
-                        set: pixel.eventIds.filter((id) => id !== deletedEvent.id),
-                    },
+                    eventIds: updatedEventIds.join(',')
                 },
             });
-        }));
-        return deletedEvent;
+        }
 
+        return deletedEvent;
     } catch (error) {
         handleServerError(error, 'deleting user event.');
         return null;
@@ -97,8 +109,6 @@ export const deleteUserEventsBulk = async (
 ): Promise<Event[]> => {
     try {
         const userId = await getSessionUserId();
-        const deletedEvents: Event[] = [];
-
         const eventsToDelete = await db.event.findMany({
             where: {
                 id: { in: eventIds },
@@ -107,44 +117,40 @@ export const deleteUserEventsBulk = async (
         });
 
         if (eventsToDelete.length === 0) {
-            return deletedEvents;
+            return [];
         }
 
-        await Promise.all(
-            eventsToDelete.map(async (event) => {
-                const deletedEvent = await db.event.delete({
-                    where: {
-                        id: event.id,
-                    },
-                });
-                deletedEvents.push(deletedEvent);
-            })
-        );
-
-        const pixels = await db.pixel.findMany({
+        // Delete the selected events
+        await db.event.deleteMany({
             where: {
-                eventIds: {
-                    hasSome: eventIds,
-                },
+                id: { in: eventIds },
             },
         });
 
-        await Promise.all(
-            pixels.map(async (pixel) => {
-                await db.pixel.update({
-                    where: {
-                        id: pixel.id,
-                    },
-                    data: {
-                        eventIds: {
-                            set: pixel.eventIds.filter((id) => !eventIds.includes(id)),
-                        },
-                    },
-                });
-            })
-        );
+        // Clear the eventIds strings from the pixel table
+        const pixelsToUpdate = await db.pixel.findMany({
+            where: {
+                NOT: {
+                    eventIds: ""
+                }
+            },
+        });
 
-        return deletedEvents;
+        for (const pixel of pixelsToUpdate) {
+            let eventIdsParsed = parseIntegerList(pixel.eventIds);
+            const updatedEventIds = eventIdsParsed.filter((id) => !eventIds.includes(id.toString()));
+
+            await db.pixel.update({
+                where: {
+                    id: pixel.id,
+                },
+                data: {
+                    eventIds: updatedEventIds.join(',')
+                },
+            });
+        }
+
+        return eventsToDelete;
     } catch (error) {
         handleServerError(error, 'bulk deleting events.');
         return [];

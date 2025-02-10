@@ -4,7 +4,7 @@ export default function generateChartData(pixels: Pixel[]) {
   // Map pixels into moods with moodName, moodColor, and events
   const moods = pixels.map((pixel: Pixel) => ({
     moodName: pixel.mood.name.toLowerCase(),
-    moodColor: pixel.mood.color.value,
+    moodColor: JSON.parse(pixel.mood.color).value,
     events: pixel.events.map((event: { name: string }) => event.name.toLowerCase()),
   }));
 
