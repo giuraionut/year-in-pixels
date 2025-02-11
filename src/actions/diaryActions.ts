@@ -2,6 +2,7 @@
 import db from "@/lib/db";
 import { Diary } from "@prisma/client";
 import { getSessionUserId, handleServerError, normalizeDate } from "./actionUtils";
+import { JSONContent } from "@tiptap/react";
 
 export const getUserDiaries = async (): Promise<Diary[]> => {
   try {
@@ -37,7 +38,7 @@ export const getUserDiaryByDate = async (date: Date): Promise<Diary | null> => {
   }
 };
 
-export const upsertUserDiary = async (diary: Diary): Promise<Diary | null> => {
+export const upsertUserDiary = async (diary: Omit<Diary, 'content'> & { content: JSONContent }): Promise<Diary | null> => {
   try {
     const userId = await getSessionUserId(); // Remains a String
     const normalizedDiaryDate = normalizeDate(diary.diaryDate);

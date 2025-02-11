@@ -33,11 +33,13 @@ import EditorToolbarComponent from './EditorToolbar';
 import { LoadingDots } from '@/components/icons/loading-dots';
 import EditorBubbleMenus from './EditorBubbleMenus';
 import { format } from 'date-fns';
+import { Check } from 'lucide-react'; // Import the Check icon
+
 const lowlight = createLowlight(all);
 
 export default function DiaryComponent() {
   const editor = useEditor({
-    immediatelyRender: false,
+    immediatelyRender: true,
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
@@ -103,24 +105,40 @@ export default function DiaryComponent() {
   const [diary, setDiary] = useState<Diary | undefined>();
   const [date, setDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false); // Track saving state
+  const [synced, setSynced] = useState<boolean>(true); // Track sync state
 
   const saveContent = useCallback(
     async (content: JSONContent) => {
       if (!editor) return;
+      setSaving(true); // Set saving to true before saving
+      setSynced(false); // Reset synced state while saving
 
-      const currentDiary = diary || {
-        id: '', // No ID means this is a new diary
-        userId: '', // Ensure userId is properly set
-        createdAt: new Date(),
-        content,
-        diaryDate: date,
-      };
+      try {
+        const currentDiary = diary || {
+          id: '', // No ID means this is a new diary
+          userId: '', // Ensure userId is properly set
+          createdAt: new Date(),
+          content,
+          diaryDate: date,
+        };
 
-      const updatedDiary = { ...currentDiary, content };
-      const savedDiary = await upsertUserDiary(updatedDiary);
+        const updatedDiary = {
+          ...currentDiary,
+          content,
+        };
 
-      if (savedDiary) {
-        setDiary(savedDiary); // Update the state with the saved diary
+        const savedDiary = await upsertUserDiary(updatedDiary);
+
+        if (savedDiary) {
+          setDiary({
+            ...savedDiary,
+            content: savedDiary.content ? JSON.parse(savedDiary.content) : null,
+          });
+          setSynced(true); // Set synced to true after successfully saving
+        }
+      } finally {
+        setSaving(false); // Set saving to false after saving, regardless of success or failure
       }
     },
     [diary, editor, date]
@@ -135,18 +153,32 @@ export default function DiaryComponent() {
     const jsonDoc: JSONContent = editor?.getJSON() ?? [];
     return jsonDoc ? sanitizeObject(jsonDoc) : {};
   };
-
   useEffect(() => {
     const fetchUserDiary = async () => {
-      const fetchedDiary = await getUserDiaryByDate(date);
-      if (fetchedDiary) {
-        setDiary(fetchedDiary);
-        editor?.commands.setContent(fetchedDiary.content as Content);
-      } else {
-        setDiary(undefined);
-        editor?.commands.clearContent();
+      setLoading(true); // Set loading to true before fetching data
+      try {
+        const fetchedDiary = await getUserDiaryByDate(date);
+        if (fetchedDiary) {
+          try {
+            const content = fetchedDiary.content;
+            const parsedContent = content ? JSON.parse(content) : {};
+
+            setDiary({ ...fetchedDiary, content: parsedContent });
+
+            if (editor) {
+              editor.commands.setContent(parsedContent as Content);
+            }
+          } catch (error) {
+            console.error('Error parsing or setting content:', error);
+          }
+        } else {
+          setDiary(undefined);
+          editor?.commands.clearContent();
+        }
+        setSynced(true); // Initially consider the content synced after loading
+      } finally {
+        setLoading(false); // Set loading to false after fetching data, regardless of success or failure
       }
-      setLoading(false);
     };
 
     fetchUserDiary();
@@ -183,8 +215,12 @@ export default function DiaryComponent() {
           </div>
         )}
 
-        <Card className='p-3 rounded-md' onClick={handleClickOnCard}>
-          {!loading && (
+        <Card className='p-3 rounded-md relative' onClick={handleClickOnCard}>
+          {loading ? (
+            <div className='flex items-center justify-center min-h-[150px]'>
+              <LoadingDots />
+            </div>
+          ) : (
             <EditorContent
               editor={editor}
               className='
@@ -199,6 +235,23 @@ export default function DiaryComponent() {
                bg-background
              '
             />
+          )}
+
+          {/* Saving indicator in the corner */}
+
+          {!loading && saving && (
+            <div className='absolute top-2 right-2 bg-gray-500/50 text-primary rounded-md px-2 py-1 text-[.6rem] font-bold flex items-center gap-1'>
+              <p>Saving</p>
+              <LoadingDots size={8} />
+            </div>
+          )}
+
+          {/* Synced indicator in the corner */}
+          {!loading && synced && !saving && (
+            <div className='absolute top-2 right-2 bg-green-500/50 text-primary rounded-md px-2 py-1 text-[.6rem] font-bold flex items-center'>
+              <Check className='h-4 w-4 mr-1' />
+              Synced
+            </div>
           )}
         </Card>
       </section>
