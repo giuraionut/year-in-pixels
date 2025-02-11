@@ -1,11 +1,11 @@
-import { Pixel } from "@prisma/client";
+import { Pixel, Event, PixelToEvent } from "@prisma/client";
 
 export default function generateChartData(pixels: Pixel[]) {
   // Map pixels into moods with moodName, moodColor, and events
   const moods = pixels.map((pixel: Pixel) => ({
     moodName: pixel.mood.name.toLowerCase(),
     moodColor: JSON.parse(pixel.mood.color).value,
-    events: pixel.events.map((event: { name: string }) => event.name.toLowerCase()),
+    events: pixel.events.map((pixelToEvent: PixelToEvent & { event: Event }) => pixelToEvent.event.name.toLowerCase()),
   }));
 
   // Reduce moods to consolidate data, merge events, and count event occurrences

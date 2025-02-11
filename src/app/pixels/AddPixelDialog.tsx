@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Mood, Event } from '@prisma/client';
+import { Mood, Event, PixelToEvent } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
@@ -100,29 +100,21 @@ export default function AddPixelDialog({
         : null;
 
       setSelectedMood(mood);
-      if (mood) {
-        form.setValue('moodId', mood.id);
-      } else {
-        form.setValue('moodId', '');
-      }
+      form.setValue('moodId', mood ? mood.id : '');
 
-      const events = pixel.events
-        ? userEvents.filter(
-            (e) =>
-              pixel.eventIds.includes(e.id) &&
-              userEvents.some((ue) => ue.id === e.id)
-          )
-        : [];
+      // Extract event IDs from the nested pixel.events structure
+      const eventIds: string[] = pixel.events.map(
+        (pixelToEvent: PixelToEvent) => pixelToEvent.eventId
+      );
+
+      // Filter the userEvents to only include those in the current pixel
+      const events = userEvents.filter((e) => eventIds.includes(e.id));
 
       setSelectedEvents(events);
-      if (events.length > 0) {
-        form.setValue(
-          'eventIds',
-          events.map((e: Event) => e.id)
-        );
-      } else {
-        form.setValue('eventIds', []);
-      }
+      form.setValue(
+        'eventIds',
+        events.map((e: Event) => e.id)
+      );
     }
   }, [date, pixel, userMoods, userEvents, form]);
 
@@ -144,20 +136,17 @@ export default function AddPixelDialog({
     const moodId = data.moodId || null;
     const eventIds = data.eventIds || [];
 
-    if (date) {
-      const pixel = {
-        pixelDate: date,
-        moodId,
-        eventIds: eventIds || [],
-        createdAt: new Date(),
-        id: '',
-        userId: '',
-      };
-
-      try {
+    try {
+      if (date) {
+        const pixel = {
+          pixelDate: date,
+          moodId,
+          createdAt: new Date(),
+          userId: '',
+        };
         FormSchema.parse({ moodId, eventIds });
         pixel.moodId = pixel.moodId === 'reset' ? null : pixel.moodId;
-        const newPixel = await upsertUserPixel(pixel);
+        const newPixel = await upsertUserPixel(pixel, eventIds);
         if (newPixel) {
           const newPixels = [...pixels.filter((p) => p.id !== newPixel.id)];
           newPixels.push(newPixel);
@@ -175,11 +164,17 @@ export default function AddPixelDialog({
                   <p>
                     Events:{' '}
                     {newPixel.events
-                      .map(
-                        (event: Event) =>
-                          event.name.charAt(0).toUpperCase() +
-                          event.name.slice(1)
-                      )
+                      .map((pixelToEvent: PixelToEvent & { event: Event }) => {
+                        if (pixelToEvent.event && pixelToEvent.event.name) {
+                          // Check if event exists and has a name
+                          return (
+                            pixelToEvent.event.name.charAt(0).toUpperCase() +
+                            pixelToEvent.event.name.slice(1)
+                          );
+                        } else {
+                          return 'Unknown Event'; // Or some other default value
+                        }
+                      })
                       .join(', ')}
                   </p>
                 )}
@@ -187,21 +182,22 @@ export default function AddPixelDialog({
             ),
           });
         }
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          error.errors.forEach((err) => {
-            toast.error('Input error, verify the data', {
-              description: err.message,
-            });
-          });
-        } else {
-          toast.error('Error', {
-            description: 'Could not add pixel. Please try again.',
-          });
-        }
       }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          toast.error('Input error, verify the data', {
+            description: err.message,
+          });
+        });
+      } else {
+        toast.error('Error', {
+          description: `Could not add pixel. Please try again. ${error}`,
+        });
+      }
+    } finally {
+      setOpen(false);
     }
-    setOpen(false);
   }
 
   function getMoodPlaceholder() {

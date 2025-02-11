@@ -67,8 +67,7 @@ export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
         id: mood.id,
       },
       data: {
-        name: mood.name,
-        color: mood.color,
+        color: JSON.stringify({ name: mood.color.name, value: mood.color.value })
       },
     });
     return newUserMood;

@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Datasource for SQLite
 datasource db {
   provider = "sqlite"
   url      = "file:./year_in_pixels.db"
@@ -30,11 +29,11 @@ model Account {
   provider          String
   providerAccountId String
   refresh_token     String?
-  access_token      String?
+  access_token        String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token           String?
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -68,10 +67,8 @@ model Event {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  name String
-
-  pixelIds String // Store Pixel IDs as a comma-separated string
-  pixels   Pixel[]
+  name   String
+  pixels PixelToEvent[]
 
   @@unique([id, userId])
 }
@@ -85,8 +82,7 @@ model Pixel {
   mood   Mood?   @relation(fields: [moodId], references: [id], onDelete: SetNull)
   moodId String?
 
-  eventIds  String  // Store Event IDs as a comma-separated string
-  events    Event[]
+  events PixelToEvent[]
   pixelDate DateTime @default(now())
 
   @@unique([userId, pixelDate])
@@ -101,4 +97,13 @@ model Diary {
   diaryDate DateTime @default(now())
 
   @@unique([id, userId, diaryDate])
+}
+
+model PixelToEvent {
+  pixel   Pixel   @relation(fields: [pixelId], references: [id])
+  pixelId String
+  event   Event   @relation(fields: [eventId], references: [id])
+  eventId String
+
+  @@id([pixelId, eventId])
 }

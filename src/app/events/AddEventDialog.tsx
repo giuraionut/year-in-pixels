@@ -49,7 +49,6 @@ export default function AddEventDialog({
       userId: '',
       id: '',
       createdAt: new Date(),
-      pixelIds: [],
     };
 
     try {

@@ -15,15 +15,20 @@ import PieChartComponent from './PieChartComponent';
 import BarChartComponent from './BarChartComponent';
 import generateChartData from './mood-chart-config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Pixel, Event } from '@prisma/client';
+import { Event, Pixel, PixelToEvent } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Color } from '../moods/mood';
 import RadarChartComponent from './RadarChartComponent';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+
+// Extend PixelToEvent with the full Event data
+
+export type Color = {
+  value: string;
+};
 
 export default function DashboardComponent() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -45,8 +50,9 @@ export default function DashboardComponent() {
   }>();
 
   const [sortedEvents, setSortedEvents] = useState<
-    { event: { name: string }; count: number }[]
+    { event: Event; count: number }[]
   >([]);
+
   function getMostUsedMood(pixels: Pixel[]) {
     const r = pixels.reduce(
       (
@@ -69,39 +75,47 @@ export default function DashboardComponent() {
     return mostUsed;
   }
 
-  function getEventClassament(pixels: Pixel[]) {
+  function getEventClassament(
+    pixels: Pixel[]
+  ): { event: Event; count: number }[] {
     const eventCount: { [key: string]: number } = {};
+
     pixels.forEach((pixel) => {
-      pixel.events.forEach((event: Event) => {
-        eventCount[event.name] = (eventCount[event.name] || 0) + 1;
+      pixel.events.forEach((pixelToEvent: PixelToEvent & { event: Event }) => {
+        if (pixelToEvent && pixelToEvent.event) {
+          eventCount[pixelToEvent.event.name] =
+            (eventCount[pixelToEvent.event.name] || 0) + 1;
+        }
       });
     });
 
-    const sortedEvents = Object.entries(eventCount).sort((a, b) => b[1] - a[1]); 
+    const sortedEvents = Object.entries(eventCount).sort((a, b) => b[1] - a[1]);
 
     return sortedEvents.map(([eventName, count]) => ({
-      event: { name: eventName },
+      event: {
+        name: eventName,
+      } as Event, // Cast to Event
       count,
     }));
   }
 
   useEffect(() => {
     async function fetchPixels() {
-      const pixelsTotal = await getUserPixels();
+      const pixelsTotal = (await getUserPixels()) as Pixel[];
 
-      const pixelsByYear = await getUserPixelsByRange(
+      const pixelsByYear = (await getUserPixelsByRange(
         startOfYear(new Date()),
         endOfYear(new Date())
-      );
-      
+      )) as Pixel[];
+
       setMostUsedMood(getMostUsedMood(pixelsTotal));
       setMostUsedMoodByYear(getMostUsedMood(pixelsByYear));
 
       if (date && date.from && date.to) {
-        const pixelsBySelectedRange = await getUserPixelsByRange(
+        const pixelsBySelectedRange = (await getUserPixelsByRange(
           date.from,
           date.to
-        );
+        )) as Pixel[];
         setPixels(pixelsBySelectedRange);
         const eventClassament = getEventClassament(pixelsBySelectedRange);
         setSortedEvents(eventClassament);

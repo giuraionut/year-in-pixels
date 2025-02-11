@@ -5,36 +5,40 @@ import { getSessionUserId, handleServerError, normalizeDate } from "./actionUtil
 
 export const getUserPixels = async (): Promise<Pixel[]> => {
   try {
-    const userId = await getSessionUserId(); // Stays as a string
+    const userId = await getSessionUserId();
 
     const pixels = await db.pixel.findMany({
       where: {
-        userId, // No need to parse to Int, stays as string
+        userId,
         OR: [
           { moodId: { not: null } },
-          { eventIds: { not: "" } } // Check for non-empty string instead of isEmpty
+          { events: { some: {} } } // Check if there are any associated events
         ]
       },
       include: {
         mood: true,
-        events: true
+        events: {
+          include: {
+            event: true,
+          },
+        },
       },
     });
 
     return pixels;
-
   } catch (error) {
     handleServerError(error, "retrieving pixels.");
     return [];
   }
 };
 
+
 export const getUserPixelsByRange = async (
   from: Date,
   to?: Date
 ): Promise<Pixel[]> => {
   try {
-    const userId = await getSessionUserId(); // Stays as string
+    const userId = await getSessionUserId();
 
     const fromDate = new Date(
       Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())
@@ -51,15 +55,19 @@ export const getUserPixelsByRange = async (
           gte: fromDate,
           lte: toDate,
         },
-        userId, // No need to parse to Int, stays as string
+        userId,
         OR: [
           { moodId: { not: null } },
-          { eventIds: { not: "" } } // Check for non-empty string instead of isEmpty
+          { events: { some: {} } } // Check if there are any associated events
         ]
       },
       include: {
         mood: true,
-        events: true
+        events: {
+          include: {
+            event: true,
+          },
+        },
       },
     });
 
@@ -73,48 +81,69 @@ export const getUserPixelsByRange = async (
   }
 };
 
-export const upsertUserPixel = async (pixel: Pixel): Promise<Pixel | null> => {
+export const upsertUserPixel = async (pixel: Pixel, eventIds: string[] = []): Promise<Pixel | null> => {
   try {
-    const userId = await getSessionUserId(); // Remains a String
+    const userId = await getSessionUserId();
     const normalizedDate = normalizeDate(pixel.pixelDate);
 
-    //Stringify the event id array to store in DB.
-    let eventIdsString = "";
 
-    if (Array.isArray(pixel.eventIds)) {
-      eventIdsString = pixel.eventIds.join(",");
-    }
-    else {
-      eventIdsString = pixel.eventIds;
-    }
+    const pixelData = {
+      pixelDate: normalizedDate,
+      moodId: pixel.moodId,
+      userId: userId,
+      events: {
+        create: eventIds.map((eventId) => ({
+          event: {
+            connect: {
+              id: eventId,
+            },
+          },
+        })),
+      },
+    };
 
     // If Pixel has an id, update. Otherwise create.
     if (pixel.id) {
+
+      // Disconnect all existing events and reconnect with the new ones
       const updatedPixel = await db.pixel.update({
         where: {
-          id: pixel.id, // String ID
+          id: pixel.id,
         },
         data: {
           moodId: pixel.moodId,
-          eventIds: eventIdsString
+          events: {
+            deleteMany: {},  // Disconnect all existing events
+            create: eventIds.map((eventId) => ({
+              event: {
+                connect: {
+                  id: eventId,
+                },
+              },
+            })),
+          },
         },
         include: {
           mood: true,
-          events: true
+          events: {
+            include: {
+              event: true,
+            },
+          },
         },
       });
       return updatedPixel;
+
     } else {
       const createdPixel = await db.pixel.create({
-        data: {
-          userId: userId,
-          pixelDate: normalizedDate,
-          moodId: pixel.moodId,
-          eventIds: eventIdsString,
-        },
+        data: pixelData,
         include: {
           mood: true,
-          events: true
+          events: {
+            include: {
+              event: true,
+            },
+          },
         },
       });
       return createdPixel;
