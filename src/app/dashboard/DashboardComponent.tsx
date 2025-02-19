@@ -15,7 +15,7 @@ import PieChartComponent from './PieChartComponent';
 import BarChartComponent from './BarChartComponent';
 import generateChartData from './mood-chart-config';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Event, Pixel, PixelToEvent } from '@prisma/client';
+import { Event, MoodToPixel, Pixel, PixelToEvent } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import RadarChartComponent from './RadarChartComponent';
 import {
@@ -53,25 +53,29 @@ export default function DashboardComponent() {
     { event: Event; count: number }[]
   >([]);
 
-  function getMostUsedMood(pixels: Pixel[]) {
-    const r = pixels.reduce(
-      (
-        acc: { [key: string]: { quantity: number; color: Color } },
-        { mood }
-      ) => {
-        const moodName = mood.name;
-        if (!acc[moodName]) acc[moodName] = { quantity: 0, color: mood.color };
-        acc[moodName].quantity += 1;
-        return acc;
-      },
-      {}
-    );
-
-    const s = Object.entries(r)
+  function getMostUsedMood(pixels: Pixel[]): { moodName: string; data: { quantity: number; color: Color } } | undefined {
+    const moodCounts: { [moodName: string]: { quantity: number; color: Color } } = {};
+  
+    pixels.forEach(pixel => {
+      if (pixel.moods && pixel.moods.length > 0) {
+        pixel.moods.forEach((moodToPixel:MoodToPixel) => {
+          const mood = moodToPixel.mood;
+          if (mood) {
+            const moodName = mood.name;
+            if (!moodCounts[moodName]) {
+              moodCounts[moodName] = { quantity: 0, color: mood.color };
+            }
+            moodCounts[moodName].quantity++;
+          }
+        });
+      }
+    });
+  
+    const sortedMoods = Object.entries(moodCounts)
       .map(([moodName, data]) => ({ moodName, data }))
       .sort((a, b) => b.data.quantity - a.data.quantity);
-
-    const mostUsed = s[0];
+  
+    const mostUsed = sortedMoods[0];
     return mostUsed;
   }
 

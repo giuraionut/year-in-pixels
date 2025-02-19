@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Pixel } from '@prisma/client';
+import { Mood, MoodToPixel, Pixel } from '@prisma/client';
 import {
   Tooltip,
   TooltipContent,
@@ -48,7 +48,7 @@ const getWeeksPerMonth = (dates: Date[]) => {
 const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   const calendarDays = React.useMemo(() => getCalendarDays(year), [year]);
   const matrix = React.useMemo(() => getDateMatrix(year), [year]);
-  const [filterColor, setFilterColor] = useState<string | null>(null);
+  const [filterColor, setFilterColor] = useState<string[]>([]);
 
   const weeksPerMonth = React.useMemo(
     () => getWeeksPerMonth(matrix[0]),
@@ -101,16 +101,27 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
   );
 
   const handleClickOnPixel = (pixel: Pixel) => {
-    if (!pixel || !pixel.mood || !JSON.parse(pixel.mood.color)) {
+    if (!pixel || !pixel.moods) {
       toast.error('No mood set for this pixel.');
+      setFilterColor([]); // Clear filter if no moods
       return;
     }
 
-    const colorValue = JSON.parse(pixel.mood.color).value;
-    if (filterColor === colorValue) {
-      setFilterColor(null);
+    const selectedColorArray = pixel.moods.map((moodToPixel: MoodToPixel) =>
+      typeof moodToPixel.mood.color === 'string'
+        ? JSON.parse(moodToPixel.mood.color).value
+        : moodToPixel.mood.color.value
+    );
+
+    // Determine if the currently clicked pixel's colors are already being filtered
+    const isCurrentlyFiltered =
+      filterColor.length > 0 &&
+      filterColor.every((color) => selectedColorArray.includes(color));
+
+    if (isCurrentlyFiltered) {
+      setFilterColor([]); // Deselect ALL if clicked again
     } else {
-      setFilterColor(colorValue);
+      setFilterColor(selectedColorArray); // Select new filter
     }
   };
 
@@ -148,18 +159,54 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
         {calendarDays.map((day, index) => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const pixel = dayToPixelMap.get(dateStr);
-          const pixelColor = pixel ? JSON.parse(pixel?.mood?.color) : {};
-          console.log('pixelColor', pixelColor);
+          const moods = pixel?.moods || [];
+          const colors = moods.map((moodToPixel: MoodToPixel) => {
+            try {
+              return typeof moodToPixel.mood.color === 'string'
+                ? JSON.parse(moodToPixel.mood.color).value
+                : moodToPixel.mood.color.value;
+            } catch (error) {
+              console.error(
+                'Error parsing color for mood:',
+                moodToPixel.mood,
+                error
+              );
+              return 'transparent'; // Or some default value
+            }
+          });
+          let background = 'lightgray';
+          if (colors) {
+            if (colors.length === 1) {
+              background = `${colors[0]}`;
+            }
+            if (colors.length > 1) {
+              const colorCount = colors.length;
+              const colorSpacing = 100 / colorCount;
+              const gradientColors = colors
+                .map((color: string, index: number) => {
+                  const start = index * colorSpacing;
+                  const end = (index + 1) * colorSpacing;
+                  return `${color || 'transparent'} ${start}%, ${
+                    color || 'transparent'
+                  } ${end}%`;
+                })
+                .join(', ');
+
+              background = `linear-gradient(to right, ${gradientColors})`;
+            }
+          }
+
+          // Check if ANY of the pixel's colors are included in the filterColor
+          const isFiltered =
+            filterColor.length > 0 &&
+            !colors.some((color: string) => filterColor.includes(color));
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <li
                   onClick={() => handleClickOnPixel(pixel || null)}
                   style={{
-                    backgroundColor:
-                      filterColor === null || pixelColor.value === filterColor
-                        ? pixelColor.value || 'gray'
-                        : 'lightgray',
+                    background: isFiltered ? 'lightgray' : background,
                     width: `${SQUARE_SIZE}px`,
                     height: `${SQUARE_SIZE}px`,
                     transitionDuration: '0.25s',
@@ -168,10 +215,9 @@ const PixelsGrid = ({ pixels, year }: { pixels: Pixel[]; year: number }) => {
                 ></li>
               </TooltipTrigger>
               <TooltipContent>
-                {pixel?.mood?.name
-                  ? pixel.mood.name.charAt(0).toUpperCase() +
-                    pixel.mood.name.slice(1)
-                  : 'Not set yet.'}{' '}
+                {moods.length > 0
+                  ? moods.map((m: MoodToPixel) => m.mood.name).join(', ')
+                  : 'Not set yet.'}
                 {pixel?.pixelDate
                   ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`
                   : ''}

@@ -49,7 +49,7 @@ import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 export type FormSchema = {
-  moodId: string;
+  moodIds: string[];
   eventIds: string[];
 };
 export default function AddPixelDialog({
@@ -62,7 +62,7 @@ export default function AddPixelDialog({
   const [userMoods, setUserMoods] = useState<Mood[]>([]);
   const [userEvents, setUserEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
+  const [selectedMoods, setSelectedMoods] = useState<Mood[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
 
   const pixel = pixels.find((pixel) => {
@@ -75,33 +75,24 @@ export default function AddPixelDialog({
   });
 
   const FormSchema = z.object({
-    moodId: z
-      .string()
-      .min(1, { message: 'Mood is mandatory, please select one.' }),
+    moodIds: z.array(z.string()).optional(),
     eventIds: z.array(z.string()).optional(),
   });
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      moodId: '',
+      moodIds: [],
       eventIds: [],
     },
   });
 
   useEffect(() => {
     if (!pixel) {
-      setSelectedMood(null);
+      setSelectedMoods([]);
       setSelectedEvents([]);
       form.reset();
     } else {
-      const mood = pixel.mood
-        ? userMoods.find((m) => m.id === pixel.moodId)
-        : null;
-
-      setSelectedMood(mood);
-      form.setValue('moodId', mood ? mood.id : '');
-
       // Extract event IDs from the nested pixel.events structure
       const eventIds: string[] = pixel.events.map(
         (pixelToEvent: PixelToEvent) => pixelToEvent.eventId
@@ -114,6 +105,16 @@ export default function AddPixelDialog({
       form.setValue(
         'eventIds',
         events.map((e: Event) => e.id)
+      );
+
+      const moodIds: string[] = pixel.moods.map((m: Mood) => m.moodId);
+
+      const moods = userMoods.filter((m) => moodIds.includes(m.id));
+
+      setSelectedMoods(moods);
+      form.setValue(
+        'moodIds',
+        moods.map((e: Mood) => e.id)
       );
     }
   }, [date, pixel, userMoods, userEvents, form]);
@@ -133,20 +134,18 @@ export default function AddPixelDialog({
   }, []);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const moodId = data.moodId || null;
+    const moodIds = data.moodIds || [];
     const eventIds = data.eventIds || [];
 
     try {
       if (date) {
         const pixel = {
           pixelDate: date,
-          moodId,
           createdAt: new Date(),
           userId: '',
         };
-        FormSchema.parse({ moodId, eventIds });
-        pixel.moodId = pixel.moodId === 'reset' ? null : pixel.moodId;
-        const newPixel = await upsertUserPixel(pixel, eventIds);
+        FormSchema.parse({ moodIds, eventIds });
+        const newPixel = await upsertUserPixel(pixel, eventIds, moodIds);
         if (newPixel) {
           const newPixels = [...pixels.filter((p) => p.id !== newPixel.id)];
           newPixels.push(newPixel);
@@ -155,11 +154,15 @@ export default function AddPixelDialog({
           toast.success('Pixel created successfully!', {
             description: (
               <div>
-                <p>
-                  Mood:{' '}
-                  {newPixel.mood.name.charAt(0).toUpperCase() +
-                    newPixel.mood.name.slice(1)}
-                </p>
+                {newPixel.moods &&
+                  newPixel.moods.length > 0 &&
+                  newPixel.moods[0].mood && (
+                    <p>
+                      Mood:{' '}
+                      {newPixel.moods[0].mood.name.charAt(0).toUpperCase() +
+                        newPixel.moods[0].mood.name.slice(1)}
+                    </p>
+                  )}
                 {newPixel.events.length > 0 && (
                   <p>
                     Events:{' '}
@@ -201,18 +204,36 @@ export default function AddPixelDialog({
   }
 
   function getMoodPlaceholder() {
-    return selectedMood ? (
-      <div className='flex gap-3 items-center'>
-        <div
-          className='h-4 w-4 rounded-md'
-          style={{
-            backgroundColor: selectedMood.color.value,
-          }}
-        ></div>
-        <span>{selectedMood.name}</span>
-      </div>
+    return selectedMoods ? (
+      <span className='flex gap-3 items-center justify-between w-full'>
+        <span>
+          {selectedMoods.length === 0 ? (
+            'Select a mood'
+          ) : selectedMoods.length === 1 ? (
+            <div className='flex gap-3 items-center'>
+              <div
+                className='h-4 w-4 rounded-md'
+                style={{
+                  backgroundColor: selectedMoods[0].color.value,
+                }}
+              ></div>
+              <span>{selectedMoods[0].name}</span>
+            </div>
+          ) : (
+            `${selectedMoods.length} moods selected`
+          )}
+        </span>
+        <span>
+          <ChevronDown />
+        </span>
+      </span>
     ) : (
-      'Select a mood'
+      <span className='flex gap-3 items-center justify-between w-full'>
+        <span>Select a mood</span>
+        <span>
+          <ChevronDown />
+        </span>
+      </span>
     );
   }
 
@@ -254,22 +275,24 @@ export default function AddPixelDialog({
             {/* Mood Selection */}
             <FormField
               control={form.control}
-              name='moodId'
-              render={({ field }) => (
-                <FormItem>
-                  {loading ? (
-                    <SkeletonLoading />
-                  ) : userMoods.length > 0 ? (
-                    <MoodSelection
-                      field={field}
-                      userMoods={userMoods}
-                      getPlaceholder={getMoodPlaceholder}
-                    />
-                  ) : (
-                    <EmptyMessage type='moods' />
-                  )}
-                </FormItem>
-              )}
+              name='moodIds'
+              render={({ field }) =>
+                field && (
+                  <FormItem>
+                    {loading ? (
+                      <SkeletonLoading />
+                    ) : userMoods.length > 0 ? (
+                      <MoodSelection
+                        field={field}
+                        userMoods={userMoods}
+                        getMoodPlaceholder={getMoodPlaceholder}
+                      />
+                    ) : (
+                      <EmptyMessage type='moods' />
+                    )}
+                  </FormItem>
+                )
+              }
             />
 
             {/* Event Selection */}
@@ -319,12 +342,22 @@ export default function AddPixelDialog({
   function MoodSelection({
     field,
     userMoods,
-    getPlaceholder,
+    getMoodPlaceholder,
   }: {
-    field: ControllerRenderProps<FormSchema, 'moodId'>;
+    field: ControllerRenderProps<FormSchema, 'moodIds'>;
     userMoods: Mood[];
-    getPlaceholder: () => JSX.Element | string;
+    getMoodPlaceholder: () => JSX.Element | string;
   }) {
+    const handleMoodToggle = (moodId: string) => {
+      const updatedMoods = field.value.includes(moodId)
+        ? field.value.filter((id: string) => id !== moodId)
+        : [...field.value, moodId];
+      field.onChange(updatedMoods);
+
+      const moods = userMoods.filter((m) => updatedMoods.includes(m.id));
+      setSelectedMoods(moods);
+    };
+
     return (
       <div className='grid gap-4 py-4'>
         <div className='grid grid-cols-1 gap-y-2 md:grid-cols-4 md:items-center md:gap-x-2'>
@@ -334,54 +367,42 @@ export default function AddPixelDialog({
           >
             Mood
           </FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
-            <FormControl>
-              <SelectTrigger
-                id='mood'
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='outline'
                 className='capitalize w-full md:col-span-3'
               >
-                <SelectValue placeholder={getPlaceholder()} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent className='overflow-y-auto max-h-[10rem]'>
-              <MoodOptions userMoods={userMoods} />
-            </SelectContent>
-          </Select>
+                {getMoodPlaceholder()}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='max-h-60 overflow-y-auto'>
+              {userMoods.map((mood) => (
+                <DropdownMenuCheckboxItem
+                  key={mood.id}
+                  checked={field.value.includes(mood.id)}
+                  onCheckedChange={() => handleMoodToggle(mood.id)}
+                  className='flex gap-2'
+                >
+                  <div
+                    className='h-4 w-4 rounded-md'
+                    style={{
+                      backgroundColor: mood.color?.value || '#FFFFFF',
+                    }}
+                  ></div>
+                  {mood.name}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className='col-span-full md:col-span-3 md:col-start-2'>
             <FormMessage />
-            <FormDescription>Select a mood for this day.</FormDescription>
+            <FormDescription>
+              Select one or more moods for this day.
+            </FormDescription>
           </div>
         </div>
       </div>
-    );
-  }
-
-  /* Component for displaying mood options */
-  function MoodOptions({ userMoods }: { userMoods: Mood[] }) {
-    return (
-      <>
-        {selectedMood && (
-          <SelectItem key='0' value='reset' className='capitalize'>
-            <div className='flex gap-3 items-center'>
-              <div className='h-4 w-4 rounded-md'></div>
-              <span>Reset</span>
-            </div>
-          </SelectItem>
-        )}
-        {userMoods.map((mood) => (
-          <SelectItem key={mood.id} value={mood.id} className='capitalize'>
-            <div className='flex gap-3 items-center'>
-              <div
-                className='h-4 w-4 rounded-md'
-                style={{
-                  backgroundColor: mood.color.value,
-                }}
-              ></div>
-              <span>{mood.name}</span>
-            </div>
-          </SelectItem>
-        ))}
-      </>
     );
   }
 

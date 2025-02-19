@@ -62,19 +62,19 @@ export const editUserEvent = async (event: Event): Promise<Event | null> => {
 export const deleteUserEvent = async (eventId: string): Promise<Event | null> => {
     try {
         const userId = await getSessionUserId();
+        console.log("getSessionUserId returned:", userId);
+        console.log("Attempting to delete event with ID:", eventId, "and userId:", userId);
 
         const deletedEvent = await db.event.delete({
-            where: { id: eventId },
+            where: { id: eventId, userId: userId },
         });
 
         return deletedEvent;
-    } catch (error) {
+    } catch (error: any) {
         handleServerError(error, 'deleting user event.');
         return null;
     }
 };
-
-
 export const deleteUserEventsBulk = async (eventIds: string[]): Promise<Event[]> => {
     try {
         const userId = await getSessionUserId();

@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Pixel } from '@prisma/client';
+import { Mood, MoodToPixel, Pixel } from '@prisma/client';
 import {
   eachDayOfInterval,
   startOfMonth,
@@ -63,15 +63,38 @@ export default function CalendarGrid({
   const handleNextMonth = () => setDate(addMonths(date, 1));
   const renderDayButton = (day: Date, isDisabled: boolean = false) => {
     const pixel = getPixelForDay(day);
-    const moodColor = pixel ? JSON.parse(pixel.mood?.color).value : {};
+    // const moodColor = pixel && pixel.mood ? JSON.parse(pixel.mood?.color).value : {};
     const events = pixel?.events || [];
+    const moods = pixel?.moods || [];
+    const colors = moods.map(
+      (moodToPixel: MoodToPixel) => JSON.parse(moodToPixel.mood.color).value
+    );
+    let background = '';
+    if (colors) {
+      if (colors.length === 1) {
+        background = `${colors[0]}`;
+      } else {
+        const colorCount = colors.length;
+        const colorSpacing = 100 / colorCount;
+        const gradientColors = colors
+          .map((color: string, index: number) => {
+            const start = index * colorSpacing;
+            const end = (index + 1) * colorSpacing;
+            return `${color || 'transparent'} ${start}%, ${
+              color || 'transparent'
+            } ${end}%`;
+          })
+          .join(', ');
 
+        background = `linear-gradient(to right, ${gradientColors})`;
+      }
+    }
     return (
       <div className='relative inline-flex' key={day.toISOString()}>
         <Button
           variant='outline'
           style={{
-            backgroundColor: moodColor,
+            background: background,
             transitionDuration: '0.25s',
           }}
           onClick={() => onDaySelect?.(day)}

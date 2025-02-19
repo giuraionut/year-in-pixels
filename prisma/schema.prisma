@@ -49,14 +49,14 @@ model Session {
 }
 
 model Mood {
-  id        String   @id @default(uuid())  // String ID using UUID
+  id        String   @id @default(uuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   name   String
   color  String
-  pixels Pixel[]
+  pixels MoodToPixel[] // Changed: Relation to join table
 
   @@unique([id, userId])
 }
@@ -74,20 +74,17 @@ model Event {
 }
 
 model Pixel {
-  id        String   @id @default(uuid())  // String ID using UUID
+  id        String   @id @default(uuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
-  mood   Mood?   @relation(fields: [moodId], references: [id], onDelete: SetNull)
-  moodId String?
-
+  moods   MoodToPixel[] // Changed: Relation to join table
   events PixelToEvent[]
   pixelDate DateTime @default(now())
 
   @@unique([userId, pixelDate])
 }
-
 model Diary {
   id        String   @id @default(uuid())  // String ID using UUID
   userId    String
@@ -99,11 +96,22 @@ model Diary {
   @@unique([id, userId, diaryDate])
 }
 
+
+//join tables
 model PixelToEvent {
-  pixel   Pixel   @relation(fields: [pixelId], references: [id])
+  pixel   Pixel   @relation(fields: [pixelId], references: [id], onDelete: Cascade)
   pixelId String
-  event   Event   @relation(fields: [eventId], references: [id])
+  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId String
 
   @@id([pixelId, eventId])
+}
+
+model MoodToPixel { // New Join Table
+    pixel   Pixel   @relation(fields: [pixelId], references: [id], onDelete: Cascade)
+    pixelId String
+    mood   Mood   @relation(fields: [moodId], references: [id], onDelete: Cascade)
+    moodId String
+
+    @@id([pixelId, moodId])
 }

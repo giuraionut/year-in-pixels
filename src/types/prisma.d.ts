@@ -10,8 +10,11 @@ declare module '@prisma/client' {
         color: Color; // Override JsonValue with your Color type
     }
     type Pixel = Pixel & {
-        mood: Mood;
+        moods: Mood[];
         events: Event[]
+    }
+    type MoodToPixel=MoodToPixel & {
+        mood:Mood
     }
 }
 

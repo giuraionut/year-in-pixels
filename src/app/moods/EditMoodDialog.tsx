@@ -66,6 +66,7 @@ export default function EditMoodDialog({
       
       const newMood = await editUserMood(moodData);
       if (newMood) {
+        newMood.color=JSON.parse(newMood.color);
         setUserMoods((prevMoods) =>
           prevMoods.map((prevMood) =>
             prevMood.id === newMood.id ? newMood : prevMood
@@ -73,6 +74,7 @@ export default function EditMoodDialog({
         );
         setOpen(false);
         toast.success('Mood changed successfully!');
+        console.log('newMood',newMood);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {

@@ -13,11 +13,11 @@ export const getSessionUserId = async (): Promise<string> => {
     return session.user.id;
 };
 
-export const handleServerError = (error: unknown, context: string): never => {
-    console.error(`Error in ${context}:`, error);
+export const handleServerError = (error: any, context: string): never => {
+    console.error(`Error in ${context}:`, error.message); // Log the error message
+    console.error(`Stack trace:\n`, error.stack); // Log the stack trace
     throw new Error(`Something went wrong while ${context}.`);
 };
-
 export const normalizeDate = (date: Date | string): Date => {
     const parsedDate = new Date(date);
     return new Date(format(parsedDate, "yyyy-MM-dd"));

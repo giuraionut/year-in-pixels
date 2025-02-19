@@ -23,9 +23,9 @@ export default function ConfirmDeleteEventModal({
 
   const handleConfirmDelete = async () => {
     if (event) {
-      const deletedMood = await deleteUserEvent(event);
+      const deletedEvent = await deleteUserEvent(event.id);
 
-      if (deletedMood) {
+      if (deletedEvent) {
         setUserEvents((prevEvents) =>
           prevEvents.filter((prevEvent) => prevEvent.id !== event.id)
         );

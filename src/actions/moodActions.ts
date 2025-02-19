@@ -14,9 +14,10 @@ export const getUserMoods = async (): Promise<Mood[]> => {
     const deserializedMoods = moods.map(mood => {
       try {
         if (mood.color) {
+          const parsedColor = typeof mood.color === 'string' ? JSON.parse(mood.color) : mood.color;
           return {
             ...mood,
-            color: JSON.parse(mood.color),
+            color: parsedColor,
           };
         }
         return mood; // If color is null or undefined, return the mood as is
@@ -67,7 +68,7 @@ export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
         id: mood.id,
       },
       data: {
-        color: JSON.stringify({ name: mood.color.name, value: mood.color.value })
+        color: typeof mood.color === 'string' ? mood.color : JSON.stringify(mood.color) // Ensure color is a string
       },
     });
     return newUserMood;
