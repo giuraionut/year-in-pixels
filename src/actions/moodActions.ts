@@ -68,7 +68,8 @@ export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
         id: mood.id,
       },
       data: {
-        color: typeof mood.color === 'string' ? mood.color : JSON.stringify(mood.color) // Ensure color is a string
+        color: typeof mood.color === 'string' ? mood.color : JSON.stringify(mood.color), // Ensure color is a string
+        name:mood.name
       },
     });
     return newUserMood;
