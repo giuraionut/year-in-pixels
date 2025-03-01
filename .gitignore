@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-/prisma/year_in_pixels.db
+/prisma/*.db
 # dependencies
 /node_modules
 /.pnp
