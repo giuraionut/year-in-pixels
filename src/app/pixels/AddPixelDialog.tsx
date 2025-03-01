@@ -8,17 +8,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { Mood, Event, PixelToEvent } from '@prisma/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { z } from 'zod';
@@ -26,7 +19,6 @@ import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
-  FormControl,
   FormDescription,
   FormField,
   FormItem,

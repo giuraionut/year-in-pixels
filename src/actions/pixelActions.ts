@@ -33,8 +33,8 @@ export const getUserPixels = async (): Promise<Pixel[]> => {
             ...pixel,
             mood: pixel.moods.length > 0 ? pixel.moods[0].mood : null, // Adapt mood data
         }));
-    } catch (error) {
-        handleServerError(error, "retrieving pixels.");
+    } catch (error: unknown) {
+        handleServerError(error as Error, "retrieving pixels.");
         return [];
     }
 };
@@ -82,9 +82,10 @@ export const getUserPixelsByRange = async (
         });
         return pixels;
 
-    } catch (error) {
+    } catch (error: unknown) {
+
         handleServerError(
-            error,
+            error as Error,
             `retrieving pixels by range .`
         );
         return [];
@@ -183,8 +184,8 @@ export const upsertUserPixel = async (pixel: Pixel, eventIds: string[] = [], moo
             mood: returnPixel && returnPixel.moods.length > 0 ? returnPixel.moods[0].mood : null, // Adapt mood data
         };
 
-    } catch (error) {
-        handleServerError(error, "adding pixel for user.");
+    } catch (error: unknown) {
+        handleServerError(error as Error, "adding pixel for user.");
         return null;
     }
 };

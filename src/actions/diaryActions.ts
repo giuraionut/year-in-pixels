@@ -14,8 +14,8 @@ export const getUserDiaries = async (): Promise<Diary[]> => {
     });
 
     return diaries;
-  } catch (error) {
-    handleServerError(error, "retrieving diaries.");
+  } catch (error: unknown) {
+    handleServerError(error as Error, "retrieving diaries.");
     return [];
   }
 };
@@ -32,8 +32,9 @@ export const getUserDiaryByDate = async (date: Date): Promise<Diary | null> => {
     });
 
     return diary;
-  } catch (error) {
-    handleServerError(error, "retrieving diary by date.");
+  } catch (error: unknown) {
+
+    handleServerError(error as Error, "retrieving diary by date.");
     return null;
   }
 };
@@ -68,8 +69,8 @@ export const upsertUserDiary = async (diary: Omit<Diary, 'content'> & { content:
       });
       return createdDiary;
     }
-  } catch (error) {
-    handleServerError(error, "upserting diary for user.");
+  } catch (error: unknown) {
+    handleServerError(error as Error, "upserting diary for user.");
     return null;
   }
 };

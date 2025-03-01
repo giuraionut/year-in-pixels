@@ -1,8 +1,8 @@
 'use server';
 
-import { Event, Pixel } from '@prisma/client';
+import { Event } from '@prisma/client';
 import db from '@/lib/db';
-import { getSessionUserId, handleServerError, normalizeDate } from './actionUtils';
+import { getSessionUserId, handleServerError } from './actionUtils';
 
 //--------------- EVENTS ---------------
 export const getUserEvents = async (): Promise<Event[]> => {
@@ -19,8 +19,8 @@ export const getUserEvents = async (): Promise<Event[]> => {
                 },
             },
         });
-    } catch (error) {
-        handleServerError(error, 'retrieving user events.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'retrieving user events.');
         return [];
     }
 };
@@ -29,14 +29,14 @@ export const addUserEvent = async (event: Event): Promise<Event | null> => {
     try {
         const userId = await getSessionUserId();
         event.userId = userId;
-        delete (event as any).id;
+        delete (event as { id?: string }).id;
         const newEvent = await db.event.create({
             data: event
         });
 
         return newEvent;
-    } catch (error) {
-        handleServerError(error, 'adding user event.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'adding user events.');
         return null;
     }
 };
@@ -44,7 +44,6 @@ export const addUserEvent = async (event: Event): Promise<Event | null> => {
 
 export const editUserEvent = async (event: Event): Promise<Event | null> => {
     try {
-        const userId = await getSessionUserId();
 
         const updatedEvent = await db.event.update({
             where: { id: event.id },
@@ -52,8 +51,8 @@ export const editUserEvent = async (event: Event): Promise<Event | null> => {
         });
 
         return updatedEvent;
-    } catch (error) {
-        handleServerError(error, 'editing user event.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'editing user events.');
         return null;
     }
 };
@@ -70,8 +69,8 @@ export const deleteUserEvent = async (eventId: string): Promise<Event | null> =>
         });
 
         return deletedEvent;
-    } catch (error: any) {
-        handleServerError(error, 'deleting user event.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'deleting user event.');
         return null;
     }
 };
@@ -88,8 +87,8 @@ export const deleteUserEventsBulk = async (eventIds: string[]): Promise<Event[]>
         });
 
         return [];
-    } catch (error) {
-        handleServerError(error, 'bulk deleting events.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'deleting user events.');
         return [];
     }
 };

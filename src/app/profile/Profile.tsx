@@ -28,7 +28,7 @@ import { getConnectedProviders, setPassword } from '@/actions/authActions';
 import { updateUserImage } from '@/actions/userActions';
 import { GoogleIcon } from '@/components/icons/google';
 import { IconKeyFilled } from '@tabler/icons-react';
-import { backupDatabase } from '@/actions/dbActions';
+import { backupFilteredDb, backupJSON } from '@/actions/misc';
 
 export default function Profile() {
   const { data: session, update } = useSession();
@@ -152,28 +152,33 @@ export default function Profile() {
   };
 
   const handleBackup = async () => {
-    const response = await backupDatabase();
+    const jsonData = await backupJSON();
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
 
-    if (!response.success) {
-      console.error('Backup failed:', response.message);
-      return;
+    // Automatically trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'year_in_pixels.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a); // Cleanup
+    URL.revokeObjectURL(url); // Free memory
+
+    const dbData = await backupFilteredDb();
+    if (dbData) {
+      const dbBlob = new Blob([dbData], { type: 'application/octet-stream' });
+      const dbUrl = URL.createObjectURL(dbBlob);
+      const dbAnchor = document.createElement('a');
+      dbAnchor.href = dbUrl;
+      dbAnchor.download = 'year_in_pixels_filtered.db';
+      document.body.appendChild(dbAnchor);
+      dbAnchor.click();
+      document.body.removeChild(dbAnchor);
+      URL.revokeObjectURL(dbUrl);
     }
-
-    const fileContent = response.fileContent;
-
-    if (!fileContent) {
-      console.error('No backup data returned.');
-      return;
-    }
-
-    // Save the file or let the user choose where to save
-    // For example, you could trigger a download in a browser environment:
-
-    const blob = new Blob([fileContent], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'year_in_pixels_db_backup.json'; // Set the desired file name
-    link.click(); // Trigger download
   };
 
   if (!session) {

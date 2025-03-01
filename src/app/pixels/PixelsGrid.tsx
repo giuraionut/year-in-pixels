@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Mood, MoodToPixel, Pixel } from '@prisma/client';
+import { MoodToPixel, Pixel } from '@prisma/client';
 import {
   Tooltip,
   TooltipContent,

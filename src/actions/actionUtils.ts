@@ -13,7 +13,7 @@ export const getSessionUserId = async (): Promise<string> => {
     return session.user.id;
 };
 
-export const handleServerError = (error: any, context: string): never => {
+export const handleServerError = (error: Error, context: string): never => {
     console.error(`Error in ${context}:`, error.message); // Log the error message
     console.error(`Stack trace:\n`, error.stack); // Log the stack trace
     throw new Error(`Something went wrong while ${context}.`);

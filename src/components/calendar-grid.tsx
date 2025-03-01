@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Mood, MoodToPixel, Pixel } from '@prisma/client';
+import { MoodToPixel, Pixel } from '@prisma/client';
 import {
   eachDayOfInterval,
   startOfMonth,
@@ -52,7 +52,6 @@ export default function CalendarGrid({
   // Weekday names
   const weekdayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-  console.log('pixels', pixels);
   const getPixelForDay = (day: Date) =>
     pixels?.find((pixel) =>
       isEqual(startOfDay(pixel.pixelDate), startOfDay(day))

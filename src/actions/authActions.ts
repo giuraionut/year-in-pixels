@@ -39,8 +39,8 @@ export const createUser = async ({
         });
 
         return { success: true, message: 'Account created successfully' };
-    } catch (error) {
-        handleServerError(error, 'creating a new user.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'creating a new user.');
         return { success: false, message: 'Internal server error' };
     }
 };
@@ -88,7 +88,7 @@ export const setPassword = async ({
 
         return { success: true, message: 'Password updated successfully.' };
     } catch (error) {
-        console.error('Error setting password:', error);
+        handleServerError(error as Error, 'setting a new password.');
         return { success: false, message: 'Internal server error.' };
     }
 };
@@ -129,8 +129,8 @@ export const getConnectedProviders = async ({
             providers: accounts,
             hasPassword: !!user.password,
         };
-    } catch (error) {
-        handleServerError(error, 'retrieving connected providers.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'retrieving connected providers.');
         return { success: false, message: 'Internal server error.' };
     }
 };
@@ -163,8 +163,8 @@ export const updateUserProfile = async ({
         }
 
         return { success: true, message: 'Profile updated successfully.' };
-    } catch (error) {
-        handleServerError(error, 'updating the user profile.');
+    } catch (error: unknown) {
+        handleServerError(error as Error, 'updating the user profile.');
         return { success: false, message: 'Internal server error.' };
     }
 };

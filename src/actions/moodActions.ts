@@ -28,8 +28,8 @@ export const getUserMoods = async (): Promise<Mood[]> => {
     });
 
     return deserializedMoods;
-  } catch (error) {
-    handleServerError(error, 'retrieving user moods.');
+  } catch (error: unknown) {
+    handleServerError(error as Error, 'retrieving user mood.');
     return [];
   }
 };
@@ -54,27 +54,26 @@ export const addUserMood = async (mood: Mood): Promise<Mood | null> => {
       },
     });
     return newMood;
-  } catch (error) {
-    handleServerError(error, 'adding user mood.');
+  } catch (error: unknown) {
+    handleServerError(error as Error, 'adding user mood.');
     return null;
   }
 };
 
 export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
   try {
-    const userId = await getSessionUserId();
     const newUserMood = await db.mood.update({
       where: {
         id: mood.id,
       },
       data: {
         color: typeof mood.color === 'string' ? mood.color : JSON.stringify(mood.color), // Ensure color is a string
-        name:mood.name
+        name: mood.name
       },
     });
     return newUserMood;
-  } catch (error) {
-    handleServerError(error, 'editing user mood.');
+  } catch (error: unknown) {
+    handleServerError(error as Error, 'editing user mood.');
     return null;
   }
 };
@@ -83,7 +82,6 @@ export const deleteUserMood = async (
   mood: Mood
 ): Promise<Mood | null> => {
   try {
-    const userId = await getSessionUserId();
 
     const deletedMood = await db.mood.delete({
       where: {
@@ -92,8 +90,8 @@ export const deleteUserMood = async (
     });
 
     return deletedMood;
-  } catch (error) {
-    handleServerError(error, 'deleting user mood.');
+  } catch (error: unknown) {
+    handleServerError(error as Error, 'deleting user mood.');
     return null;
   }
 };
@@ -123,8 +121,8 @@ export const deleteUserMoodsBulk = async (
     });
 
     return moodsToDelete;
-  } catch (error) {
-    handleServerError(error, 'deleting moods.');
+  } catch (error: unknown) {
+    handleServerError(error as Error, 'deleting user moods.');
     return [];
   }
 };
