@@ -86,14 +86,14 @@ export default function ToolbarCalendar({
         className='w-auto p-4 flex flex-col items-center gap-4'
       >
         {!loading && (
-          <>
+          
             <CalendarGrid
               date={new Date()}
               pixels={pixels}
               setDate={setDate}
               onDaySelect={handleDaySelect}
             />
-          </>
+          
         )}
       </PopoverContent>
     </Popover>

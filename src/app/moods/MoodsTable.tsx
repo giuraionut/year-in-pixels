@@ -243,7 +243,7 @@ export default function MoodsTable({
           <Skeleton className='h-8' />
         </div>
       ) : (
-        <>
+        <div>
           <Card className='rounded-md p-2'>
             <Table>
               <TableHeader>
@@ -331,7 +331,7 @@ export default function MoodsTable({
               </DeleteMoodModal>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

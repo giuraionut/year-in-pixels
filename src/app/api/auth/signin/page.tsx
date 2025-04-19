@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleIcon } from '@/components/icons/google';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 const LoginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -62,12 +63,13 @@ export default function SignIn() {
       const res = await signIn('credentials', {
         email: data.email,
         password: data.password,
-        redirect: true,
+        redirect: false,
       });
 
       if (res?.error) {
         form.setError('email', { message: res.error });
         form.setError('password', { message: ' ' });
+        toast.error(res.error);
       } else {
         router.push('/dashboard');
       }

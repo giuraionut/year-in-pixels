@@ -337,7 +337,7 @@ export default function Profile() {
               </CardContent>
 
               <CardFooter>
-                <Button type='submit' variant='outline'>
+                <Button type='submit' variant='outline' className='mt-4'>
                   {hasPassword ? 'Change Password' : 'Set Password'}
                 </Button>
               </CardFooter>
@@ -355,7 +355,7 @@ export default function Profile() {
               connectedProviders.map((provider) => (
                 <div key={provider.provider}>
                   <div className='flex gap-2 items-center'>
-                    <Card className='text-sm rounded-md flex items-center gap-2 justify-center px-2 py-1 '>
+                    <Card className='text-sm rounded-md flex flex-row items-center gap-2 justify-center px-2 py-1 '>
                       {provider.provider.charAt(0).toUpperCase() +
                         provider.provider.slice(1)}{' '}
                       {provider.provider === 'google' && (

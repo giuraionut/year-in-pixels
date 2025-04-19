@@ -18,7 +18,7 @@ export default function EditorToolbarComponent({
   setDate,
 }: EditorToolbarComponentProps) {
   return (
-    <Card className='p-2 flex flex-wrap gap-4 text-sm items-center rounded-md'>
+    <Card className='p-2 flex flex-row flex-wrap gap-4 text-sm items-center rounded-md '>
       <ToolbarFormatting editor={editor} />
       <ToolbarHeadings editor={editor} />
       <ToolbarLists editor={editor} />
