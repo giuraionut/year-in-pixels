@@ -67,7 +67,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
     tooltipText: string
   ): React.ReactElement => (
     <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipTrigger asChild>{<>{button}</>}</TooltipTrigger>
       <TooltipContent sideOffset={12}>{tooltipText}</TooltipContent>
     </Tooltip>
   );

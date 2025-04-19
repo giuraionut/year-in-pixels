@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -23,17 +24,17 @@ model User {
 }
 
 model Account {
-  id                String   @id @default(uuid())  // String ID using UUID
+  id                String   @id @default(uuid()) // String ID using UUID
   userId            String
   type              String
   provider          String
   providerAccountId String
   refresh_token     String?
-  access_token        String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token           String?
+  id_token          String?
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -41,7 +42,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(uuid())  // String ID using UUID
+  id           String   @id @default(uuid()) // String ID using UUID
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -62,7 +63,7 @@ model Mood {
 }
 
 model Event {
-  id        String   @id @default(uuid())  // String ID using UUID
+  id        String   @id @default(uuid()) // String ID using UUID
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -79,14 +80,15 @@ model Pixel {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
-  moods   MoodToPixel[] // Changed: Relation to join table
-  events PixelToEvent[]
-  pixelDate DateTime @default(now())
+  moods     MoodToPixel[] // Changed: Relation to join table
+  events    PixelToEvent[]
+  pixelDate DateTime       @default(now())
 
   @@unique([userId, pixelDate])
 }
+
 model Diary {
-  id        String   @id @default(uuid())  // String ID using UUID
+  id        String   @id @default(uuid()) // String ID using UUID
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
@@ -96,22 +98,21 @@ model Diary {
   @@unique([id, userId, diaryDate])
 }
 
-
 //join tables
 model PixelToEvent {
-  pixel   Pixel   @relation(fields: [pixelId], references: [id], onDelete: Cascade)
+  pixel   Pixel  @relation(fields: [pixelId], references: [id], onDelete: Cascade)
   pixelId String
-  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId String
 
   @@id([pixelId, eventId])
 }
 
-model MoodToPixel { // New Join Table
-    pixel   Pixel   @relation(fields: [pixelId], references: [id], onDelete: Cascade)
-    pixelId String
-    mood   Mood   @relation(fields: [moodId], references: [id], onDelete: Cascade)
-    moodId String
+model MoodToPixel {
+  pixel   Pixel  @relation(fields: [pixelId], references: [id], onDelete: Cascade)
+  pixelId String
+  mood    Mood   @relation(fields: [moodId], references: [id], onDelete: Cascade)
+  moodId  String
 
-    @@id([pixelId, moodId])
+  @@id([pixelId, moodId])
 }

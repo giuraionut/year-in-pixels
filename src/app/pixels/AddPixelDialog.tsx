@@ -71,13 +71,13 @@ export default function AddPixelDialog({
     eventIds: z.array(z.string()).optional(),
   });
 
-  const form = useForm<FormSchema>({
+  const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       moodIds: [],
       eventIds: [],
     },
-  });
+  }) as unknown as ReturnType<typeof useForm<FormSchema>>;
 
   useEffect(() => {
     if (!pixel) {
