@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Year in Pixels - Track Your Life, One Day at a Time
 
-## Getting Started
+![Year in Pixels Logo/Banner Placeholder](placeholder.png) <!-- Optional: Add a nice banner/logo here -->
 
-First, run the development server:
+**Year in Pixels** is a web application designed to help you reflect on and visualize your daily life through moods, events, and journaling. Inspired by the traditional bullet journal concept, this digital version provides a simple yet powerful way to track your well-being and memories throughout the year.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Built with modern web technologies, it offers a clean, responsive interface accessible from any device.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+*   **🎨 Daily Pixel Tracking:** Log your day quickly by assigning it a "pixel".
+*   **😊 Mood Logging:** Associate one or more moods (e.g., Happy, Sad, Tired, Productive, Relaxed) with each day. Customize your moods with distinct names and colors.
+*   **🗓️ Event Tagging:** Add custom events or activities that happened during the day (e.g., "Visited museum", "Finished project", "Movie night").
+*   **✍️ Daily Journaling:** Expand on your day with a rich text journal entry using a powerful WYSIWYG editor (powered by Tiptap). Format text, add lists, links, and more to capture your thoughts and experiences.
+*   **📊 Dashboard Overview:** Get a quick glance at your recent entries and activity on your personal dashboard.
+*   **🟩 Classic Grid View:** Visualize your entire year at a glance with the iconic "Year in Pixels" grid. Each square represents a day, colored according to the mood(s) you logged. Click on colors to filter and see patterns!
+*   **📅 Calendar View:** Navigate your pixels through a familiar calendar interface, making it easy to jump to specific dates or view months.
+*   **🔐 Secure Authentication:** Protect your personal data with secure email/password login and optional social logins (e.g., Google) powered by NextAuth.js.
+*   **⚙️ Customization:** Manage your own lists of moods (with colors!) and frequently used events for faster logging.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Tech Stack
 
-## Learn More
+This project leverages a modern, full-stack TypeScript setup:
 
-To learn more about Next.js, take a look at the following resources:
+*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+*   **Authentication:** [NextAuth.js](https://next-auth.js.org/)
+*   **ORM:** [Prisma](https://www.prisma.io/)
+*   **Database:** [SQLite](https://www.sqlite.org/index.html) (Ideal for easy setup and development)
+*   **UI Components:** [Shadcn UI](https://ui.shadcn.com/) (Radix UI + Tailwind CSS)
+*   **Rich Text Editor:** [Tiptap](https://tiptap.dev/)
+*   **Language:** [TypeScript](https://www.typescriptlang.org/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚙️ Getting Started (Development)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/year-in-pixels.git # Replace with your repo URL
+    cd year-in-pixels
+    ```
 
-## Deploy on Vercel
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or yarn install or pnpm install
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3.  **Set up environment variables:**
+    *   Copy the `.env.example` file to `.env`.
+    *   Fill in the required variables:
+        *   `DATABASE_URL="file:./dev.db"` (Default for SQLite)
+        *   `NEXTAUTH_URL=http://localhost:3000` (Adjust port if needed)
+        *   `NEXTAUTH_SECRET=` (Generate a strong secret using `openssl rand -base64 32`)
+        *   `GOOGLE_CLIENT_ID=` (If using Google OAuth)
+        *   `GOOGLE_CLIENT_SECRET=` (If using Google OAuth)
+        *   *(Add any other variables required by your setup)*
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4.  **Initialize the database:**
+    *   Run Prisma migrations to create the database schema:
+        ```bash
+        npx prisma migrate dev --name init
+        ```
+
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    # or yarn dev or pnpm dev
+    ```
+
+6.  Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📜 License
+
+<!-- Choose a license, e.g., MIT -->
+This project is licensed under the [MIT License](LICENSE.md).
+
+---
+
+Happy Pixel Tracking! ✨
