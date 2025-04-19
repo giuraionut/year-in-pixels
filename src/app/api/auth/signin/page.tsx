@@ -67,9 +67,9 @@ export default function SignIn() {
       });
 
       if (res?.error) {
-        form.setError('email', { message: res.error });
-        form.setError('password', { message: ' ' });
-        toast.error(res.error);
+        form.setError('email', { message: 'Invalid Email' });
+        form.setError('password', { message: 'Invalid Password' });
+        toast.error('Invalid email or password.');
       } else {
         router.push('/dashboard');
       }
