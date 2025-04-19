@@ -85,9 +85,7 @@ export default function Profile() {
     if (session?.user?.id) {
       (async () => {
         try {
-          const response = await getConnectedProviders({
-            userId: session.user.id,
-          });
+          const response = await getConnectedProviders();
           if (response.success) {
             setConnectedProviders(
               (response.providers || []).map((provider) => ({
@@ -213,7 +211,7 @@ export default function Profile() {
               <CardContent className='flex flex-col gap-4'>
                 <Avatar className='w-32 h-32 m-auto'>
                   <AvatarImage
-                    src={session.user.image}
+                    src={session.user.image || ''}
                     alt={session.user.name || 'unknown'}
                   />
                   <AvatarFallback className='text-2xl font-bold'>

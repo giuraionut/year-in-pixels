@@ -2,7 +2,7 @@
 
 import bcrypt from 'bcrypt';
 import db from '@/lib/db';
-import { handleServerError } from './actionUtils';
+import { getSessionUserId, handleServerError } from './actionUtils';
 
 // Create a new user
 export const createUser = async ({
@@ -93,11 +93,7 @@ export const setPassword = async ({
     }
 };
 // Get connected providers for a user
-export const getConnectedProviders = async ({
-    userId,
-}: {
-    userId: string;
-}): Promise<{
+export const getConnectedProviders = async (): Promise<{
     success: boolean;
     providers?: {
         provider: string;
@@ -106,7 +102,9 @@ export const getConnectedProviders = async ({
     hasPassword?: boolean;
     message?: string;
 }> => {
+
     try {
+        const userId = await getSessionUserId();
         const user = await db.user.findUnique({
             where: { id: userId },
             select: { password: true },
