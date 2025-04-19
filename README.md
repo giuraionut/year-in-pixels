@@ -1,7 +1,5 @@
 # Year in Pixels - Track Your Life, One Day at a Time
 
-![Year in Pixels Logo/Banner Placeholder](placeholder.png) <!-- Optional: Add a nice banner/logo here -->
-
 **Year in Pixels** is a web application designed to help you reflect on and visualize your daily life through moods, events, and journaling. Inspired by the traditional bullet journal concept, this digital version provides a simple yet powerful way to track your well-being and memories throughout the year.
 
 Built with modern web technologies, it offers a clean, responsive interface accessible from any device.
