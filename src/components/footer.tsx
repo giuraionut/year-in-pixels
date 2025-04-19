@@ -6,7 +6,7 @@ export default function Footer() {
     <footer
       className='border-t border-border/40 py-6  md:px-8 md:py-0 sticky bottom-0
     bg-background/95 backdrop-blur 
-    supports-[backdrop-filter]:bg-background/60 dark:border-border
+    supports-backdrop-filter:bg-background/60 dark:border-border
     '
     >
       <div className='container flex flex-col items-center justify-between gap-4 md:h-12 md:flex-row'>

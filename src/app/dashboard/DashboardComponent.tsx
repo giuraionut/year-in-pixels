@@ -141,7 +141,7 @@ export default function DashboardComponent() {
         id='dashboard-header'
         className=' flex-col items-start border-b border-border/40 py-2 dark:border-border md:py-10 lg:py-12
       bg-background/95 backdrop-blur 
-    supports-[backdrop-filter]:bg-background/60 sticky top-10 z-50 container px-6 flex mx-auto flex-wrap gap-6'
+    supports-backdrop-filter:bg-background/60 sticky top-10 z-50 container px-6 flex mx-auto flex-wrap gap-6'
       >
         <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
           Dashboard

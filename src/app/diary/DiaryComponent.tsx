@@ -224,9 +224,9 @@ export default function DiaryComponent() {
             <EditorContent
               editor={editor}
               className='
-               focus:outline-none
+               focus:outline-hidden
                focus:ring-0
-               focus-visible:outline-none
+               focus-visible:outline-hidden
                border-none
                shadow-none
                p-3
