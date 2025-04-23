@@ -9,13 +9,11 @@ import ToolbarCalendar from './toolbars/ToolbarCalendar';
 type EditorToolbarComponentProps = {
   editor: Editor;
   date: Date;
-  setDate: React.Dispatch<React.SetStateAction<Date>>;
 };
 
 export default function EditorToolbarComponent({
   editor,
   date,
-  setDate,
 }: EditorToolbarComponentProps) {
   return (
     <Card className='p-2 flex flex-row flex-wrap gap-4 text-sm items-center rounded-md '>
@@ -23,8 +21,7 @@ export default function EditorToolbarComponent({
       <ToolbarHeadings editor={editor} />
       <ToolbarLists editor={editor} />
       <ToolbarTable editor={editor} />
-
-      <ToolbarCalendar date={date} setDate={setDate} className='md:ml-auto' />
+      <ToolbarCalendar dateProp={date} className='md:ml-auto' />
     </Card>
   );
 }

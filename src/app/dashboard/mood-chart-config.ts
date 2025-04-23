@@ -14,7 +14,6 @@ export default function generateChartData(pixels: Pixel[]) {
         })
     );
 
-    // Reduce moods to consolidate data, merge events, and count event occurrences
     interface MoodData {
         moodName: string;
         quantity: number;

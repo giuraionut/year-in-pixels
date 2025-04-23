@@ -7,11 +7,11 @@ export function middleware(request: NextRequest) {
     const pathname = new URL(request.url).pathname;
     console.log('pathname',pathname);
     if (userToken && pathname === '/api/auth/signin') {
-        return NextResponse.redirect(new URL('/dashboard', request.url)); // Or redirect to '/dashboard'
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
     if (userToken && pathname === '') {
-        return NextResponse.redirect(new URL('/dashboard', request.url)); // Or redirect to '/dashboard'
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
 
@@ -24,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/moods', '/pixels', '/dashboard', '/diary', '/api/auth/signin'], // Apply middleware to these routes
+    matcher: ['/moods', '/pixels', '/dashboard', '/diary', '/api/auth/signin'],
 };

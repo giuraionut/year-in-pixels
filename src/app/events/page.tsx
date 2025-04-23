@@ -1,21 +1,40 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Metadata } from 'next';
-import { LoadingDots } from '@/components/icons/loading-dots';
-import EventsComponent from './EventsComponent';
+import { deleteUserEventsBulk, getUserEvents } from '@/actions/eventActions';
+import { getSessionUserId } from '@/actions/actionUtils';
+import MoodsTableServer from './EventsTableServer';
+import { SelectedTableItemsProvider } from '../../components/SelectedTableItemsContext';
+import BulkDeleteTableItemsButton from '../../components/BulkDeleteTableItemsButton';
 export const metadata: Metadata = {
   title: 'Events',
   description: 'Events',
 };
-export default function Events() {
+
+type EventsProps = {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+    sort?: string;
+    filter?: string;
+    show?: string;
+  }>;
+};
+export default async function Events({ searchParams }: EventsProps) {
+  const searchP = await searchParams;
+  const fetchUserId = await getSessionUserId();
+  if (!fetchUserId.success) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = fetchUserId.data;
+  const fetchEvents = await getUserEvents(userId);
+  if (!fetchEvents.success) return <div>Error fetching events</div>;
+  const events = fetchEvents.data;
   return (
-    <Suspense
-      fallback={
-        <div className='h-full flex items-center justify-center'>
-          <LoadingDots />
-        </div>
-      }
-    >
-      <EventsComponent />
-    </Suspense>
+    <div className='max-w-[800px] mx-auto p-4'>
+      <SelectedTableItemsProvider>
+        <MoodsTableServer events={events} searchParams={searchP} />
+        <BulkDeleteTableItemsButton onDeleteBulkAction={deleteUserEventsBulk} />
+      </SelectedTableItemsProvider>
+    </div>
   );
 }

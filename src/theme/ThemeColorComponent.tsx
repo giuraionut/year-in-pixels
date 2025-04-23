@@ -35,15 +35,13 @@ export default function CustomizeUserInterface() {
     useThemeContext();
   const { theme, setTheme } = useTheme();
 
-  // Handle hue change with slider
   const handleHueChange = (value: number[]) => {
     if (value.length > 0) {
       setCustomHue(value[0]);
-      setThemeColor(undefined); // Automatically switch to "Custom"
+      setThemeColor(undefined);
     }
   };
 
-  // Create select items for predefined colors
   const createSelectItems = () => {
     return availableThemeColors.map(({ name, light, dark }) => (
       <SelectItem key={name} value={name}>
@@ -62,12 +60,11 @@ export default function CustomizeUserInterface() {
     ));
   };
 
-  // Generate hue gradient for the slider
   const generateHueGradient = () => {
     return `linear-gradient(to right, hsl(0, 100%, 50%) 0%, hsl(60, 100%, 50%) 16.67%, hsl(120, 100%, 50%) 33.33%, hsl(180, 100%, 50%) 50%, hsl(240, 100%, 50%) 66.67%, hsl(300, 100%, 50%) 83.33%, hsl(360, 100%, 50%) 100%)`;
   };
 
-  // Handle selection of predefined colors
+
   const handleSelect = (value: string) => {
     if (value !== 'Custom') {
       const selectedThemeColor = availableThemeColors.find(
@@ -75,7 +72,7 @@ export default function CustomizeUserInterface() {
       );
       if (selectedThemeColor) {
         setThemeColor(value as ThemeColors);
-        setCustomHue(undefined); // Clear custom hue
+        setCustomHue(undefined);
       }
     }
   };
@@ -89,7 +86,6 @@ export default function CustomizeUserInterface() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className='grid gap-6 p-4 w-full max-w-sm'>
-        {/* Color Options */}
         <div>
           <Label htmlFor='color-select' className='mb-2'>
             Color
@@ -97,7 +93,6 @@ export default function CustomizeUserInterface() {
           <Select
             name='color-select'
             onValueChange={(value) => handleSelect(value)}
-            // Automatically show "Custom" when customHue is set
             value={
               customHue !== undefined && customHue !== null
                 ? 'Custom'
@@ -112,7 +107,7 @@ export default function CustomizeUserInterface() {
               <SelectItem
                 key='custom'
                 value='Custom'
-                disabled // Disable manual selection
+                disabled
               >
                 <div className='flex items-center space-x-3'>
                   <div
@@ -128,7 +123,6 @@ export default function CustomizeUserInterface() {
           </Select>
         </div>
 
-        {/* Custom Hue Slider */}
         <div>
           <Label htmlFor='huePicker' className='mb-2'>
             Custom Hue
@@ -151,7 +145,6 @@ export default function CustomizeUserInterface() {
           </SliderPrimitive.Root>
         </div>
 
-        {/* Mode Selection */}
         <Label htmlFor='mode-buttons'>Mode</Label>
         <div className='grid grid-cols-3 gap-3' id='mode-buttons'>
           <Button

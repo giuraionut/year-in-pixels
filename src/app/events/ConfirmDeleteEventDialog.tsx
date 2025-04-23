@@ -16,7 +16,6 @@ import { toast } from 'sonner';
 export default function ConfirmDeleteEventModal({
   events,
   event,
-  setUserEvents,
   children,
 }: ConfirmDeleteEventModalProps) {
   const [open, setOpen] = useState(false);
@@ -26,9 +25,7 @@ export default function ConfirmDeleteEventModal({
       const deletedEvent = await deleteUserEvent(event.id);
 
       if (deletedEvent) {
-        setUserEvents((prevEvents) =>
-          prevEvents.filter((prevEvent) => prevEvent.id !== event.id)
-        );
+      
         toast.success('Event deleted successfully!');
       } else {
         toast.error('Error', {
@@ -41,9 +38,7 @@ export default function ConfirmDeleteEventModal({
 
       const deletedUserEvents = await deleteUserEventsBulk(selectedEventsIds);
       if (deletedUserEvents) {
-        setUserEvents((prevEvents) =>
-          prevEvents.filter((item) => !selectedEventsIds.includes(item.id))
-        );
+       
         toast.success('Events deleted successfully!');
       } else {
         toast.error('Error', {

@@ -31,10 +31,7 @@ const FormSchema = z.object({
   name: z.string().min(1, { message: 'Event name is required' }),
 });
 
-export default function AddEventDialog({
-  children,
-  setUserEvents,
-}: AddEventDialogProps) {
+export default function AddEventDialog({ children }: AddEventDialogProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -44,18 +41,17 @@ export default function AddEventDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const event: Event = {
+    const event: Omit<Event, 'id'> = {
       name: data.name,
       userId: '',
-      id: '',
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     try {
       FormSchema.parse(event);
       const newEvent = await addUserEvent(event);
       if (newEvent) {
-        setUserEvents((prevEvents) => [...prevEvents, newEvent]);
         setOpen(false);
         toast.success('Event created successfully!');
       }

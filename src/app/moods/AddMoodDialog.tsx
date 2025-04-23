@@ -41,10 +41,7 @@ const FormSchema = z.object({
     }),
 });
 
-export default function AddMoodDialog({
-  children,
-  setUserMoods,
-}: AddMoodDialogProps) {
+export default function AddMoodDialog({ children }: AddMoodDialogProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -58,7 +55,7 @@ export default function AddMoodDialog({
     try {
       const mood = {
         name: data.name,
-        color: JSON.stringify(data.color), // Ensure color is string before submission
+        color: JSON.stringify(data.color),
         userId: '',
         id: '',
         createdAt: new Date(),
@@ -67,21 +64,6 @@ export default function AddMoodDialog({
       const newMood = await addUserMood(mood);
 
       if (newMood) {
-        // Deserialize color before setting state:
-        let deserializedMood = newMood;
-        try {
-          if (newMood.color) {
-            deserializedMood = {
-              ...newMood,
-              color: JSON.parse(newMood.color), // Deserialize
-            };
-          }
-        } catch (parseError) {
-          console.error('Error deserializing color in onSubmit:', parseError);
-          // Handle the error appropriately (e.g., set color to null/default value, log error).
-        }
-
-        setUserMoods((prevMoods) => [...prevMoods, deserializedMood]);
         setOpen(false);
         toast.success('Mood created successfully!');
       }

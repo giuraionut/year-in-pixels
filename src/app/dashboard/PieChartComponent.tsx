@@ -96,9 +96,6 @@ export default function PieChartComponent({
           </PieChart>
         </ChartContainer>
       </CardContent>
-      {/* <CardFooter className='flex-col gap-2 text-sm'>
-       
-      </CardFooter> */}
     </Card>
   );
 }

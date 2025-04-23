@@ -62,7 +62,7 @@ export default function SignUp() {
       });
 
       if (!result.success) {
-        throw new Error(result.message || 'Failed to create account');
+        throw new Error(result.error || 'Failed to create account');
       }
 
       // Redirect to sign-in page after successful registration

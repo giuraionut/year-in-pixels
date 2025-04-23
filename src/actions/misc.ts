@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs';
 import Database, { Database as BetterSqlite3Database } from 'better-sqlite3';
-import { getSessionUserId, handleServerError } from './actionUtils';
+import { getSessionUserId, logServerError } from './actionUtils';
 
 // Interface for table column metadata (returned by PRAGMA table_info)
 interface TableColumn {
@@ -34,13 +34,13 @@ type DBRow = Record<string, unknown>;
  * Returns an object mapping table names to arrays of rows,
  * or null in case of an error.
  */
-export async function backupJSON(): Promise<Record<string, DBRow[]> | null> {
+export async function backupJSON(): Promise<ServerActionResponse<Record<string, DBRow[]> | null>> {
   try {
-    const userId: string = await getSessionUserId();
-    if (!userId) {
-      throw new Error("No user is logged in.");
+    const fetchUserId = await getSessionUserId();
+    if (!fetchUserId.success) {
+      return { success: false, error: 'User not authenticated.' };
     }
-
+    const userId = fetchUserId.data;
     const dbPath: string = path.join(process.cwd(), 'prisma', 'year_in_pixels.db');
     const db: BetterSqlite3Database = new Database(dbPath, { readonly: true });
 
@@ -73,10 +73,13 @@ export async function backupJSON(): Promise<Record<string, DBRow[]> | null> {
     }
 
     db.close();
-    return result;
+    return { success: true, data: result };
   } catch (error: unknown) {
-    handleServerError(error as Error, "backing up data.");
-    return null;
+    logServerError(error as Error, 'updating user profile');
+    return {
+      success: false,
+      error: 'Failed to update user profile. Please try again later.',
+    };
   }
 }
 
@@ -85,12 +88,13 @@ export async function backupJSON(): Promise<Record<string, DBRow[]> | null> {
  * the logged-in user's data. Returns a Buffer containing the new DB file,
  * or null if an error occurs.
  */
-export async function backupFilteredDb(): Promise<Buffer | null> {
+export async function backupFilteredDb(): Promise<ServerActionResponse<Buffer | null>> {
   try {
-    const userId: string = await getSessionUserId();
-    if (!userId) {
-      throw new Error("No user is logged in.");
+    const fetchUserId = await getSessionUserId();
+    if (!fetchUserId.success) {
+      return { success: false, error: 'User not authenticated.' };
     }
+    const userId = fetchUserId.data;
 
     const originalDbPath: string = path.join(process.cwd(), 'prisma', 'year_in_pixels.db');
     const originalDb: BetterSqlite3Database = new Database(originalDbPath, { readonly: true });
@@ -144,9 +148,12 @@ export async function backupFilteredDb(): Promise<Buffer | null> {
     const filteredDbBuffer: Buffer = fs.readFileSync(tempDbPath);
     fs.unlinkSync(tempDbPath);
 
-    return filteredDbBuffer;
+    return { success: true, data: filteredDbBuffer };
   } catch (error: unknown) {
-    handleServerError(error as Error, "backing up filtered DB.");
-    return null;
+    logServerError(error as Error, 'updating user profile');
+    return {
+      success: false,
+      error: 'Failed to update user profile. Please try again later.',
+    };
   }
 }

@@ -12,11 +12,10 @@ const ThemeContext = createContext<ThemeContextParams>(
 export default function ThemeDataProvider({ children }: ThemeProviderProps) {
   const [themeColor, setThemeColor] = useState<ThemeColors | undefined>(
     undefined
-  ); // Null indicates hydration incomplete
+  );
   const [customHue, setCustomHue] = useState<number | undefined>(undefined);
   const { resolvedTheme } = useTheme();
 
-  // Load saved values from localStorage on hydration
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
@@ -26,28 +25,26 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
         ? Number(savedCustomHue)
         : undefined;
 
-      // Prioritize customHue if defined
       if (parsedCustomHue !== undefined && !isNaN(parsedCustomHue)) {
         setCustomHue(parsedCustomHue);
-        setThemeColor(undefined); // Use `null` to indicate custom hue
+        setThemeColor(undefined);
       } else {
-        setThemeColor(savedThemeColor || 'Zinc'); // Default to Zinc if undefined
+        setThemeColor(savedThemeColor || 'Zinc');
       }
     } catch (error) {
       console.error('Error loading theme settings from localStorage:', error);
     }
   }, []);
 
-  // Save changes to localStorage
   useEffect(() => {
-    if (themeColor === undefined && customHue === undefined) return; // Skip incomplete state
+    if (themeColor === undefined && customHue === undefined) return;
     try {
       if (customHue !== undefined) {
         localStorage.setItem('customHue', customHue.toString());
-        localStorage.removeItem('themeColor'); // Remove themeColor if customHue is set
+        localStorage.removeItem('themeColor');
       } else {
         localStorage.setItem('themeColor', themeColor || 'Zinc');
-        localStorage.removeItem('customHue'); // Remove customHue if themeColor is set
+        localStorage.removeItem('customHue');
       }
       setGlobalColorTheme(
         (resolvedTheme as 'light' | 'dark') || 'light',
@@ -59,7 +56,6 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
     }
   }, [themeColor, customHue, resolvedTheme]);
 
-  // Avoid rendering the provider until hydration is complete
   if (themeColor === undefined && customHue === undefined) return null;
 
   return (

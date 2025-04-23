@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import {
   Dialog,
@@ -10,25 +12,21 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { deleteUserMood, deleteUserMoodsBulk } from '@/actions/moodActions';
-import { DeleteMoodModalProps } from './mood';
 import { toast } from 'sonner';
+import { ConfirmDeleteMoodDialogProps } from './mood';
 
-export default function DeleteMoodModal({
+export default function ConfirmDeleteMoodDialog({
   moods,
   mood,
-  setUserMoods,
   children,
-}: DeleteMoodModalProps) {
+}: ConfirmDeleteMoodDialogProps) {
   const [open, setOpen] = useState(false);
 
   const handleConfirmDelete = async () => {
     if (mood) {
-      const deletedMood = await deleteUserMood(mood);
+      const deletedMood = await deleteUserMood(mood.id);
 
-      if (deletedMood) {
-        setUserMoods((prevMoods) =>
-          prevMoods.filter((item) => item.id !== mood.id)
-        );
+      if (deletedMood.success) {
         toast.success('Mood deleted successfully!');
       } else {
         toast.error('Error', {
@@ -41,9 +39,6 @@ export default function DeleteMoodModal({
 
       const deletedUserMoods = await deleteUserMoodsBulk(selectedMoodsIds);
       if (deletedUserMoods) {
-        setUserMoods((prevMoods) =>
-          prevMoods.filter((item) => !selectedMoodsIds.includes(item.id))
-        );
         toast.success('Moods deleted successfully!');
       } else {
         toast.error('Error', {

@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   env: {
     TIMEZONE: 'UTC',
   },
+  experimental: {
+    useCache: true
+  },
   images: {
     remotePatterns: [
       {

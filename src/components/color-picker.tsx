@@ -39,11 +39,6 @@ type ColorPickerProps = {
   onChange?: (color: Color) => void;
 };
 
-type Color = {
-  name: string;
-  value: string;
-};
-
 export default function ColorPicker({ color, onChange }: ColorPickerProps) {
   const [open, setOpen] = React.useState(false);
   const colorInputRef = React.useRef<HTMLInputElement>(null);

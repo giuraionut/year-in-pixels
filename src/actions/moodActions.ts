@@ -1,16 +1,17 @@
 'use server'
 import { Mood } from '@prisma/client';
 import db from '@/lib/db';
-import { getSessionUserId, handleServerError } from './actionUtils';
+import { getSessionUserId, logServerError } from './actionUtils';
+import { cacheTag } from 'next/dist/server/use-cache/cache-tag';
+import { revalidateTag } from 'next/cache';
 
-export const getUserMoods = async (): Promise<Mood[]> => {
+export const getUserMoods = async (userId: string): Promise<ServerActionResponse<Mood[]>> => {
+  'use cache'
   try {
-    const userId = await getSessionUserId();
     const moods = await db.mood.findMany({
       where: { userId },
     });
 
-    // Deserialize the color for each mood
     const deserializedMoods = moods.map(mood => {
       try {
         if (mood.color) {
@@ -20,109 +21,147 @@ export const getUserMoods = async (): Promise<Mood[]> => {
             color: parsedColor,
           };
         }
-        return mood; // If color is null or undefined, return the mood as is
+        return mood;
       } catch (error) {
         console.error("Error parsing color for mood:", mood.id, error);
-        return mood; // Return the mood as is, even if parsing fails
+        return mood;
       }
     });
 
-    return deserializedMoods;
+    cacheTag(`moods-${userId}`);
+    return { success: true, data: deserializedMoods };
   } catch (error: unknown) {
-    handleServerError(error as Error, 'retrieving user mood.');
-    return [];
+    logServerError(error as Error, 'retrieving user events from db');
+    return {
+      success: false,
+      error: 'Failed to retrieve events. Please try again later.',
+    };
   }
 };
 
-export const addUserMood = async (mood: Mood): Promise<Mood | null> => {
-  try {
-    const userId = await getSessionUserId();
-    if (!userId) {
-      console.error("addUserMood: Could not retrieve userId");
-      return null; // Or throw an error
-    }
-    if (!mood) {
-      console.error("addUserMood: Mood object is null or undefined");
-      return null; // Or throw an error
-    }
 
+type MoodCreateInput = Omit<Mood, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+
+export const addUserMood = async (moodData: MoodCreateInput): Promise<ServerActionResponse<Mood>> => {
+  const fetchUserId = await getSessionUserId();
+  if (!fetchUserId.success) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = fetchUserId.data;
+
+  try {
     const newMood = await db.mood.create({
       data: {
         userId,
-        name: mood.name,
-        color: mood.color,
+        name: moodData.name,
+        color: moodData.color,
       },
     });
-    return newMood;
+
+    const deserializedMood: Mood = {
+      ...newMood,
+      color: typeof newMood.color === 'string' ? JSON.parse(newMood.color) : newMood.color,
+    }
+    revalidateTag(`moods-${userId}`);
+    return { success: true, data: deserializedMood };
+
   } catch (error: unknown) {
-    handleServerError(error as Error, 'adding user mood.');
-    return null;
+    logServerError(error as Error, 'adding user event to db');
+    return {
+      success: false,
+      error: 'Failed to add event. Please try again later.',
+    };
   }
 };
 
-export const editUserMood = async (mood: Mood): Promise<Mood | null> => {
+type MoodUpdateInput = Partial<Pick<Mood, 'name'>> & {
+  id: string;
+};
+
+
+export const editUserMood = async (moodData: MoodUpdateInput): Promise<ServerActionResponse<Mood>> => {
+  const fetchUserId = await getSessionUserId();
+  if (!fetchUserId.success) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = fetchUserId.data;
   try {
+    const { id, ...dataToUpdate } = moodData;
+    if (Object.keys(dataToUpdate).length === 0) {
+      return { success: false, error: 'No fields provided for update.' };
+    }
     const newUserMood = await db.mood.update({
       where: {
-        id: mood.id,
+        id: id, userId: userId
       },
-      data: {
-        color: typeof mood.color === 'string' ? mood.color : JSON.stringify(mood.color), // Ensure color is a string
-        name: mood.name
-      },
+      data: dataToUpdate
     });
-    return newUserMood;
+    revalidateTag(`moods-${userId}`);
+    return { success: true, data: newUserMood };
+
   } catch (error: unknown) {
-    handleServerError(error as Error, 'editing user mood.');
-    return null;
+    logServerError(error as Error, 'editing user event in db');
+    return {
+      success: false,
+      error: 'Failed to update event. Please ensure it exists and try again.',
+    };
   }
 };
 
 export const deleteUserMood = async (
-  mood: Mood
-): Promise<Mood | null> => {
+  moodId: string
+): Promise<ServerActionResponse<{ id: string }>> => {
+  const fetchUserId = await getSessionUserId();
+  if (!fetchUserId.success) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = fetchUserId.data;
   try {
+    console.log("Attempting to delete mood with ID:", moodId, "and userId:", userId);
 
     const deletedMood = await db.mood.delete({
       where: {
-        id: mood.id,
+        id: moodId, userId: userId
       },
     });
+    revalidateTag(`moods-${userId}`);
+    return { success: true, data: { id: deletedMood.id } };
 
-    return deletedMood;
   } catch (error: unknown) {
-    handleServerError(error as Error, 'deleting user mood.');
-    return null;
+    logServerError(error as Error, 'deleting user event from db');
+    return {
+      success: false,
+      error: 'Failed to delete event. Please ensure it exists and try again.',
+    };
   }
 };
 
 export const deleteUserMoodsBulk = async (
   moodIds: string[]
-): Promise<Mood[]> => {
-  try {
-    const userId = await getSessionUserId();
+): Promise<ServerActionResponse<{ count: number }>> => {
+  const fetchUserId = await getSessionUserId();
+  if (!fetchUserId.success) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+  const userId = fetchUserId.data;
 
-    const moodsToDelete = await db.mood.findMany({
+  try {
+    const result = await db.mood.deleteMany({
       where: {
         id: { in: moodIds },
         userId,
       },
     });
 
-    if (moodsToDelete.length === 0) {
-      return [];
-    }
+    revalidateTag(`moods-${userId}`);
 
-    // Delete the selected events
-    await db.mood.deleteMany({
-      where: {
-        id: { in: moodIds },
-      },
-    });
+    return { success: true, data: { count: result.count } };
 
-    return moodsToDelete;
   } catch (error: unknown) {
-    handleServerError(error as Error, 'deleting user moods.');
-    return [];
+    logServerError(error as Error, 'deleting user moods bulk');
+    return {
+      success: false,
+      error: 'Failed to delete moods. Please try again later.',
+    };
   }
 };

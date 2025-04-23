@@ -1,164 +1,124 @@
-'use client';
-
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { MoodToPixel, Pixel } from '@prisma/client';
+import { Mood, MoodToPixel, Pixel, Event } from '@prisma/client';
 import {
   eachDayOfInterval,
   startOfMonth,
   endOfMonth,
-  format,
-  isAfter,
-  isBefore,
   isEqual,
   startOfDay,
   addMonths,
   addDays,
   getDay,
+  format,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { MonthSelector } from '@/app/pixels/MonthSelector';
+import { YearSelector } from '@/app/pixels/YearSelector';
 
 type CalendarGridProps = {
-  date: Date;
-  setDate: React.Dispatch<React.SetStateAction<Date>>;
-  onDaySelect?: (date: Date) => void;
+  currentDate: Date; // renamed from `date`
   pixels?: Pixel[];
   className?: string;
+  userMoods?: Mood[];
+  userEvents?: Event[];
+  /**
+   * Render function for each day cell
+   * @param day       the specific date for this cell
+   * @param bgcolor   computed background style
+   */
+  children: (day: Date, bgcolor: string) => React.ReactNode;
 };
 
 export default function CalendarGrid({
-  date,
-  setDate,
-  onDaySelect,
+  currentDate,
   pixels,
   className,
+  children,
 }: CalendarGridProps) {
-  // Get all the days in the current month
-  const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(date),
-    end: endOfMonth(date),
-  });
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // Get the day of the week for the 1st of the month
-  const startDayOfWeek = getDay(startOfMonth(date)); // 0 (Sunday) to 6 (Saturday)
-
-  // Days from the previous month to fill placeholders
-  const endOfPreviousMonth = startOfDay(endOfMonth(addMonths(date, -1)));
-  const previousMonthDays = Array.from({ length: startDayOfWeek }, (_, index) =>
-    addDays(endOfPreviousMonth, index - startDayOfWeek + 1)
+  const startWeekday = getDay(monthStart);
+  const prevMonthEnd = startOfDay(endOfMonth(addMonths(currentDate, -1)));
+  const previousMonthDays = Array.from({ length: startWeekday }, (_, idx) =>
+    addDays(prevMonthEnd, idx - startWeekday + 1)
   );
 
-  // Weekday names
   const weekdayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-  const getPixelForDay = (day: Date) =>
-    pixels?.find((pixel) =>
-      isEqual(startOfDay(pixel.pixelDate), startOfDay(day))
-    );
+  const getPixelForDate = (day: Date) =>
+    pixels?.find((px) => isEqual(startOfDay(px.pixelDate), startOfDay(day)));
 
-  const today = startOfDay(new Date());
-  const handlePrevMonth = () => setDate(addMonths(date, -1));
-  const handleNextMonth = () => setDate(addMonths(date, 1));
-  const renderDayButton = (day: Date, isDisabled: boolean = false) => {
-    const pixel = getPixelForDay(day);
-    // const moodColor = pixel && pixel.mood ? JSON.parse(pixel.mood?.color).value : {};
-    const events = pixel?.events || [];
-    const moods = pixel?.moods || [];
-    const colors = moods.map(
-      (moodToPixel: MoodToPixel) => JSON.parse(moodToPixel.mood.color).value
+
+  const renderDayCell = (day: Date) => {
+    const px = getPixelForDate(day);
+    const eventCount = px?.events?.length || 0;
+    const moodsList = px?.moods || [];
+
+    // Compute background based on moods
+    const moodColors = moodsList.map(
+      (mtp: MoodToPixel) => JSON.parse(mtp.mood.color).value
     );
     let background = '';
-    if (colors) {
-      if (colors.length === 1) {
-        background = `${colors[0]}`;
-      } else {
-        const colorCount = colors.length;
-        const colorSpacing = 100 / colorCount;
-        const gradientColors = colors
-          .map((color: string, index: number) => {
-            const start = index * colorSpacing;
-            const end = (index + 1) * colorSpacing;
-            return `${color || 'transparent'} ${start}%, ${
-              color || 'transparent'
-            } ${end}%`;
-          })
-          .join(', ');
-
-        background = `linear-gradient(to right, ${gradientColors})`;
-      }
+    if (moodColors.length === 1) {
+      background = moodColors[0];
+    } else if (moodColors.length > 1) {
+      const count = moodColors.length;
+      const spacing = 100 / count;
+      const stops = moodColors
+        .map(
+          (col: string, i: number) =>
+            `${col} ${i * spacing}%, ${col} ${(i + 1) * spacing}%`
+        )
+        .join(', ');
+      background = `linear-gradient(to right, ${stops})`;
     }
+
     return (
-      <div className='relative inline-flex' key={day.toISOString()}>
-        <Button
-          variant='outline'
-          style={{
-            background: background,
-            transitionDuration: '0.25s',
-          }}
-          onClick={() => onDaySelect?.(day)}
-          className='p-3 cursor-pointer h-[40px] flex items-center hover:opacity-90 w-full'
-          disabled={isDisabled}
-        >
-          {format(day, 'd')}
-        </Button>
-        {events.length > 0 && (
+      <div key={day.toISOString()} className='relative inline-flex'>
+        {children(day, background)}
+
+        {eventCount > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
               <span className='absolute top-0.5 right-0.5 grid w-5 h-5 translate-x-1/3 -translate-y-1/3 place-items-center rounded-full bg-accent py-1 px-1 text-[0.5rem]'>
-                {events.length}
+                {eventCount}
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              {events.length > 1 ? 'Events' : 'Event'}
+              {eventCount > 1 ? 'Events' : 'Event'}
             </TooltipContent>
           </Tooltip>
         )}
       </div>
     );
   };
+
   return (
     <div className={cn('flex flex-col gap-4', className)}>
-      {/* Header: Month Navigation */}
-      <div className='flex flex-row w-full gap-4 items-center justify-between'>
-        <Button variant='outline' className='w-4' onClick={handlePrevMonth}>
-          <ChevronLeft className='w-4 h-4' />
-        </Button>
-        <small className='text-sm font-medium leading-none hidden md:block'>
-          {format(date, 'MMMM yyyy')}
-        </small>
-        <small className='text-sm font-medium leading-none md:hidden'>
-          {format(date, 'MMM yyyy')}
-        </small>
-        <Button variant='outline' className='w-4' onClick={handleNextMonth}>
-          <ChevronRight className='w-4 h-4' />
-        </Button>
+      <div className='flex items-center justify-between'>
+        <MonthSelector
+          currentMonth={format(currentDate, 'LLLL').toLowerCase()}
+          currentYear={currentDate.getFullYear()}
+        />
+        <YearSelector currentYear={currentDate.getFullYear()} />
       </div>
 
-      {/* Weekday Headers */}
       <div className='grid grid-cols-7 gap-2'>
-        {weekdayNames.map((day) => (
+        {weekdayNames.map((wd) => (
           <small
-            key={day}
+            key={wd}
             className='text-muted-foreground text-sm font-medium text-center leading-none p-2'
           >
-            {day}
+            {wd}
           </small>
         ))}
       </div>
 
-      {/* Calendar Grid */}
       <div className='grid grid-cols-7 gap-2'>
-        {/* Days from the previous month */}
-        {previousMonthDays.map((day) => renderDayButton(day, true))}
-
-        {/* Actual days of the month */}
-        {daysInMonth.map((day) =>
-          renderDayButton(
-            day,
-            isAfter(day, today) || isBefore(day, new Date('1900-01-01'))
-          )
-        )}
+        {previousMonthDays.map((prevDay) => renderDayCell(prevDay))}
+        {daysInMonth.map((day) => renderDayCell(day))}
       </div>
     </div>
   );

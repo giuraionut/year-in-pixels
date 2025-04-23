@@ -7,7 +7,7 @@ declare module '@prisma/client' {
 
 
     type Mood = Mood & {
-        color: Color; // Override JsonValue with your Color type
+        color: Color;
     }
     type Pixel = Pixel & {
         moods: Mood[];

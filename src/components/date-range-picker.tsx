@@ -26,7 +26,7 @@ export default function DatePickerWithRange({
 }: DatePickerWithRangeProps) {
   const handleSelect = (date: React.SetStateAction<DateRange | undefined>) => {
     if (setDate) {
-      setDate(date); // Only call setDate if it is defined
+      setDate(date);
     }
   };
   return (

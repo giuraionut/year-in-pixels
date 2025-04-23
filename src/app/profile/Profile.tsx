@@ -88,7 +88,7 @@ export default function Profile() {
           const response = await getConnectedProviders();
           if (response.success) {
             setConnectedProviders(
-              (response.providers || []).map((provider) => ({
+              (response.data.providers || []).map((provider) => ({
                 ...provider,
                 createdAt:
                   provider.createdAt instanceof Date
@@ -96,7 +96,7 @@ export default function Profile() {
                     : provider.createdAt, // Ensure it's a string
               }))
             );
-            setHasPassword(response.hasPassword || false);
+            setHasPassword(response.data.hasPassword || false);
           }
         } catch (error) {
           console.error('Error fetching connected providers:', error);
@@ -140,7 +140,7 @@ export default function Profile() {
         if (!hasPassword) setHasPassword(true);
       } else {
         setPasswordMessage(
-          response.message || 'Failed to set/change password.'
+          response.error || 'Failed to set/change password.'
         );
       }
     } catch (error) {
@@ -166,8 +166,8 @@ export default function Profile() {
     URL.revokeObjectURL(url); // Free memory
 
     const dbData = await backupFilteredDb();
-    if (dbData) {
-      const dbBlob = new Blob([dbData], { type: 'application/octet-stream' });
+    if (dbData.success && dbData.data) {
+      const dbBlob = new Blob([dbData.data], { type: 'application/octet-stream' });
       const dbUrl = URL.createObjectURL(dbBlob);
       const dbAnchor = document.createElement('a');
       dbAnchor.href = dbUrl;

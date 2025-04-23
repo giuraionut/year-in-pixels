@@ -1,76 +1,99 @@
 "use server";
 import db from "@/lib/db";
 import { Diary } from "@prisma/client";
-import { getSessionUserId, handleServerError, normalizeDate } from "./actionUtils";
+import { getSessionUserId, logServerError} from "./actionUtils";
 import { JSONContent } from "@tiptap/react";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+import { revalidateTag } from "next/cache";
+import { addDays, getUnixTime, startOfDay } from "date-fns";
 
-export const getUserDiaries = async (): Promise<Diary[]> => {
+export const getUserDiaries = async (userId: string): Promise<ServerActionResponse<Diary[]>> => {
+  'use cache'
   try {
-    const userId = await getSessionUserId(); // Remains a String
     const diaries = await db.diary.findMany({
       where: {
-        userId, // Stays as String
+        userId,
       },
     });
-
-    return diaries;
+    cacheTag(`diaries-${userId}`);
+    return { success: true, data: diaries };
   } catch (error: unknown) {
-    handleServerError(error as Error, "retrieving diaries.");
-    return [];
+    logServerError(error as Error, 'fetching user diaries');
+    return {
+      success: false,
+      error: 'Failed to fetch diaries. Please try again later.',
+    };
   }
 };
 
-export const getUserDiaryByDate = async (date: Date): Promise<Diary | null> => {
-  const normalizedDate = normalizeDate(date);
+export const getUserDiaryByDate = async (date: Date, userId: string): Promise<ServerActionResponse<Diary | null>> => {
+  'use cache'
+  const startDate = startOfDay(date);
+
+  const endDate = addDays(startDate, 1);
   try {
-    const userId = await getSessionUserId(); // Remains a String
     const diary = await db.diary.findFirst({
       where: {
-        userId, // Stays as String
-        diaryDate: normalizedDate,
+        userId,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       },
     });
+    if (diary) {
+      cacheTag(`diary-${userId}-${getUnixTime(diary.createdAt)}`);
+    }
 
-    return diary;
+    return { success: true, data: diary };
   } catch (error: unknown) {
-
-    handleServerError(error as Error, "retrieving diary by date.");
-    return null;
+    logServerError(error as Error, 'fetching user diary');
+    return {
+      success: false,
+      error: 'Failed to fetch diary. Please try again later.',
+    };
   }
 };
 
-export const upsertUserDiary = async (diary: Omit<Diary, 'content'> & { content: JSONContent }): Promise<Diary | null> => {
+export const upsertUserDiary = async (diary: Omit<Diary, 'content'> & { content: JSONContent }): Promise<ServerActionResponse<Diary>> => {
+  console.log('upsertUserDiary', diary)
   try {
-    const userId = await getSessionUserId(); // Remains a String
-    const normalizedDiaryDate = normalizeDate(diary.diaryDate);
+    const fetchUserId = await getSessionUserId();
+    if (!fetchUserId.success) {
+      return { success: false, error: 'User not authenticated.' };
+    }
+    const userId = fetchUserId.data;
 
-    // Serialize content to string before storing
     const serializedContent = diary.content ? JSON.stringify(diary.content) : null;
 
 
     if (diary.id) {
       const updatedDiary = await db.diary.update({
         where: {
-          id: diary.id, // String ID
+          id: diary.id,
         },
         data: {
-          content: serializedContent, // Store as string
+          content: serializedContent,
         },
       });
-      return updatedDiary;
+      revalidateTag(`diary-${userId}-${getUnixTime(diary.createdAt)}`);
+      return { success: true, data: updatedDiary };
     } else {
-
       const createdDiary = await db.diary.create({
         data: {
           userId,
-          content: serializedContent, // Store as string
-          diaryDate: normalizedDiaryDate
+          content: serializedContent,
         },
       });
-      return createdDiary;
+      revalidateTag(`diary-${userId}-${getUnixTime(diary.createdAt)}`);
+      return { success: true, data: createdDiary };
     }
+
   } catch (error: unknown) {
-    handleServerError(error as Error, "upserting diary for user.");
-    return null;
+    logServerError(error as Error, 'upserting user diary');
+    return {
+      success: false,
+      error: 'Failed to upsert diary. Please try again later.',
+    };
   }
 };

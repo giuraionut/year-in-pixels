@@ -44,7 +44,6 @@ const FormSchema = z.object({
 export default function EditMoodDialog({
   mood,
   children,
-  setUserMoods,
 }: EditMoodDialogProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -55,7 +54,7 @@ export default function EditMoodDialog({
     },
   });
 
-  console.log('mood',mood);
+  console.log('mood', mood);
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const moodData = mood;
     moodData.name = data.name;
@@ -63,18 +62,13 @@ export default function EditMoodDialog({
 
     try {
       FormSchema.parse(moodData);
-      
+
       const newMood = await editUserMood(moodData);
-      if (newMood) {
-        newMood.color=JSON.parse(newMood.color);
-        setUserMoods((prevMoods) =>
-          prevMoods.map((prevMood) =>
-            prevMood.id === newMood.id ? newMood : prevMood
-          )
-        );
+      if (newMood.success) {
+        newMood.data.color = JSON.parse(newMood.data.color);
+
         setOpen(false);
         toast.success('Mood changed successfully!');
-        console.log('newMood',newMood);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {

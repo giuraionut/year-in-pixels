@@ -3,7 +3,6 @@ import {
   useEditor,
   EditorContent,
   ReactNodeViewRenderer,
-  Content,
   JSONContent,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -15,10 +14,9 @@ import BulletList from '@tiptap/extension-bullet-list';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { all, createLowlight } from 'lowlight';
 import OrderedList from '@tiptap/extension-ordered-list';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Diary } from '@prisma/client';
 import { debounce } from 'lodash';
-import { getUserDiaryByDate, upsertUserDiary } from '@/actions/diaryActions';
 import { sanitizeObject } from './sanitize-editor-content';
 import Heading from '@tiptap/extension-heading';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
@@ -34,10 +32,18 @@ import { LoadingDots } from '@/components/icons/loading-dots';
 import EditorBubbleMenus from './EditorBubbleMenus';
 import { format } from 'date-fns';
 import { Check } from 'lucide-react'; // Import the Check icon
+import { saveDiary } from './actions';
 
 const lowlight = createLowlight(all);
 
-export default function DiaryComponent() {
+export default function DiaryComponent({
+  diary,
+  date,
+}: {
+  userId: string;
+  diary: Diary | null;
+  date: Date;
+}) {
   const editor = useEditor({
     immediatelyRender: true,
     extensions: [
@@ -94,95 +100,58 @@ export default function DiaryComponent() {
         nested: true,
       }),
     ],
-    autofocus: true,
+    autofocus: 'end',
+    content: diary?.content ? JSON.parse(diary?.content) : '',
     onUpdate() {
       if (!editor) return;
       const content: JSONContent = getEditorContent();
-      debouncedSaveContent(content); // Call saveContent on update
+      save(content);
     },
   });
 
-  const [diary, setDiary] = useState<Diary | undefined>();
-  const [date, setDate] = useState<Date>(new Date());
-  const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false); // Track saving state
-  const [synced, setSynced] = useState<boolean>(true); // Track sync state
+  const [saving, setSaving] = useState<boolean>(false);
+  const [synced, setSynced] = useState<boolean>(true);
 
-  const saveContent = useCallback(
-    async (content: JSONContent) => {
-      if (!editor) return;
-      setSaving(true); // Set saving to true before saving
-      setSynced(false); // Reset synced state while saving
-
+  const save = useMemo(() => {
+    return debounce(async (content: JSONContent) => {
+      console.log("Debounced save triggered"); // For debugging
+      setSaving(true);
+      setSynced(false);
       try {
-        const currentDiary = diary || {
-          id: '', // No ID means this is a new diary
-          userId: '', // Ensure userId is properly set
-          createdAt: new Date(),
-          content,
-          diaryDate: date,
-        };
-
-        const updatedDiary = {
-          ...currentDiary,
-          content,
-        };
-
-        const savedDiary = await upsertUserDiary(updatedDiary);
-
-        if (savedDiary) {
-          setDiary({
-            ...savedDiary,
-            content: savedDiary.content ? JSON.parse(savedDiary.content) : null,
-          });
-          setSynced(true); // Set synced to true after successfully saving
+        // Pass the 'diary' object available at the time debounce is *created*
+        // Or fetch the latest diary state if needed, depending on requirements
+        const result = await saveDiary(diary, content); // 'diary' is captured from the outer scope
+        if (result.success) {
+          setSynced(true);
+          console.log("Save successful, synced.");
+        } else {
+           console.error("Save failed:", result.error);
+           // Optionally reset synced to false or show error
         }
+      } catch (error) {
+         console.error("Error during save:", error);
+         // Optionally reset synced to false or show error
       } finally {
-        setSaving(false); // Set saving to false after saving, regardless of success or failure
+        setSaving(false);
       }
-    },
-    [diary, editor, date]
-  );
-
-  const debouncedSaveContent = useMemo(
-    () => debounce(saveContent, 1000),
-    [saveContent]
-  );
+    }, 1000); // 1000ms debounce delay
+  }, [diary, setSaving, setSynced]); // Dependencies: recreate debounce if diary changes.
+                                      // setSaving/setSynced are stable but good practice to include if used.
+     // Add cleanup for the debounced function
+  useEffect(() => {
+    // This cleanup function runs when the component unmounts
+    // or when the 'save' function instance changes (if 'diary' changes)
+    return () => {
+      console.log("Cancelling pending save on cleanup/change."); // For debugging
+      save.cancel();
+    };
+  }, [save]); // Depend on the memoized 'save' function
+              
 
   const getEditorContent = () => {
     const jsonDoc: JSONContent = editor?.getJSON() ?? [];
     return jsonDoc ? sanitizeObject(jsonDoc) : {};
   };
-  useEffect(() => {
-    const fetchUserDiary = async () => {
-      setLoading(true); // Set loading to true before fetching data
-      try {
-        const fetchedDiary = await getUserDiaryByDate(date);
-        if (fetchedDiary) {
-          try {
-            const content = fetchedDiary.content;
-            const parsedContent = content ? JSON.parse(content) : {};
-
-            setDiary({ ...fetchedDiary, content: parsedContent });
-
-            if (editor) {
-              editor.commands.setContent(parsedContent as Content);
-            }
-          } catch (error) {
-            console.error('Error parsing or setting content:', error);
-          }
-        } else {
-          setDiary(undefined);
-          editor?.commands.clearContent();
-        }
-        setSynced(true); // Initially consider the content synced after loading
-      } finally {
-        setLoading(false); // Set loading to false after fetching data, regardless of success or failure
-      }
-    };
-
-    fetchUserDiary();
-  }, [editor, date]);
 
   function handleClickOnCard() {
     if (editor) editor.chain().focus();
@@ -197,30 +166,17 @@ export default function DiaryComponent() {
           </h1>
           <small className='text-xs leading-3'>{format(date, 'PPP')}</small>
         </div>
-        {loading && (
-          <div className='container px-6 py-6 mx-auto flex flex-col justify-between gap-6 max-w-[800px]'>
-            <LoadingDots />
-          </div>
-        )}
       </section>
       <section className='p-5 flex flex-col w-full gap-3 '>
         {editor && (
           <div>
-            <EditorToolbarComponent
-              editor={editor}
-              date={date}
-              setDate={setDate}
-            />
+            <EditorToolbarComponent editor={editor} date={date} />
             <EditorBubbleMenus editor={editor} />
           </div>
         )}
 
         <Card className='p-3 rounded-md relative' onClick={handleClickOnCard}>
-          {loading ? (
-            <div className='flex items-center justify-center min-h-[150px]'>
-              <LoadingDots />
-            </div>
-          ) : (
+          {
             <EditorContent
               editor={editor}
               className='
@@ -235,19 +191,15 @@ export default function DiaryComponent() {
                bg-background
              '
             />
-          )}
-
-          {/* Saving indicator in the corner */}
-
-          {!loading && saving && (
+          }
+          {saving && (
             <div className='absolute top-2 right-2 bg-gray-500/50 text-primary rounded-md px-2 py-1 text-[.6rem] font-bold flex items-center gap-1'>
               <p>Saving</p>
               <LoadingDots size={8} />
             </div>
           )}
 
-          {/* Synced indicator in the corner */}
-          {!loading && synced && !saving && (
+          {synced && !saving && (
             <div className='absolute top-2 right-2 bg-green-500/50 text-primary rounded-md px-2 py-1 text-[.6rem] font-bold flex items-center'>
               <Check className='h-4 w-4 mr-1' />
               Synced

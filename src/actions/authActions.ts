@@ -2,7 +2,8 @@
 
 import bcrypt from 'bcrypt';
 import db from '@/lib/db';
-import { getSessionUserId, handleServerError } from './actionUtils';
+import { getSessionUserId, logServerError } from './actionUtils';
+import { User } from '@prisma/client';
 
 // Create a new user
 export const createUser = async ({
@@ -13,24 +14,20 @@ export const createUser = async ({
     name: string;
     email: string;
     password: string;
-}): Promise<{ success: boolean; message: string }> => {
+}): Promise<ServerActionResponse<User>> => {
     try {
-        // Validate input
         if (!name || !email || !password) {
             throw new Error('All fields are required');
         }
 
-        // Check if user already exists
         const existingUser = await db.user.findUnique({ where: { email } });
         if (existingUser) {
-            return { success: false, message: 'Email is already in use' };
+            return { success: false, error: 'Email is already in use' };
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create the user
-        await db.user.create({
+        const user = await db.user.create({
             data: {
                 name,
                 email,
@@ -38,80 +35,82 @@ export const createUser = async ({
             },
         });
 
-        return { success: true, message: 'Account created successfully' };
+        return { success: true, data: user };
     } catch (error: unknown) {
-        handleServerError(error as Error, 'creating a new user.');
-        return { success: false, message: 'Internal server error' };
+        logServerError(error as Error, 'creating a new user');
+        return {
+            success: false,
+            error: 'Failed to create user. Please try again later.',
+        };
     }
 };
 
-// Set a new password for a user
 export const setPassword = async ({
     email,
     currentPassword,
     newPassword,
 }: {
     email: string;
-    currentPassword?: string; // Optional for setting a password
+    currentPassword?: string;
     newPassword: string;
-}): Promise<{ success: boolean; message: string }> => {
+}): Promise<ServerActionResponse<User>> => {
     try {
         if (!email || !newPassword) {
             throw new Error('Email and new password are required!');
         }
 
-        // Find the user
         const user = await db.user.findUnique({ where: { email } });
         if (!user) {
-            return { success: false, message: 'User not found.' };
+            return { success: false, error: 'User not found.' };
         }
-
-        // If currentPassword is provided, verify it
         if (currentPassword) {
             const isMatch = await bcrypt.compare(currentPassword, user.password || '');
             if (!isMatch) {
-                return { success: false, message: 'Current password is incorrect.' };
+                return { success: false, error: 'Current password is incorrect.' };
             }
         } else if (user.password) {
-            // If currentPassword is not provided but a password exists, reject
-            return { success: false, message: 'Current password is required to set a new password.' };
+            return { success: false, error: 'Current password is required to set a new password.' };
         }
 
-        // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Update user password
-        await db.user.update({
+        const updatedUser = await db.user.update({
             where: { email },
             data: { password: hashedPassword },
         });
 
-        return { success: true, message: 'Password updated successfully.' };
+        return { success: true, data: updatedUser };
     } catch (error) {
-        handleServerError(error as Error, 'setting a new password.');
-        return { success: false, message: 'Internal server error.' };
+        logServerError(error as Error, 'setting a new password');
+        return {
+            success: false,
+            error: 'Failed to set password for user. Please try again later.',
+        };
     }
 };
-// Get connected providers for a user
-export const getConnectedProviders = async (): Promise<{
-    success: boolean;
-    providers?: {
+
+type ConnectedProvidersProps = {
+    providers: {
         provider: string;
         createdAt: Date;
     }[];
     hasPassword?: boolean;
-    message?: string;
-}> => {
+}
+export const getConnectedProviders = async (): Promise<ServerActionResponse<ConnectedProvidersProps>> => {
 
     try {
-        const userId = await getSessionUserId();
+        const fetchUserId = await getSessionUserId();
+        if (!fetchUserId.success) {
+            return { success: false, error: 'User not authenticated.' };
+        }
+        const userId = fetchUserId.data;
         const user = await db.user.findUnique({
             where: { id: userId },
             select: { password: true },
         });
 
         if (!user) {
-            return { success: false, message: 'User not found.' };
+            return { success: false, error: 'User not found.' };
         }
 
         const accounts = await db.account.findMany({
@@ -122,14 +121,14 @@ export const getConnectedProviders = async (): Promise<{
             },
         });
 
-        return {
-            success: true,
-            providers: accounts,
-            hasPassword: !!user.password,
-        };
+        return { success: true, data: { providers: accounts, hasPassword: !!user.password } };
+
     } catch (error: unknown) {
-        handleServerError(error as Error, 'retrieving connected providers.');
-        return { success: false, message: 'Internal server error.' };
+        logServerError(error as Error, 'retrieving connected providers');
+        return {
+            success: false,
+            error: 'Failed to fetch connected providers. Please try again later.',
+        };
     }
 };
 
@@ -142,7 +141,7 @@ export const updateUserProfile = async ({
     userId: string;
     name?: string;
     email?: string;
-}): Promise<{ success: boolean; message: string }> => {
+}): Promise<ServerActionResponse<User>> => {
     try {
         if (!userId) {
             throw new Error('User ID is required.');
@@ -157,13 +156,16 @@ export const updateUserProfile = async ({
         });
 
         if (!updatedUser) {
-            return { success: false, message: 'Failed to update user profile.' };
+            return { success: false, error: 'Failed to update user profile.' };
         }
 
-        return { success: true, message: 'Profile updated successfully.' };
+        return { success: true, data: updatedUser };
     } catch (error: unknown) {
-        handleServerError(error as Error, 'updating the user profile.');
-        return { success: false, message: 'Internal server error.' };
+        logServerError(error as Error, 'updating user profile');
+        return {
+            success: false,
+            error: 'Failed to update user profile. Please try again later.',
+        };
     }
 };
 

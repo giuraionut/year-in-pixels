@@ -46,7 +46,7 @@ const menuItems: MenuItem[] = [
     label: 'Pixels',
     icon: <LayoutGrid className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
-    href: '/pixels',
+    href: `/pixels/${format(new Date(),'yyyy/MM')}`,
   },
   {
     label: 'Moods',
@@ -64,10 +64,11 @@ const menuItems: MenuItem[] = [
     label: 'Diary',
     icon: <NotebookPen className='mr-2' strokeWidth={2} />,
     isCollapsible: false,
-    href: '/diary',
+    href: `/diary/${format(new Date(),'yyyy/MM/dd')}`,
   },
 ];
 import { usePathname } from 'next/navigation';
+import { format } from 'date-fns';
 
 export default function SideBar() {
   const [isClient, setIsClient] = useState(false);

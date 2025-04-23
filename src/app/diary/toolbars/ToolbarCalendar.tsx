@@ -19,16 +19,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import PixelDayDisplay from '@/app/pixels/PixelDayDisplay';
+import Link from 'next/link';
 
 type ToolbarCalendarProps = {
-  date: Date;
-  setDate: React.Dispatch<React.SetStateAction<Date>>;
+  dateProp: Date;
   className?: string;
 };
 
 export default function ToolbarCalendar({
-  date,
-  setDate,
+  dateProp,
   className,
 }: ToolbarCalendarProps) {
   const [pixels, setPixels] = useState<Pixel[]>([]);
@@ -36,19 +36,20 @@ export default function ToolbarCalendar({
 
   useEffect(() => {
     const fetchPixels = async () => {
-      const from = startOfMonth(date);
-      const to = endOfMonth(date);
+      const from = startOfMonth(dateProp);
+      const to = endOfMonth(dateProp);
       const fetchedPixels = await getUserPixelsByRange(from, to);
-      setPixels(fetchedPixels || []);
-      setLoading(false);
+      if (fetchedPixels.success && fetchedPixels.data) {
+        setPixels(fetchedPixels.data || []);
+        setLoading(false);
+      }
     };
     fetchPixels();
-  }, [date]);
-
-  const handleDaySelect = (selectedDate: Date) => {
-    setDate(selectedDate);
-  };
-
+  }, [dateProp]);
+  // const pixel = pixels.find(
+  //   (pixel) =>
+  //     format(pixel.pixelDate, 'yyyy-MM-dd') === format(dateProp, 'yyyy-MM-dd')
+  // );
   return (
     <Popover>
       <Tooltip delayDuration={100}>
@@ -58,11 +59,11 @@ export default function ToolbarCalendar({
               variant='outline'
               className={cn(
                 'w-4 font-normal ',
-                !date && 'text-muted-foreground',
+                !dateProp && 'text-muted-foreground',
                 className
               )}
             >
-              <CalendarIcon/>
+              <CalendarIcon />
             </Button>
           </TooltipTrigger>
         </PopoverTrigger>
@@ -73,8 +74,8 @@ export default function ToolbarCalendar({
           <p>
             {loading ? (
               <LoadingDots />
-            ) : date ? (
-              format(date, 'PPP')
+            ) : dateProp ? (
+              format(dateProp, 'PPP')
             ) : (
               'Pick a date'
             )}
@@ -86,14 +87,20 @@ export default function ToolbarCalendar({
         className='w-auto p-4 flex flex-col items-center gap-4'
       >
         {!loading && (
-          
-            <CalendarGrid
-              date={new Date()}
-              pixels={pixels}
-              setDate={setDate}
-              onDaySelect={handleDaySelect}
-            />
-          
+          <CalendarGrid currentDate={dateProp} pixels={pixels}>
+            {(date, background) => (
+              <Link
+                href={`/diary/${format(date, 'yyyy/MM/dd')}`}
+                className='w-full'
+              >
+                <PixelDayDisplay
+                  date={date}
+                  currentMonth={startOfMonth(dateProp).getMonth()+1}
+                  background={background}
+                />
+              </Link>
+            )}
+          </CalendarGrid>
         )}
       </PopoverContent>
     </Popover>

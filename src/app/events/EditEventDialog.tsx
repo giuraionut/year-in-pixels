@@ -33,7 +33,6 @@ const FormSchema = z.object({
 export default function EditEventDialog({
   event,
   children,
-  setUserEvents,
 }: EditEventDialogProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -50,11 +49,6 @@ export default function EditEventDialog({
       FormSchema.parse(eventData);
       const newEvent = await editUserEvent(eventData);
       if (newEvent) {
-        setUserEvents((prevEvents) =>
-          prevEvents.map((prevEvent) =>
-            prevEvent.id === newEvent.id ? newEvent : prevEvent
-          )
-        );
         setOpen(false);
         toast.success('Event changed successfully!');
       }

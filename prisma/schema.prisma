@@ -57,12 +57,14 @@ model Mood {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   name   String
   color  String
-  pixels MoodToPixel[] // Changed: Relation to join table
+  pixels MoodToPixel[]
 
-  @@unique([id, userId])
+  @@unique([userId, name])
+  @@index([userId])
 }
 
 model Event {
@@ -70,11 +72,13 @@ model Event {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   name   String
   pixels PixelToEvent[]
 
-  @@unique([id, userId])
+  @@unique([userId, name])
+  @@index([userId])
 }
 
 model Pixel {
@@ -82,12 +86,14 @@ model Pixel {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   moods     MoodToPixel[] // Changed: Relation to join table
   events    PixelToEvent[]
   pixelDate DateTime       @default(now())
 
   @@unique([userId, pixelDate])
+  @@index([pixelDate])
 }
 
 model Diary {
@@ -96,9 +102,10 @@ model Diary {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   content   String?
-  diaryDate DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  @@unique([id, userId, diaryDate])
+
+  @@unique([userId, createdAt])
 }
 
 //join tables
