@@ -69,6 +69,7 @@ const menuItems: MenuItem[] = [
 ];
 import { usePathname } from 'next/navigation';
 import { format } from 'date-fns';
+import AppVersion from './AppVersion';
 
 export default function SideBar() {
   const [isClient, setIsClient] = useState(false);
@@ -87,7 +88,11 @@ export default function SideBar() {
     <Sidebar>
       <SidebarContent className='flex flex-col'>
         <SidebarGroup>
-          <SidebarGroupLabel>Year in Pixels</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            <span className='flex items-center gap-2'>
+            Year in Pixels <AppVersion/>
+            </span>
+            </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className=''>
               {menuItems.map((item, index) => (
