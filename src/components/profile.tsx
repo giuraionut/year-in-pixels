@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AvatarImage } from '@radix-ui/react-avatar';
-import { User, LifeBuoy, Cloud, LogOut } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';

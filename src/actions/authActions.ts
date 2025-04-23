@@ -5,6 +5,7 @@ import argon2 from 'argon2'; // Make sure you have installed argon2: yarn add ar
 import db from '@/lib/db'; // Assuming this is your Prisma client instance path
 import { getSessionUserId, logServerError } from './actionUtils'; // Assuming these exist
 import { User } from '@prisma/client';
+import { omit } from 'lodash';
 
 // Create a new user
 export const createUser = async ({
@@ -37,8 +38,7 @@ export const createUser = async ({
                 password: hashedPassword, // Store the argon2 hash
             },
         });
-        // Omit password from returned user data for security
-        const { password: _, ...userData } = user;
+        const userData = omit(user, 'password');
         return { success: true, data: userData };
 
     } catch (error: unknown) {
@@ -102,7 +102,8 @@ export const setPassword = async ({
         });
 
         // Omit password from returned user data
-        const { password: _, ...userData } = updatedUser;
+        const userData = omit(updatedUser, 'password');
+
         return { success: true, data: userData };
 
     } catch (error: unknown) {
@@ -211,15 +212,12 @@ export const updateUserProfile = async ({
         });
 
         // Omit password from returned user data
-        const { password: _, ...userData } = updatedUser;
+        const userData = omit(updatedUser, 'password');
+
         return { success: true, data: userData };
 
     } catch (error: unknown) {
-        // Catch potential unique constraint errors if email check fails racing condition
-        if (error instanceof Error && 'code' in error && (error as any).code === 'P2002') { // Example for Prisma unique constraint error code
-            logServerError(error as Error, 'updating user profile - unique constraint');
-            return { success: false, error: 'Email is already in use.' };
-        }
+
         logServerError(error as Error, 'updating user profile');
         return {
             success: false,
