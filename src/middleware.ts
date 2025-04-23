@@ -1,23 +1,25 @@
+import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-    const userToken = request.cookies.get('next-auth.session-token')?.value;
+export async function middleware(request: NextRequest) {
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+
 
     const pathname = new URL(request.url).pathname;
     console.log('pathname', pathname);
-    if (userToken && pathname === '/api/auth/signin') {
+    if (token && pathname === '/api/auth/signin') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    if (userToken && pathname === '') {
+    if (token && pathname === '') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
 
     const protectedRoutes = ['/moods', '/pixels', '/dashboard', '/diary', '/events'];
     if (
-        !userToken &&
+        !token &&
         protectedRoutes.some((route) => pathname.startsWith(route))
     ) {
         return NextResponse.redirect(new URL('/', request.url));
