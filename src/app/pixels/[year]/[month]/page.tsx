@@ -13,6 +13,8 @@ import {
   startOfDay,
 } from 'date-fns';
 import PixelDayDialog from '../../PixelDayDialog';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type PixelsMonthPageProps = {
   params: Promise<{
@@ -88,8 +90,11 @@ const PixelsMonthPage = async ({ params }: PixelsMonthPageProps) => {
     <div className='flex flex-col w-full max-w-[800px] mx-auto gap-6 p-4'>
       <div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
         <h1 className='text-2xl font-bold'>
-          Pixel Log - {format(targetDate, 'MMMM yyyy')}
+          Pixels - {format(targetDate, 'MMMM yyyy')}
         </h1>
+        <Button asChild variant='outline'>
+          <Link href={`/pixels/${year}`}>View Anually</Link>
+        </Button>
       </div>
 
       <CalendarGrid

@@ -5,6 +5,7 @@ import { getSessionUserId } from '@/actions/actionUtils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import PixelGrid from '../PixelGrid';
+import { YearSelector } from '../YearSelector';
 
 type PixelsYearPageProps = {
   params: Promise<{
@@ -61,12 +62,13 @@ const PixelsYearPage = async ({
   return (
     <div className='flex flex-col w-full max-w-[900px] mx-auto gap-6 p-4'>
       <div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
-        <h1 className='text-2xl font-bold'>Pixel Log - {year}</h1>
+        <h1 className='text-2xl font-bold'>Pixels - {year}</h1>
 
         <Button asChild variant={'outline'} className='w-fit'>
           <Link href={`/pixels/${year}/01`}>View Monthly</Link>
         </Button>
       </div>
+      <YearSelector currentYear={year} />
 
       <PixelGrid
         year={year}
