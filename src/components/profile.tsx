@@ -54,7 +54,6 @@ export default function Profile({ className }: { className?: string }) {
               </Avatar>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={navigateToProfile}>
               <User />
@@ -62,14 +61,6 @@ export default function Profile({ className }: { className?: string }) {
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuItem>
-            <LifeBuoy />
-            <span>Support</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            <Cloud />
-            <span>API</span>
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut />

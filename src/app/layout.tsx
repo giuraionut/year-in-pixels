@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: 'Year in Pixels',
-  description: 'Year in Pixels application',
+  description: 'Year in Pixels - Color your days with pixels',
 };
 export default async function RootLayout({
   children,

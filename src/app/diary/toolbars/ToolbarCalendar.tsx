@@ -88,18 +88,29 @@ export default function ToolbarCalendar({
       >
         {!loading && (
           <CalendarGrid currentDate={dateProp} pixels={pixels}>
-            {(date, background) => (
+            {(date, background,) => {
+              const disabled = date.getMonth() !== dateProp.getMonth();
+              return (
               <Link
+                className={`w-full ${
+                  disabled
+                    ? 'opacity-50 pointer-events-none cursor-not-allowed'
+                    : '' // Core CSS disabling
+                }`}
+                aria-disabled={disabled} // Accessibility
+                tabIndex={disabled ? -1 : undefined} // Prevent tabbing
+                prefetch={disabled ? false : undefined} // Prevent prefetching
+                // It's good practice to still prevent default in case CSS fails or for robustness
+                onClick={disabled ? (e) => e.preventDefault() : undefined}
                 href={`/diary/${format(date, 'yyyy/MM/dd')}`}
-                className='w-full'
               >
                 <PixelDayDisplay
                   date={date}
-                  currentMonth={startOfMonth(dateProp).getMonth()+1}
+                  currentMonth={startOfMonth(dateProp).getMonth() + 1}
                   background={background}
                 />
               </Link>
-            )}
+            )}}
           </CalendarGrid>
         )}
       </PopoverContent>

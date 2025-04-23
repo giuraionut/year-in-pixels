@@ -13,8 +13,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
-  title: 'Pixels',
-  description: 'Pixels',
+  title: 'Year in Pixels',
+  description: 'Year in Pixels - Color your days with pixels',
 };
 
 const sections = [
