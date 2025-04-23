@@ -123,7 +123,7 @@ export const authOptions: AuthOptions = {
                     return null;
                 }
                 const { email, password } = credentials;
-
+                console.log(email, password)
                 try {
                     const user = await db.user.findUnique({ where: { email } });
                     if (!user || !user.password) {

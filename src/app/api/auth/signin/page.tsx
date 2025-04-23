@@ -58,7 +58,7 @@ export default function SignIn() {
 
   const onSubmit = async (data: LoginFormInputs) => {
     setIsSubmitting(true);
-
+    console.log(data.email,data.password)
     try {
       const res = await signIn('credentials', {
         email: data.email,
@@ -72,6 +72,7 @@ export default function SignIn() {
         toast.error('Invalid email or password.');
       } else {
         router.push('/dashboard');
+        router.refresh();
       }
     } catch {
       form.setError('email', {

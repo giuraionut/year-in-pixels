@@ -40,8 +40,7 @@ function getTopMoods(
   pixels.forEach((px) =>
     px.moods.forEach((mtp: MoodToPixel) => {
       const raw = mtp.mood.color;
-      const color =
-        typeof raw === 'string' ? JSON.parse(raw).value : raw.value;
+      const color = typeof raw === 'string' ? JSON.parse(raw).value : raw.value;
       const key = mtp.mood.id;
       if (!map.has(key)) map.set(key, { name: mtp.mood.name, color, count: 0 });
       map.get(key)!.count++;
@@ -112,36 +111,38 @@ export default async function Dashboard({
       </div>
 
       <div className={cn('grid gap-4 md:gap-6 mb-8', summaryGridCols)}>
-        <Carousel className='w-full max-w-xs'>
-          <CarouselContent>
-            {topMoods.map((m, index) => (
-              <CarouselItem key={index}>
-                <Card key={m.name} className='transition hover:shadow-sm'>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium capitalize'>
-                      Top Moods - {m.name}
-                    </CardTitle>
-                    <div
-                      className='w-4 h-4 rounded-full border'
-                      style={{ backgroundColor: m.color }}
-                      title={m.name}
-                    />
-                  </CardHeader>
-                  <CardContent>
-                    <div className='text-2xl font-bold text-center'>
-                      {m.count}
-                    </div>
-                    <p className='text-xs text-muted-foreground text-center'>
-                      times recorded
-                    </p>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className='left-2 rounded-lg border-none' />
-          <CarouselNext className='right-2 rounded-lg border-none' />
-        </Carousel>
+        {topMoods.length > 0 && (
+          <Carousel className='w-full max-w-xs'>
+            <CarouselContent>
+              {topMoods.map((m, index) => (
+                <CarouselItem key={index}>
+                  <Card key={m.name} className='transition hover:shadow-sm'>
+                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                      <CardTitle className='text-sm font-medium capitalize'>
+                        Top Moods - {m.name}
+                      </CardTitle>
+                      <div
+                        className='w-4 h-4 rounded-full border'
+                        style={{ backgroundColor: m.color }}
+                        title={m.name}
+                      />
+                    </CardHeader>
+                    <CardContent>
+                      <div className='text-2xl font-bold text-center'>
+                        {m.count}
+                      </div>
+                      <p className='text-xs text-muted-foreground text-center'>
+                        times recorded
+                      </p>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className='left-2 rounded-lg border-none' />
+            <CarouselNext className='right-2 rounded-lg border-none' />
+          </Carousel>
+        )}
 
         <Card className='transition hover:shadow-sm'>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
