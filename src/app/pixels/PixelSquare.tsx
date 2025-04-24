@@ -3,7 +3,7 @@
 import React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { Pixel, MoodToPixel } from '@prisma/client';
+import { Pixel, MoodToPixel, Mood } from '@prisma/client';
 
 import { toast } from 'sonner';
 
@@ -28,66 +28,107 @@ export default function PixelSquare({
 
   const handleClick = () => {
     const pixelMoods = pixel?.moods ?? [];
-    const pixelColors: Color[] = pixelMoods
+    console.log('click');
+    const validMoodsWithColors = pixelMoods
       .map((mtp: MoodToPixel) => {
         try {
-          return JSON.parse(mtp.mood.color) as Color;
-        } catch {
+          const moodName = mtp.mood.name;
+          const parsedColor = JSON.parse(mtp.mood.color) as Color;
+
+          if (
+            !parsedColor ||
+            typeof parsedColor.value !== 'string' ||
+            parsedColor.value === 'transparent'
+          ) {
+            return null;
+          }
+
+          const colorValue = parsedColor.value.startsWith('#')
+            ? parsedColor.value.slice(1)
+            : parsedColor.value;
+
+          return { moodName, colorValue };
+        } catch (error) {
+          console.error(
+            'Failed to parse mood color JSON for mood:',
+            mtp.mood?.name,
+            mtp.mood?.color,
+            error
+          );
           return null;
         }
       })
-      .filter(
-        (c: Color): c is Color => c !== null && c.value !== 'transparent'
-      );
-    const stripped = pixelColors.map((c) =>
-      c.value.startsWith('#') ? c.value.slice(1) : c.value
-    );
+      .filter((item: Mood) => item !== null);
 
     const currentFilterColor = searchParams.get('color');
 
     const newParams = new URLSearchParams(searchParams.toString());
     const pushWithParams = () => {
       const qs = newParams.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     };
 
-    if (stripped.length === 0) {
+    if (validMoodsWithColors.length === 0) {
       if (currentFilterColor) {
         newParams.delete('color');
         pushWithParams();
-        toast.info('Filter cleared.');
+        toast.info('Color filter cleared.');
       } else {
         toast.error('No mood set for this day.');
       }
       return;
     }
 
-    if (stripped.length === 1) {
-      const c = stripped[0];
-      if (c === currentFilterColor) {
+    if (validMoodsWithColors.length === 1) {
+      const { moodName, colorValue } = validMoodsWithColors[0];
+
+      if (colorValue === currentFilterColor) {
         newParams.delete('color');
-        toast.info(`Filter for #${c} cleared.`);
+        toast.info(
+          <span>
+            Filter for <span className='font-bold'>{moodName}</span> cleared.
+          </span>
+        );
       } else {
-        newParams.set('color', c);
-        toast.info(`Filtering by #${c}.`);
+        newParams.set('color', colorValue);
+        toast.info(
+          <span>
+            Filtering by <span className='font-bold'>{moodName}</span>.
+          </span>
+        );
       }
       pushWithParams();
       return;
     }
 
-    if (currentFilterColor && stripped.includes(currentFilterColor)) {
+    const matchedMood = validMoodsWithColors.find(
+      (item: Mood) => item.colorValue === currentFilterColor
+    );
+
+    if (matchedMood) {
       newParams.delete('color');
       pushWithParams();
-      toast.info(`Filter for #${currentFilterColor} cleared.`);
+      toast.info(
+        <span>
+          Filter for <span className='font-bold'>{matchedMood.moodName}</span>
+          cleared.
+        </span>
+      );
     } else {
       toast.warning(
-        `Multiple moods (${stripped
-          .map((c) => `#${c}`)
-          .join(', ')}) set; cannot filter from this square.`
+        <span>
+          Cannot filter by multiple moods:{' '}
+          {validMoodsWithColors.map((item: Mood, index: number) => (
+            <span key={item.moodName} className='font-bold'>
+              {item.moodName}
+              {index < validMoodsWithColors.length - 1 && ', '}
+            </span>
+          ))}
+          . Please select one.
+        </span>
       );
     }
   };
-
   return (
     <li
       onClick={handleClick}
