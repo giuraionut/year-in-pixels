@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/form';
 import React from 'react';
 import { toast } from 'sonner';
+import { nowZoned } from '@/lib/date';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Mood name is required' }),
@@ -58,7 +59,7 @@ export default function AddMoodDialog({ children }: AddMoodDialogProps) {
         color: JSON.stringify(data.color),
         userId: '',
         id: '',
-        createdAt: new Date(),
+        createdAt: nowZoned(),
       };
 
       const newMood = await addUserMood(mood);

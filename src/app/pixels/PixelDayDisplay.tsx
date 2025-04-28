@@ -4,6 +4,7 @@ import React, { forwardRef } from 'react';
 import { format, isAfter, isBefore, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { nowZoned } from '@/lib/date';
 
 export type PixelDayDisplayProps = {
   date: Date;
@@ -13,11 +14,8 @@ export type PixelDayDisplayProps = {
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const PixelDayDisplay = forwardRef<HTMLButtonElement, PixelDayDisplayProps>(
-  (
-    { date, background,  className, currentMonth, ...buttonProps },
-    ref
-  ) => {
-    const today = startOfDay(new Date());
+  ({ date, background, className, currentMonth, ...buttonProps }, ref) => {
+    const today = startOfDay(nowZoned());
     const disabled =
       isAfter(date, today) ||
       isBefore(date, new Date('1900-01-01')) ||

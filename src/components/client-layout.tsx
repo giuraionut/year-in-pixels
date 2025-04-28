@@ -9,6 +9,7 @@ import Header from './header';
 import SideBar from './sidebar';
 import Footer from './footer';
 import ThemeProvider from '../theme/theme-provider';
+import TimeZoneProvider from '@/providers/TimeZoneProvider';
 
 export default function ClientLayout({
   session,
@@ -25,25 +26,27 @@ export default function ClientLayout({
         enableSystem={true}
         disableTransitionOnChange
       >
-        <SidebarProvider
-          style={
-            {
-              '--sidebar-width': '12rem',
-              '--sidebar-width-mobile': '12rem',
-            } as React.CSSProperties
-          }
-        >
-          {session ? <SideBar /> : ''}
+        <TimeZoneProvider>
+          <SidebarProvider
+            style={
+              {
+                '--sidebar-width': '12rem',
+                '--sidebar-width-mobile': '12rem',
+              } as React.CSSProperties
+            }
+          >
+            {session ? <SideBar /> : ''}
 
-          <TooltipProvider>
-            <div className='mx-auto w-full border-border/40 dark:border-border min-[1800px]:max-w-[1536px] min-[1800px]:border-x flex flex-col'>
-              <Header session={session} />
-              <main className='flex-1'>{children}</main>
-              <Footer />
-              <Toaster />
-            </div>
-          </TooltipProvider>
-        </SidebarProvider>
+            <TooltipProvider>
+              <div className='mx-auto w-full border-border/40 dark:border-border min-[1800px]:max-w-[1536px] min-[1800px]:border-x flex flex-col'>
+                <Header session={session} />
+                <main className='flex-1'>{children}</main>
+                <Footer />
+                <Toaster />
+              </div>
+            </TooltipProvider>
+          </SidebarProvider>
+        </TimeZoneProvider>
       </ThemeProvider>
     </SessionProvider>
   );

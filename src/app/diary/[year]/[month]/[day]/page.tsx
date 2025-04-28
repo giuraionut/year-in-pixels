@@ -40,7 +40,7 @@ export default async function JournalPage({
   }
   const userId = fetchUserId.data;
   const targetDate = new Date(year, monthIndex, dayIndex);
-
+  console.log('userid',userId);
   const fetched = await getUserDiaryByDate(targetDate, userId);
   if (!fetched.success) {
     return (
@@ -49,8 +49,6 @@ export default async function JournalPage({
       </div>
     );
   }
-  console.log(fetched.data?.content)
-  
   return (
     <DiaryComponent userId={userId} diary={fetched.data} date={targetDate} />
   );

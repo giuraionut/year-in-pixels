@@ -114,39 +114,46 @@ export default function DiaryComponent({
 
   const save = useMemo(() => {
     return debounce(async (content: JSONContent) => {
-      console.log("Debounced save triggered"); // For debugging
+      console.log('Debounced save triggered'); // For debugging
       setSaving(true);
       setSynced(false);
       try {
         // Pass the 'diary' object available at the time debounce is *created*
         // Or fetch the latest diary state if needed, depending on requirements
-        const result = await saveDiary(diary, content); // 'diary' is captured from the outer scope
+
+        const d: Diary = {
+          id: diary?.id ?? '', // Provide a default value or handle undefined
+          userId: diary?.userId ?? '', // Provide a default value or handle undefined
+          createdAt: date,
+          content: diary?.content ?? null, // Provide a default value or handle undefined
+          updatedAt: new Date(), // Provide a default value or handle undefined
+        };
+        const result = await saveDiary(d, content, date); // 'diary' is captured from the outer scope
         if (result.success) {
           setSynced(true);
-          console.log("Save successful, synced.");
+          console.log('Save successful, synced.');
         } else {
-           console.error("Save failed:", result.error);
-           // Optionally reset synced to false or show error
+          console.error('Save failed:', result.error);
+          // Optionally reset synced to false or show error
         }
       } catch (error) {
-         console.error("Error during save:", error);
-         // Optionally reset synced to false or show error
+        console.error('Error during save:', error);
+        // Optionally reset synced to false or show error
       } finally {
         setSaving(false);
       }
     }, 1000); // 1000ms debounce delay
   }, [diary, setSaving, setSynced]); // Dependencies: recreate debounce if diary changes.
-                                      // setSaving/setSynced are stable but good practice to include if used.
-     // Add cleanup for the debounced function
+  // setSaving/setSynced are stable but good practice to include if used.
+  // Add cleanup for the debounced function
   useEffect(() => {
     // This cleanup function runs when the component unmounts
     // or when the 'save' function instance changes (if 'diary' changes)
     return () => {
-      console.log("Cancelling pending save on cleanup/change."); // For debugging
+      console.log('Cancelling pending save on cleanup/change.'); // For debugging
       save.cancel();
     };
   }, [save]); // Depend on the memoized 'save' function
-              
 
   const getEditorContent = () => {
     const jsonDoc: JSONContent = editor?.getJSON() ?? [];

@@ -1,11 +1,16 @@
 "use server";
 import db from "@/lib/db";
 import { Diary } from "@prisma/client";
-import { getSessionUserId, logServerError} from "./actionUtils";
+import { getSessionUserId, logServerError } from "./actionUtils";
 import { JSONContent } from "@tiptap/react";
-import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { revalidateTag } from "next/cache";
-import { addDays, getUnixTime, startOfDay } from "date-fns";
+import { format } from "date-fns";
+import { getZonedDayRange } from "@/lib/date";
+
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
+
+const DIARIES_CACHE_TAG = "diaries";
+const getDiaryTag = (userId: string, dayTag: string) => `diary-${userId}-${dayTag}`;
 
 export const getUserDiaries = async (userId: string): Promise<ServerActionResponse<Diary[]>> => {
   'use cache'
@@ -15,7 +20,10 @@ export const getUserDiaries = async (userId: string): Promise<ServerActionRespon
         userId,
       },
     });
-    cacheTag(`diaries-${userId}`);
+
+    // Apply the cache tag correctly
+    const cacheKey = DIARIES_CACHE_TAG;
+    cacheTag(cacheKey);
     return { success: true, data: diaries };
   } catch (error: unknown) {
     logServerError(error as Error, 'fetching user diaries');
@@ -26,74 +34,78 @@ export const getUserDiaries = async (userId: string): Promise<ServerActionRespon
   }
 };
 
-export const getUserDiaryByDate = async (date: Date, userId: string): Promise<ServerActionResponse<Diary | null>> => {
+export const getUserDiaryByDate = async (
+  date: Date,
+  userId: string
+): Promise<ServerActionResponse<Diary | null>> => {
   'use cache'
-  const startDate = startOfDay(date);
+  const { start, end } = getZonedDayRange(new Date(date));
+  const dayTag = format(start, "yyyy-MM-dd");
 
-  const endDate = addDays(startDate, 1);
   try {
     const diary = await db.diary.findFirst({
       where: {
         userId,
         createdAt: {
-          gte: startDate,
-          lte: endDate,
+          gte: start,
+          lt: end,
         },
       },
     });
-    if (diary) {
-      cacheTag(`diary-${userId}-${getUnixTime(diary.createdAt)}`);
-    }
 
+    // Apply more specific cache tag
+    const cacheKey = getDiaryTag(userId, dayTag);
+    cacheTag(cacheKey);
     return { success: true, data: diary };
   } catch (error: unknown) {
-    logServerError(error as Error, 'fetching user diary');
+    logServerError(error as Error, "fetching user diary");
     return {
       success: false,
-      error: 'Failed to fetch diary. Please try again later.',
+      error: "Failed to fetch diary. Please try again later.",
     };
   }
 };
 
-export const upsertUserDiary = async (diary: Omit<Diary, 'content'> & { content: JSONContent }): Promise<ServerActionResponse<Diary>> => {
-  console.log('upsertUserDiary', diary)
+export const upsertUserDiary = async (
+  diary: Omit<Diary, "content"> & { content: JSONContent }
+): Promise<ServerActionResponse<Diary>> => {
   try {
-    const fetchUserId = await getSessionUserId();
-    if (!fetchUserId.success) {
-      return { success: false, error: 'User not authenticated.' };
+    const session = await getSessionUserId();
+    if (!session.success) {
+      return { success: false, error: "User not authenticated." };
     }
-    const userId = fetchUserId.data;
+    const userId = session.data;
 
-    const serializedContent = diary.content ? JSON.stringify(diary.content) : null;
+    const data = {
+      userId,
+      content: diary.content ? JSON.stringify(diary.content) : null,
+      createdAt: diary.createdAt,
+    };
 
-
+    let record;
     if (diary.id) {
-      const updatedDiary = await db.diary.update({
-        where: {
-          id: diary.id,
-        },
-        data: {
-          content: serializedContent,
-        },
+      record = await db.diary.update({
+        where: { id: diary.id },
+        data,
       });
-      revalidateTag(`diary-${userId}-${getUnixTime(diary.createdAt)}`);
-      return { success: true, data: updatedDiary };
     } else {
-      const createdDiary = await db.diary.create({
-        data: {
-          userId,
-          content: serializedContent,
-        },
+      record = await db.diary.create({
+        data,
       });
-      revalidateTag(`diary-${userId}-${getUnixTime(diary.createdAt)}`);
-      return { success: true, data: createdDiary };
     }
 
+    const { start } = getZonedDayRange(record.createdAt);
+    const dayTag = format(start, "yyyy-MM-dd");
+
+    await revalidateTag(DIARIES_CACHE_TAG);
+    await revalidateTag(getDiaryTag(userId, dayTag));
+
+    return { success: true, data: record };
   } catch (error: unknown) {
-    logServerError(error as Error, 'upserting user diary');
+    logServerError(error as Error, "upserting user diary");
     return {
       success: false,
-      error: 'Failed to upsert diary. Please try again later.',
+      error: "Failed to upsert diary. Please try again later.",
     };
   }
 };

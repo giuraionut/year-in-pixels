@@ -26,6 +26,7 @@ import { AddEventDialogProps } from './event';
 import { addUserEvent } from '@/actions/eventActions';
 import { Event } from '@prisma/client';
 import { toast } from 'sonner';
+import { nowZoned } from '@/lib/date';
 
 const FormSchema = z.object({
   name: z.string().min(1, { message: 'Event name is required' }),
@@ -44,8 +45,8 @@ export default function AddEventDialog({ children }: AddEventDialogProps) {
     const event: Omit<Event, 'id'> = {
       name: data.name,
       userId: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: nowZoned(),
+      updatedAt: nowZoned(),
     };
 
     try {

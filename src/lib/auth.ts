@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import db from "./db";
 import { User as PrismaUser } from "@prisma/client";
+import { nowZoned } from "./date";
 
 type ProviderUserInfo = Pick<NextAuthUser, 'email' | 'name' | 'image'>;
 type ProviderAccountInfo = Pick<NextAuthAccount, 'provider' | 'providerAccountId' | 'type' | 'access_token' | 'refresh_token' | 'expires_at' | 'id_token' | 'scope' | 'session_state' | 'token_type'>;
@@ -46,7 +47,7 @@ const fetchOrCreateUser = async (
                         email,
                         name: providerName || null,
                         image: providerImage || null,
-                        emailVerified: new Date(),
+                        emailVerified: nowZoned(),
                     },
                 });
             } else {

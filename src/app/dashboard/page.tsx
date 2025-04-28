@@ -20,6 +20,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { nowZoned } from '@/lib/date';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -75,7 +76,7 @@ export default async function Dashboard({
     }
   }
   if (!start || !end) {
-    redirect(`/dashboard?year=${new Date().getFullYear()}`);
+    redirect(`/dashboard?year=${nowZoned().getFullYear()}`);
   }
 
   const fetchUserId = await getSessionUserId();
