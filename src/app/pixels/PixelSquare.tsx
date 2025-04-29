@@ -28,7 +28,6 @@ export default function PixelSquare({
 
   const handleClick = () => {
     const pixelMoods = pixel?.moods ?? [];
-    console.log('click');
     const validMoodsWithColors = pixelMoods
       .map((mtp: MoodToPixel) => {
         try {

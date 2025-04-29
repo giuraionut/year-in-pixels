@@ -117,8 +117,6 @@ export const deleteUserMood = async (
   }
   const userId = fetchUserId.data;
   try {
-    console.log("Attempting to delete mood with ID:", moodId, "and userId:", userId);
-
     const deletedMood = await db.mood.delete({
       where: {
         id: moodId, userId: userId

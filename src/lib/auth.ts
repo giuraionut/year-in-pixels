@@ -41,7 +41,6 @@ const fetchOrCreateUser = async (
             });
 
             if (!localUser) {
-                console.log(`[Auth] Creating new user for email: ${email}`);
                 localUser = await tx.user.create({
                     data: {
                         email,
@@ -51,7 +50,6 @@ const fetchOrCreateUser = async (
                     },
                 });
             } else {
-                console.log(`[Auth] Found existing user for email: ${email}, ID: ${localUser.id}`);
             }
             if (!localUser) {
                 throw new Error("Database error: Failed to find or create user.");
@@ -92,7 +90,6 @@ const fetchOrCreateUser = async (
             return localUser;
         });
 
-        console.log(`[Auth] fetchOrCreateUser completed successfully for email: ${email}`);
         return userInDb;
 
     } catch (error) {
@@ -124,22 +121,18 @@ export const authOptions: AuthOptions = {
                     return null;
                 }
                 const { email, password } = credentials;
-                console.log(email, password)
                 try {
                     const user = await db.user.findUnique({ where: { email } });
                     if (!user || !user.password) {
-                        console.log(`[Auth] Authorize failed: No user found or no password set for ${email}.`);
                         return null;
                     }
 
                     const isValid = await argon2.verify(user.password, password);
 
                     if (!isValid) {
-                        console.log(`[Auth] Authorize failed: Invalid password for ${email}.`);
                         return null;
                     }
 
-                    console.log(`[Auth] Authorize successful for ${email}.`);
                     return {
                         id: user.id,
                         name: user.name,
@@ -147,7 +140,6 @@ export const authOptions: AuthOptions = {
                         image: user.image,
                     };
                 } catch (error) {
-                    console.error("[Auth] Error during credentials authorization:", error);
                     return null;
                 }
             },
@@ -167,10 +159,8 @@ export const authOptions: AuthOptions = {
          * Runs AFTER successful OAuth or authorize().
          */
         async signIn({ user, account, profile }) {
-            console.log(`[Auth] signIn callback invoked. Provider: ${account?.provider}, User ID from Auth: ${user?.id}`);
 
             if (account && profile && user && account.provider !== 'credentials') {
-                console.log(`[Auth] signIn: Handling OAuth provider: ${account.provider}`);
                 try {
                     const providerUserInfo: ProviderUserInfo = {
                         email: profile.email,
@@ -179,17 +169,14 @@ export const authOptions: AuthOptions = {
                     };
 
                     if (!providerUserInfo.email) {
-                        console.error(`[Auth] signIn: OAuth profile for ${account.provider} missing email. Blocking sign-in.`);
                         return false;
                     }
 
                     const prismaUser = await fetchOrCreateUser(providerUserInfo, account);
                     user.id = prismaUser.id;
-                    console.log(`[Auth] signIn: OAuth process success for ${user.email}, DB User ID: ${user.id}. Allowing sign-in.`);
                     return true;
 
                 } catch (error) {
-                    console.error("[Auth] signIn: Error during OAuth fetchOrCreateUser:", error);
                     return false;
                 }
             }
@@ -205,7 +192,9 @@ export const authOptions: AuthOptions = {
          */
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        async jwt({ token, user, account, profile, trigger, session }) {
+        async jwt({ token, user,
+            //  account, profile, 
+             trigger, session }) {
 
             if (user?.id) {
                 token.id = user.id;
@@ -215,19 +204,15 @@ export const authOptions: AuthOptions = {
             }
 
             if (trigger === "update" && session?.name && token.id) {
-                console.log(`[Auth] jwt: Session update trigger received for user ID: ${token.id}`);
                 try {
                     const dbUser = await db.user.findUnique({ where: { id: token.id }, select: { name: true, email: true, image: true } });
                     if (dbUser) {
-                        console.log("[Auth] jwt: Updating token with fresh data from DB.");
                         token.name = dbUser.name;
                         token.email = dbUser.email;
                         token.picture = dbUser.image;
                     } else {
-                        console.warn(`[Auth] jwt: User ${token.id} not found during session update.`);
                     }
                 } catch (error) {
-                    console.error(`[Auth] jwt: Error refetching user during session update for ${token.id}:`, error);
                 }
             }
 

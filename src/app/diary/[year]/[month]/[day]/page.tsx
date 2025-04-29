@@ -40,7 +40,6 @@ export default async function JournalPage({
   }
   const userId = fetchUserId.data;
   const targetDate = new Date(year, monthIndex, dayIndex);
-  console.log('userid',userId);
   const fetched = await getUserDiaryByDate(targetDate, userId);
   if (!fetched.success) {
     return (

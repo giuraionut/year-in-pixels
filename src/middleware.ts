@@ -7,7 +7,6 @@ export async function middleware(request: NextRequest) {
 
 
     const pathname = new URL(request.url).pathname;
-    console.log('pathname', pathname);
     if (token && pathname === '/api/auth/signin') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }

@@ -87,9 +87,6 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({
       const daySegmentIndex = monthSegmentIndex + 1;
       if (segments.length > daySegmentIndex) {
         segments[daySegmentIndex] = '01';
-        console.log(
-          `MonthSelector: Resetting day segment to '01' at index ${daySegmentIndex}`
-        );
       }
 
       const newPath = segments.join('/');

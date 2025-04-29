@@ -114,7 +114,6 @@ export default function DiaryComponent({
 
   const save = useMemo(() => {
     return debounce(async (content: JSONContent) => {
-      console.log('Debounced save triggered'); // For debugging
       setSaving(true);
       setSynced(false);
       try {
@@ -131,7 +130,6 @@ export default function DiaryComponent({
         const result = await saveDiary(d, content, date); // 'diary' is captured from the outer scope
         if (result.success) {
           setSynced(true);
-          console.log('Save successful, synced.');
         } else {
           console.error('Save failed:', result.error);
           // Optionally reset synced to false or show error
@@ -150,7 +148,6 @@ export default function DiaryComponent({
     // This cleanup function runs when the component unmounts
     // or when the 'save' function instance changes (if 'diary' changes)
     return () => {
-      console.log('Cancelling pending save on cleanup/change.'); // For debugging
       save.cancel();
     };
   }, [save]); // Depend on the memoized 'save' function

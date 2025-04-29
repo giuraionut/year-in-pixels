@@ -54,7 +54,6 @@ export default function EditMoodDialog({
     },
   });
 
-  console.log('mood', mood);
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const moodData = mood;
     moodData.name = data.name;

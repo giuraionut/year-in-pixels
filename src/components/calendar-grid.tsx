@@ -61,7 +61,6 @@ export default function CalendarGrid({
       (mtp: MoodToPixel) => JSON.parse(mtp.mood.color).value
     );
 
-    console.log('THE DATE', day)
     let background = '';
     if (moodColors.length === 1) {
       background = moodColors[0];

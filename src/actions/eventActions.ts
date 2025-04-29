@@ -115,8 +115,6 @@ export const deleteUserEvent = async (
     const userId = fetchUserId.data;
 
     try {
-        console.log("Attempting to delete event with ID:", eventId, "and userId:", userId);
-
         const deletedEvent = await db.event.delete({
             where: { id: eventId, userId: userId },
         });
