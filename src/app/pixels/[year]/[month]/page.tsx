@@ -96,7 +96,6 @@ const PixelsMonthPage = async ({ params }: PixelsMonthPageProps) => {
           <Link href={`/pixels/${year}`}>View Anually</Link>
         </Button>
       </div>
-
       <CalendarGrid
         currentDate={targetDate}
         pixels={pixelsResult.data}
