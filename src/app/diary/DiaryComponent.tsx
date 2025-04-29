@@ -141,7 +141,7 @@ export default function DiaryComponent({
         setSaving(false);
       }
     }, 1000); // 1000ms debounce delay
-  }, [diary, setSaving, setSynced]); // Dependencies: recreate debounce if diary changes.
+  }, [diary, setSaving, setSynced, date]); // Dependencies: recreate debounce if diary changes.
   // setSaving/setSynced are stable but good practice to include if used.
   // Add cleanup for the debounced function
   useEffect(() => {

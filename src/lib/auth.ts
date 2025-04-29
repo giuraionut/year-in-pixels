@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import db from "./db";
 import { User as PrismaUser } from "@prisma/client";
 import { nowZoned } from "./date";
+import { logServerError } from "@/actions/actionUtils";
 
 type ProviderUserInfo = Pick<NextAuthUser, 'email' | 'name' | 'image'>;
 type ProviderAccountInfo = Pick<NextAuthAccount, 'provider' | 'providerAccountId' | 'type' | 'access_token' | 'refresh_token' | 'expires_at' | 'id_token' | 'scope' | 'session_state' | 'token_type'>;
@@ -139,7 +140,8 @@ export const authOptions: AuthOptions = {
                         email: user.email,
                         image: user.image,
                     };
-                } catch (error) {
+                } catch (error: unknown) {
+                    logServerError(error as Error, 'verifying credentials');
                     return null;
                 }
             },
@@ -176,7 +178,9 @@ export const authOptions: AuthOptions = {
                     user.id = prismaUser.id;
                     return true;
 
-                } catch (error) {
+                } catch (error: unknown) {
+                    logServerError(error as Error, 'verifying credentials');
+
                     return false;
                 }
             }
@@ -194,7 +198,7 @@ export const authOptions: AuthOptions = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async jwt({ token, user,
             //  account, profile, 
-             trigger, session }) {
+            trigger, session }) {
 
             if (user?.id) {
                 token.id = user.id;
@@ -212,7 +216,8 @@ export const authOptions: AuthOptions = {
                         token.picture = dbUser.image;
                     } else {
                     }
-                } catch (error) {
+                } catch (error: unknown) {
+                    logServerError(error as Error, 'verifying credentials');
                 }
             }
 
