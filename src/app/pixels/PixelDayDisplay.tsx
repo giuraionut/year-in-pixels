@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { format, isAfter, isBefore, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,9 +15,20 @@ export type PixelDayDisplayProps = {
 
 const PixelDayDisplay = forwardRef<HTMLButtonElement, PixelDayDisplayProps>(
   ({ date, background, className, currentMonth, ...buttonProps }, ref) => {
-    const today = startOfDay(nowZoned());
+    const [todayStart, setTodayStart] = useState<Date | null>(null);
+    console.log('todayStart', todayStart);
+    // Compute “today@00:00” on mount
+    useEffect(() => {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      setTodayStart(now);
+    }, []);
+    // Don’t render until we know client-side “today”
+    if (todayStart === null) {
+      return null;
+    }
     const disabled =
-      isAfter(date, today) ||
+      isAfter(date, todayStart) ||
       isBefore(date, new Date('1900-01-01')) ||
       date.getMonth() + 1 !== currentMonth;
 
