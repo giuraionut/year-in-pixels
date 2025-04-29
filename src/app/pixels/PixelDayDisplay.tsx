@@ -1,10 +1,9 @@
 'use client';
 
 import React, { forwardRef, useEffect, useState } from 'react';
-import { format, isAfter, isBefore, startOfDay } from 'date-fns';
+import { format, isAfter, isBefore } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { nowZoned } from '@/lib/date';
 
 export type PixelDayDisplayProps = {
   date: Date;
