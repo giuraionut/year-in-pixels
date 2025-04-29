@@ -20,6 +20,7 @@ const PixelDayDisplay = forwardRef<HTMLButtonElement, PixelDayDisplayProps>(
       isAfter(date, today) ||
       isBefore(date, new Date('1900-01-01')) ||
       date.getMonth() + 1 !== currentMonth;
+
     return (
       <Button
         ref={ref}

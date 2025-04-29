@@ -12,8 +12,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import AddPixelDialogForm from './AddPixelDialogForm';
-import PixelDayDisplay from './PixelDayDisplay';
+// import PixelDayDisplay from './PixelDayDisplay';
 
+import dynamic from 'next/dynamic';
+
+const PixelDayDisplay = dynamic(
+  () => import('./PixelDayDisplay'),
+  { ssr: false }
+);
 type PixelDayButtonProps = {
   targetDate: Date;
   background: string;

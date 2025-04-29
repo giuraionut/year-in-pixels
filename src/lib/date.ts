@@ -1,19 +1,23 @@
-import { toZonedTime, formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { startOfDay, addDays } from "date-fns";
+// date.ts
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
+import { startOfDay, addDays } from 'date-fns';
 
 let _userTimeZone: string | undefined;
 
-/** call once on the client to capture zone */
+/** capture an explicit override */
 export function setUserTimeZone(tz: string) {
   _userTimeZone = tz;
 }
 
-/** returns the IANA zone to use—either what the user told us, or UTC */
-export function getZone() {
-  return _userTimeZone ?? "UTC";
+/** use stored zone or browser’s zone, else UTC */
+export function getZone(): string {
+  if (typeof Intl !== 'undefined' && typeof Intl.DateTimeFormat === 'function') {
+    return _userTimeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  return _userTimeZone ?? 'UTC';
 }
 
-/** the current “today” in the active zone, as a Date object */
+/** the current “today” in the active zone */
 export function nowZoned(): Date {
   return toZonedTime(new Date(), getZone());
 }
@@ -23,10 +27,8 @@ export function todayDate(): number {
   return nowZoned().getDate();
 }
 
-/** formatted yyyy-MM-dd in the active zone */
-export function todayISO(): string {
-  return formatInTimeZone(new Date(), getZone(), "yyyy-MM-dd");
-}
+// … the rest of your helpers remain the same …
+
 
 /**
  * Compute the UTC boundaries for a given date in the active (or specified) time-zone.
