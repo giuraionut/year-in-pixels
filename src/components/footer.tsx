@@ -13,7 +13,7 @@ export default function Footer() {
         <p className='text-balance text-center text-sm leading-loose text-muted-foreground md:text-left'>
           Built by{' '}
           <Link
-            href=''
+            href='https://github.com/giuraionut'
             target='_blank'
             rel='noreferrer'
             className='font-medium underline underline-offset-4'
@@ -22,7 +22,7 @@ export default function Footer() {
           </Link>
           . The source code is available on{' '}
           <Link
-            href=''
+            href='https://github.com/giuraionut/year-in-pixels'
             target='_blank'
             rel='noreferrer'
             className='font-medium underline underline-offset-4'
