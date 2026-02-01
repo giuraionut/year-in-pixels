@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaLibSQL } from '@prisma/adapter-libsql';
-import 'dotenv/config';
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import "dotenv/config";
+import { PrismaClient } from "../../generated/prisma/client";
 declare global {
   // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
@@ -8,13 +8,15 @@ declare global {
 
 const prismaClientSingleton = () => {
   if (!process.env.TURSO_DATABASE_URL) {
-    throw new Error('TURSO_DATABASE_URL is not set in environment variables');
+    throw new Error("TURSO_DATABASE_URL is not set in environment variables");
   }
   if (!process.env.TURSO_AUTH_TOKEN) {
-    console.warn('TURSO_AUTH_TOKEN is not set. Assuming local file or no auth required.');
+    console.warn(
+      "TURSO_AUTH_TOKEN is not set. Assuming local file or no auth required.",
+    );
   }
 
-  const adapter = new PrismaLibSQL({
+  const adapter = new PrismaLibSql({
     url: process.env.TURSO_DATABASE_URL,
     authToken: process.env.TURSO_AUTH_TOKEN,
   });
@@ -30,6 +32,6 @@ const db = globalForPrisma.prisma ?? prismaClientSingleton();
 
 export default db;
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = db;
 }

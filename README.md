@@ -33,7 +33,7 @@ This project leverages a modern, full-stack TypeScript setup:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/year-in-pixels.git # Replace with your repo URL
+    git clone https://github.com/your-username/year-in-pixels.git
     cd year-in-pixels
     ```
 
@@ -69,7 +69,6 @@ This project leverages a modern, full-stack TypeScript setup:
 
 ## 📜 License
 
-<!-- Choose a license, e.g., MIT -->
 This project is licensed under the [MIT License](LICENSE.md).
 
 ---
