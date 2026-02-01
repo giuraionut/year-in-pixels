@@ -111,9 +111,11 @@ const PixelsMonthPage = async ({ params }: PixelsMonthPageProps) => {
             currentMonth={monthIndex + 1}
             userMoods={moodsResult.data}
             userEvents={eventsResult.data}
-            pixel={pixelsResult.data.find((pixel) =>
-              isEqual(startOfDay(pixel.pixelDate), startOfDay(targetDate))
-            )}
+            pixel={
+              pixelsResult.data.find((pixel) =>
+                isEqual(startOfDay(pixel.pixelDate), startOfDay(targetDate))
+              ) || null
+            }
           />
         )}
       </CalendarGrid>

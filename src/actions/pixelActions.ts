@@ -1,13 +1,14 @@
 "use server";
 import db from "@/lib/db";
 import { Pixel } from "@prisma/client";
+import { PixelWithRelations } from "@/types/pixel";
 import { getSessionUserId, logServerError, normalizeDate } from "./actionUtils";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 import { revalidateTag } from "next/cache";
 
 export const getUserPixels = async (
   userId: string,
-): Promise<ServerActionResponse<Pixel[]>> => {
+): Promise<ServerActionResponse<PixelWithRelations[]>> => {
   "use cache";
   console.log("Fetching pixels for user:", userId);
   try {
@@ -53,7 +54,7 @@ export const getUserPixelsByRange = async (
   from: Date,
   to?: Date,
   userId?: string,
-): Promise<ServerActionResponse<Pixel[]>> => {
+): Promise<ServerActionResponse<PixelWithRelations[]>> => {
   "use cache";
   try {
     const fromDate = new Date(
@@ -115,7 +116,7 @@ export const upsertUserPixel = async (
   pixel: Pixel,
   eventIds: string[] = [],
   moodIds: string[] = [],
-): Promise<ServerActionResponse<Pixel>> => {
+): Promise<ServerActionResponse<PixelWithRelations>> => {
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
     return { success: false, error: "User not authenticated." };
@@ -197,28 +198,11 @@ export const upsertUserPixel = async (
       },
     });
 
-    const returnPixel = await db.pixel.findUnique({
-      where: { id: upsertedPixel.id },
-      include: {
-        moods: {
-          //Include mood via the join table
-          include: {
-            mood: true,
-          },
-        },
-        events: {
-          include: {
-            event: true,
-          },
-        },
-      },
-    });
-
     revalidateTag(`pixels-${userId}`, "max");
     revalidateTag(`pixel-${userId}-${normalizedDate}`, "max");
     revalidateTag(`pixels-${userId}-${pixel.pixelDate}`, "max");
     revalidateTag(`p`, "max");
-    return { success: true, data: returnPixel };
+    return { success: true, data: upsertedPixel };
     // return {
     //     ...returnPixel,
     //     mood: returnPixel && returnPixel.moods.length > 0 ? returnPixel.moods[0].mood : null, // Adapt mood data
@@ -235,7 +219,7 @@ export const upsertUserPixel = async (
 export const getUserPixelsByYear = async (
   year: number,
   userId: string,
-): Promise<ServerActionResponse<Pixel[]>> => {
+): Promise<ServerActionResponse<PixelWithRelations[]>> => {
   "use cache";
   try {
     const pixels = await db.pixel.findMany({

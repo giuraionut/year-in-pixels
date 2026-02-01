@@ -29,7 +29,7 @@ interface AddPixelDialogFormProps {
   date: Date;
   userMoods: Mood[];
   userEvents: Event[];
-  existingPixel: (Pixel & { moods: MoodToPixel[]; events: Event[] }) | null;
+  existingPixel: (Pixel & { moods: MoodToPixel[]; events: any[] }) | null;
   onFormSubmit?: () => void;
 }
 
@@ -49,7 +49,7 @@ export default function AddPixelDialogForm({
         existingPixel?.moods.map((m: MoodToPixel): string => m.moodId) || [],
       eventIds:
         existingPixel?.events.map(
-          (pe: { event: Event }): string => pe.event.id
+          (pe: any): string => pe.event.id
         ) || [],
     },
   });
@@ -57,7 +57,7 @@ export default function AddPixelDialogForm({
 
   const onSubmit = async (data: PixelFormInput) => {
     const result = await upsertUserPixel(
-      { pixelDate: new Date(data.date), userId: '' },
+      { pixelDate: new Date(data.date), userId: '' } as any,
       data.eventIds || [],
       data.moodIds || []
     );

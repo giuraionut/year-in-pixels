@@ -1,9 +1,10 @@
-import { Pixel, Event, PixelToEvent, MoodToPixel } from "@prisma/client";
+import { Event, PixelToEvent, MoodToPixel } from "@prisma/client";
+import { PixelWithRelations } from "@/types/pixel";
 
-export default function generateChartData(pixels: Pixel[]) {
+export default function generateChartData(pixels: PixelWithRelations[]) {
     // Map pixels into moods with moodName, moodColor, and events
     const moods = pixels.flatMap(pixel => // Use flatMap to handle multiple moods per pixel
-        pixel.moods.map((moodToPixel: MoodToPixel) => {
+        pixel.moods.map((moodToPixel) => {
             const colorObject = typeof moodToPixel.mood.color === 'string' ? JSON.parse(moodToPixel.mood.color) : moodToPixel.mood.color; // Parse and safely access color value
 
             return {

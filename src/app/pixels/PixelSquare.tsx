@@ -4,12 +4,13 @@ import React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { Pixel, MoodToPixel, Mood } from '@prisma/client';
+import { PixelWithRelations } from '@/types/pixel';
 
 import { toast } from 'sonner';
 
 interface PixelSquareProps {
   day: Date;
-  pixel: Pixel | null;
+  pixel: PixelWithRelations | null;
   size: number;
   initialBackground: string;
   isInitiallyFiltered: boolean;
@@ -29,7 +30,7 @@ export default function PixelSquare({
   const handleClick = () => {
     const pixelMoods = pixel?.moods ?? [];
     const validMoodsWithColors = pixelMoods
-      .map((mtp: MoodToPixel) => {
+      .map((mtp: any) => {
         try {
           const moodName = mtp.mood.name;
           const parsedColor = JSON.parse(mtp.mood.color) as Color;
@@ -57,7 +58,7 @@ export default function PixelSquare({
           return null;
         }
       })
-      .filter((item: Mood) => item !== null);
+      .filter((item: any) => item !== null) as any[];
 
     const currentFilterColor = searchParams.get('color');
 
@@ -100,8 +101,8 @@ export default function PixelSquare({
       return;
     }
 
-    const matchedMood = validMoodsWithColors.find(
-      (item: Mood) => item.colorValue === currentFilterColor
+    const matchedMood = (validMoodsWithColors as any[]).find(
+      (item: any) => item.colorValue === currentFilterColor
     );
 
     if (matchedMood) {
@@ -117,7 +118,7 @@ export default function PixelSquare({
       toast.warning(
         <span>
           Cannot filter by multiple moods:{' '}
-          {validMoodsWithColors.map((item: Mood, index: number) => (
+          {(validMoodsWithColors as any[]).map((item: any, index: number) => (
             <span key={item.moodName} className='font-bold'>
               {item.moodName}
               {index < validMoodsWithColors.length - 1 && ', '}

@@ -65,7 +65,7 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
   const weeksPerMonth = getWeeksPerMonth(calendarDays);
 
   const dayToPixelMap = () => {
-    const map = new Map<string, Pixel>();
+    const map = new Map<string, any>();
     pixels.forEach((pixel) => {
       const dateStr = format(new Date(pixel.pixelDate), 'yyyy-MM-dd');
       map.set(dateStr, pixel);
@@ -149,7 +149,7 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const pixel = dayToPixelMap().get(dateStr);
           const moods = pixel?.moods || [];
-          const colors = moods.map((moodToPixel: MoodToPixel) => {
+          const colors = moods.map((moodToPixel: any) => {
             try {
               return typeof moodToPixel.mood.color === 'string'
                 ? JSON.parse(moodToPixel.mood.color).value
@@ -196,7 +196,7 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
               </TooltipTrigger>
               <TooltipContent>
                 {moods.length > 0
-                  ? moods.map((m: MoodToPixel) => m.mood.name).join(', ')
+                  ? moods.map((m: any) => m.mood.name).join(', ')
                   : 'Not set yet.'}
                 {pixel?.pixelDate
                   ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`

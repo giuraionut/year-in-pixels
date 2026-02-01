@@ -34,12 +34,12 @@ function parseDateParam(param?: string | string[]): Date | null {
 }
 
 function getTopMoods(
-  pixels: Pixel[],
+  pixels: any[],
   topN = 3
 ): Array<{ name: string; color: string; count: number }> {
   const map = new Map<string, { name: string; color: string; count: number }>();
   pixels.forEach((px) =>
-    px.moods.forEach((mtp: MoodToPixel) => {
+    px.moods.forEach((mtp: any) => {
       const raw = mtp.mood.color;
       const color = typeof raw === 'string' ? JSON.parse(raw).value : raw.value;
       const key = mtp.mood.id;
@@ -92,7 +92,7 @@ export default async function Dashboard({
   if (!fetchPixelsByRange.success) {
     return <div className='p-6'>Failed to fetch pixels by range.</div>;
   }
-  const { data, config } = generateChartData(fetchPixelsByRange.data);
+  const { data, config } = generateChartData(fetchPixelsByRange.data as any);
   const topMoods = getTopMoods(fetchAllPixels.data, 3);
   const summaryGridCols = `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-${Math.min(
     topMoods.length + 2,

@@ -46,18 +46,20 @@ export default function EditMoodDialog({
   children,
 }: EditMoodDialogProps) {
   const [open, setOpen] = useState(false);
+  const colorObj = typeof mood.color === 'string' ? JSON.parse(mood.color) : mood.color;
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: mood.name,
-      color: { name: mood.color.name, value: mood.color.value },
+      color: { name: colorObj.name, value: colorObj.value },
     },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const moodData = mood;
     moodData.name = data.name;
-    moodData.color = data.color;
+    moodData.color = JSON.stringify(data.color);
 
     try {
       FormSchema.parse(moodData);
@@ -135,7 +137,7 @@ export default function EditMoodDialog({
                         className='col-span-full md:col-span-3'
                         value={field.value || { name: '', value: '#000000' }}
                         onChange={(color) => field.onChange(color)}
-                        defaultColor={mood.color}
+                        defaultColor={colorObj}
                       />
                       <FormMessage className='col-span-full md:col-start-2 md:col-span-3' />
                     </div>

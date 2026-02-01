@@ -25,7 +25,7 @@ type PixelDayButtonProps = {
   background: string;
   userMoods: Mood[];
   userEvents: Event[];
-  pixel: (Pixel & { moods: MoodToPixel[]; events: Event[] }) | null;
+  pixel: (Pixel & { moods: MoodToPixel[]; events: any[] }) | null;
   currentMonth: number;
 };
 

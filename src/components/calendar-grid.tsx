@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
-import { Mood, MoodToPixel, Pixel, Event } from '@prisma/client';
+import { Mood, Pixel, Event } from '@prisma/client';
+import { PixelWithRelations } from '@/types/pixel';
 import {
   eachDayOfInterval,
   startOfMonth,
@@ -17,7 +18,7 @@ import { YearSelector } from '@/app/pixels/YearSelector';
 
 type CalendarGridProps = {
   currentDate: Date; // renamed from `date`
-  pixels?: Pixel[];
+  pixels?: PixelWithRelations[];
   className?: string;
   userMoods?: Mood[];
   userEvents?: Event[];
@@ -62,7 +63,7 @@ export default function CalendarGrid({
 
     // Compute background based on moods
     const moodColors = moodsList.map(
-      (mtp: MoodToPixel) => JSON.parse(mtp.mood.color).value
+      (mtp: any) => JSON.parse(mtp.mood.color).value
     );
 
     let background = '';
