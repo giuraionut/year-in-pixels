@@ -81,7 +81,7 @@ export default async function Dashboard({
 
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
   const fetchAllPixels = await getUserPixels(userId);

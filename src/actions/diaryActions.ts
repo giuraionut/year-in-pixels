@@ -97,8 +97,8 @@ export const upsertUserDiary = async (
     const { start } = getZonedDayRange(record.createdAt);
     const dayTag = format(start, "yyyy-MM-dd");
 
-    await revalidateTag(DIARIES_CACHE_TAG);
-    await revalidateTag(getDiaryTag(userId, dayTag));
+    await revalidateTag(DIARIES_CACHE_TAG, 'max');
+    await revalidateTag(getDiaryTag(userId, dayTag), 'max');
 
     return { success: true, data: record };
   } catch (error: unknown) {

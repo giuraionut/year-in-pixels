@@ -23,7 +23,7 @@ export default async function Events({ searchParams }: EventsProps) {
   const searchP = await searchParams;
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
   const fetchEvents = await getUserEvents(userId);

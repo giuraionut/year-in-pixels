@@ -40,7 +40,7 @@ export default function CodeBlockComponent({
         </SelectContent>
       </Select>
       <pre>
-        <NodeViewContent as='code' />
+        <NodeViewContent as={'code' as any} />
       </pre>
     </NodeViewWrapper>
   );

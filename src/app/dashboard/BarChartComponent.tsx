@@ -128,7 +128,6 @@ export default function BarChartComponent({
             <Bar
               name='Days'
               dataKey='quantity'
-              layout={barChartVertical ? 'vertical' : 'horizontal'}
               radius={5}
             />
           </BarChart>

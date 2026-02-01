@@ -36,7 +36,7 @@ export default async function JournalPage({
 
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
   const targetDate = new Date(year, monthIndex, dayIndex);

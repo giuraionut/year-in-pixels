@@ -62,7 +62,7 @@ export const addUserMood = async (moodData: MoodCreateInput): Promise<ServerActi
       ...newMood,
       color: typeof newMood.color === 'string' ? JSON.parse(newMood.color) : newMood.color,
     }
-    revalidateTag(`moods-${userId}`);
+    revalidateTag(`moods-${userId}`, 'max');
     return { success: true, data: deserializedMood };
 
   } catch (error: unknown) {
@@ -96,7 +96,7 @@ export const editUserMood = async (moodData: MoodUpdateInput): Promise<ServerAct
       },
       data: dataToUpdate
     });
-    revalidateTag(`moods-${userId}`);
+    revalidateTag(`moods-${userId}`, 'max');
     return { success: true, data: newUserMood };
 
   } catch (error: unknown) {
@@ -122,7 +122,7 @@ export const deleteUserMood = async (
         id: moodId, userId: userId
       },
     });
-    revalidateTag(`moods-${userId}`);
+    revalidateTag(`moods-${userId}`, 'max');
     return { success: true, data: { id: deletedMood.id } };
 
   } catch (error: unknown) {
@@ -151,7 +151,7 @@ export const deleteUserMoodsBulk = async (
       },
     });
 
-    revalidateTag(`moods-${userId}`);
+    revalidateTag(`moods-${userId}`, 'max');
 
     return { success: true, data: { count: result.count } };
 

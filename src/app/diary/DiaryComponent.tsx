@@ -4,6 +4,7 @@ import {
   EditorContent,
   ReactNodeViewRenderer,
   JSONContent,
+  EditorContext,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Card } from '@/components/ui/card';
@@ -20,7 +21,7 @@ import { debounce } from 'lodash';
 import { sanitizeObject } from './sanitize-editor-content';
 import Heading from '@tiptap/extension-heading';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
-import Table from '@tiptap/extension-table';
+import { Table } from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
@@ -162,6 +163,7 @@ export default function DiaryComponent({
   }
 
   return (
+    <EditorContext.Provider value={{ editor }}>
     <div className='relative flex flex-col items-start gap-2'>
       <section className='container px-6 flex mx-auto flex-wrap gap-6 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
         <div>
@@ -212,5 +214,6 @@ export default function DiaryComponent({
         </Card>
       </section>
     </div>
+    </EditorContext.Provider>
   );
 }

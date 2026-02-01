@@ -54,7 +54,7 @@ export default function EditEventDialog({
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        error.errors.forEach((err) => {
+        (error as any).errors.forEach((err: any) => {
           toast.error('Input error, verify the data', {
             description: err.message,
           });

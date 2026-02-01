@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card';
-import { BubbleMenu, Editor } from '@tiptap/react';
+import { TiptapBubbleMenu as BubbleMenu, Editor } from '@tiptap/react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -74,9 +74,8 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
 
   return (
     <BubbleMenu
-      editor={editor}
       updateDelay={0}
-      tippyOptions={{
+      options={{
         offset: [0, 8],
         popperOptions: {
           modifiers: [{ name: 'flip', enabled: false }],
@@ -86,7 +85,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
         getReferenceClientRect,
         plugins: [sticky],
         sticky: 'popper',
-      }}
+      } as any}
       shouldShow={shouldShow}
     >
       <Card className='p-2 flex gap-3 rounded-md'>

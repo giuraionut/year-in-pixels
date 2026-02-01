@@ -55,7 +55,7 @@ export const addUserEvent = async (
             },
         });
 
-        revalidateTag(`events-${userId}`);
+        revalidateTag(`events-${userId}`, 'max');
         return { success: true, data: newEvent };
 
     } catch (error: unknown) {
@@ -92,7 +92,7 @@ export const editUserEvent = async (
             data: dataToUpdate,
         });
 
-        revalidateTag(`events-${userId}`);
+        revalidateTag(`events-${userId}`, 'max');
 
         return { success: true, data: updatedEvent };
 
@@ -119,7 +119,7 @@ export const deleteUserEvent = async (
             where: { id: eventId, userId: userId },
         });
 
-        revalidateTag(`events-${userId}`);
+        revalidateTag(`events-${userId}`, 'max');
         return { success: true, data: { id: deletedEvent.id } };
 
     } catch (error: unknown) {
@@ -147,8 +147,8 @@ export const deleteUserEventsBulk = async (
             },
         });
 
-        revalidateTag(`events-${userId}`);
-        revalidateTag('events');
+        revalidateTag(`events-${userId}`, 'max');
+        revalidateTag('events', 'max');
 
         return { success: true, data: { count: result.count } };
 

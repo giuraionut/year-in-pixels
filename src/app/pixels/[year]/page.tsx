@@ -45,7 +45,7 @@ const PixelsYearPage = async ({
 
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
 
@@ -59,6 +59,7 @@ const PixelsYearPage = async ({
     );
   }
 
+  console.log(`pixelsResult for year ${year}:`, pixelsResult.data);
   return (
     <div className='flex flex-col w-full max-w-[900px] mx-auto gap-6 p-4'>
       <div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
