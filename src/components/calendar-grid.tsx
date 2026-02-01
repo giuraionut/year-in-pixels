@@ -35,21 +35,25 @@ export default function CalendarGrid({
   className,
   children,
 }: CalendarGridProps) {
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  const startWeekday = getDay(monthStart);
+  // Adjust for Monday start:
+  // getDay() returns 0 for Sunday, 1 for Monday...
+  // We want Monday (1) -> 0, Tuesday (2) -> 1 ... Sunday (0) -> 6
+  const startWeekday = (getDay(monthStart) + 6) % 7;
+  
   const prevMonthEnd = startOfDay(endOfMonth(addMonths(currentDate, -1)));
   const previousMonthDays = Array.from({ length: startWeekday }, (_, idx) =>
     addDays(prevMonthEnd, idx - startWeekday + 1)
   );
 
-  const weekdayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const weekdayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
   const getPixelForDate = (day: Date) =>
     pixels?.find((px) => isEqual(startOfDay(px.pixelDate), startOfDay(day)));
-
 
   const renderDayCell = (day: Date) => {
     const px = getPixelForDate(day);
@@ -95,7 +99,6 @@ export default function CalendarGrid({
       </div>
     );
   };
-
   return (
     <div className={cn('flex flex-col gap-4', className)}>
       <div className='flex items-center justify-between'>
