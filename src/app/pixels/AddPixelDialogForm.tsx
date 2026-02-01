@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -113,7 +114,12 @@ export default function AddPixelDialogForm({
               )}
             />
           ) : (
-            <p className='text-sm text-muted-foreground'>No moods found.</p>
+            <div className='flex flex-row items-center justify-center py-4 gap-2'>
+              <p className='text-sm text-muted-foreground'>No moods found.</p>
+              <Button asChild variant='link' size='sm'>
+                <Link href='/moods'>Create Moods</Link>
+              </Button>
+            </div>
           )}
         </fieldset>
 
@@ -147,7 +153,12 @@ export default function AddPixelDialogForm({
               )}
             />
           ) : (
-            <p className='text-sm text-muted-foreground'>No events found.</p>
+            <div className='flex flex-row items-center justify-center py-4 gap-2'>
+              <p className='text-sm text-muted-foreground'>No events found.</p>
+              <Button asChild variant='link' size='sm'>
+                <Link href='/events'>Create Events</Link>
+              </Button>
+            </div>
           )}
         </fieldset>
 
