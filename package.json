@@ -1,6 +1,6 @@
 {
   "name": "year-in-pixels",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "private": true,
   "scripts": {
     "dev:utc": "cross-env TZ=UTC next dev",
