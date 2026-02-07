@@ -3,7 +3,7 @@
 import { Event } from '@prisma/client';
 import db from '@/lib/db';
 import { getSessionUserId, logServerError } from './actionUtils';
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 import { cacheTag } from 'next/dist/server/use-cache/cache-tag';
 
 export const getUserEvents = async (userId: string): Promise<ServerActionResponse<Event[]>> => {
@@ -55,7 +55,7 @@ export const addUserEvent = async (
             },
         });
 
-        revalidateTag(`events-${userId}`, 'max');
+        updateTag(`events-${userId}`);
         return { success: true, data: newEvent };
 
     } catch (error: unknown) {
@@ -81,18 +81,18 @@ export const editUserEvent = async (
     const userId = fetchUserId.data;
 
     try {
-        const { id, ...dataToUpdate } = eventData;
+        const { id, name } = eventData;
 
-        if (Object.keys(dataToUpdate).length === 0) {
+        if (!name) {
             return { success: false, error: 'No fields provided for update.' };
         }
 
         const updatedEvent = await db.event.update({
             where: { id: id, userId: userId },
-            data: dataToUpdate,
+            data: { name },
         });
 
-        revalidateTag(`events-${userId}`, 'max');
+        updateTag(`events-${userId}`);
 
         return { success: true, data: updatedEvent };
 
@@ -119,7 +119,7 @@ export const deleteUserEvent = async (
             where: { id: eventId, userId: userId },
         });
 
-        revalidateTag(`events-${userId}`, 'max');
+        updateTag(`events-${userId}`);
         return { success: true, data: { id: deletedEvent.id } };
 
     } catch (error: unknown) {
@@ -147,8 +147,8 @@ export const deleteUserEventsBulk = async (
             },
         });
 
-        revalidateTag(`events-${userId}`, 'max');
-        revalidateTag('events', 'max');
+        updateTag(`events-${userId}`);
+        updateTag('events');
 
         return { success: true, data: { count: result.count } };
 

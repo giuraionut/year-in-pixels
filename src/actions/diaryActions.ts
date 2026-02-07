@@ -3,17 +3,20 @@ import db from "@/lib/db";
 import { Diary } from "@prisma/client";
 import { getSessionUserId, logServerError } from "./actionUtils";
 import { JSONContent } from "@tiptap/react";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { format } from "date-fns";
 import { getZonedDayRange } from "@/lib/date";
 
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 
 const DIARIES_CACHE_TAG = "diaries";
-const getDiaryTag = (userId: string, dayTag: string) => `diary-${userId}-${dayTag}`;
+const getDiaryTag = (userId: string, dayTag: string) =>
+  `diary-${userId}-${dayTag}`;
 
-export const getUserDiaries = async (userId: string): Promise<ServerActionResponse<Diary[]>> => {
-  'use cache'
+export const getUserDiaries = async (
+  userId: string,
+): Promise<ServerActionResponse<Diary[]>> => {
+  "use cache";
   try {
     const diaries = await db.diary.findMany({
       where: {
@@ -26,19 +29,19 @@ export const getUserDiaries = async (userId: string): Promise<ServerActionRespon
     cacheTag(cacheKey);
     return { success: true, data: diaries };
   } catch (error: unknown) {
-    logServerError(error as Error, 'fetching user diaries');
+    logServerError(error as Error, "fetching user diaries");
     return {
       success: false,
-      error: 'Failed to fetch diaries. Please try again later.',
+      error: "Failed to fetch diaries. Please try again later.",
     };
   }
 };
 
 export const getUserDiaryByDate = async (
   date: Date,
-  userId: string
+  userId: string,
 ): Promise<ServerActionResponse<Diary | null>> => {
-  'use cache'
+  "use cache";
   const { start, end } = getZonedDayRange(new Date(date));
   const dayTag = format(start, "yyyy-MM-dd");
 
@@ -67,7 +70,7 @@ export const getUserDiaryByDate = async (
 };
 
 export const upsertUserDiary = async (
-  diary: Omit<Diary, "content"> & { content: JSONContent }
+  diary: Omit<Diary, "content"> & { content: JSONContent },
 ): Promise<ServerActionResponse<Diary>> => {
   try {
     const session = await getSessionUserId();
@@ -97,8 +100,8 @@ export const upsertUserDiary = async (
     const { start } = getZonedDayRange(record.createdAt);
     const dayTag = format(start, "yyyy-MM-dd");
 
-    await revalidateTag(DIARIES_CACHE_TAG, 'max');
-    await revalidateTag(getDiaryTag(userId, dayTag), 'max');
+    await updateTag(DIARIES_CACHE_TAG);
+    await updateTag(getDiaryTag(userId, dayTag));
 
     return { success: true, data: record };
   } catch (error: unknown) {

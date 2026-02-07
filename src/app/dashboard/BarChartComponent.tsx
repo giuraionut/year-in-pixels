@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Bar, BarChart, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -8,17 +8,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { IconChartBar } from '@tabler/icons-react';
+} from "@/components/ui/chart";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { IconChartBar } from "@tabler/icons-react";
 interface DataItem {
   moodName: string;
   quantity: number;
@@ -55,33 +55,37 @@ export default function BarChartComponent({
    * @returns {Record<string, { label: string }>}
    */
   const processedConfig: Record<string, { label: string }> = Object.keys(
-    config
-  ).reduce((acc, key): Record<string, { label: string }> => {
-    const configItem = config[key];
-    if (configItem && typeof configItem.label === 'string') {
-      // Ensure label is a string
-      const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-      acc[capitalizedKey] = {
-        ...configItem,
-        label:
-          configItem.label.charAt(0).toUpperCase() + configItem.label.slice(1),
-      };
-    }
-    return acc;
-  }, {} as Record<string, { label: string }>);
+    config,
+  ).reduce(
+    (acc, key): Record<string, { label: string }> => {
+      const configItem = config[key];
+      if (configItem && typeof configItem.label === "string") {
+        // Ensure label is a string
+        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+        acc[capitalizedKey] = {
+          ...configItem,
+          label:
+            configItem.label.charAt(0).toUpperCase() +
+            configItem.label.slice(1),
+        };
+      }
+      return acc;
+    },
+    {} as Record<string, { label: string }>,
+  );
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn("", className)}>
       <CardHeader>
-        <CardTitle className='flex items-center justify-between gap-6'>
+        <CardTitle className="flex items-center justify-between gap-6">
           Moods Chart
           <Button
             onClick={handleBarChartVertical}
-            className='w-4 h-8'
-            variant={'outline'}
+            className="w-4 h-8"
+            variant={"outline"}
           >
             {barChartVertical ? (
-              <IconChartBar style={{ transform: 'rotate(90deg)' }} />
+              <IconChartBar style={{ transform: "rotate(90deg)" }} />
             ) : (
               <IconChartBar />
             )}
@@ -94,41 +98,48 @@ export default function BarChartComponent({
           <BarChart
             accessibilityLayer
             data={processedData}
-            layout={barChartVertical ? 'vertical' : 'horizontal'}
-            margin={{
-              left: 0,
-            }}
+            layout={barChartVertical ? "vertical" : "horizontal"}
+            margin={{ left: 12, right: 12 }} // Added some margin for labels
           >
+            {/* Axis Logic */}
             {barChartVertical ? (
-              <YAxis
-                dataKey='moodName'
-                type='category'
-                tickLine={false}
-                tickMargin={5}
-                axisLine={false}
-                tickFormatter={(value) =>
-                  processedConfig[value]?.label || value
-                } // Use the capitalized config label
-              />
+              <>
+                <XAxis type="number" dataKey="quantity" hide />
+                <YAxis
+                  dataKey="moodName"
+                  type="category"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) =>
+                    processedConfig[value]?.label || value
+                  }
+                />
+              </>
             ) : (
-              <XAxis
-                dataKey='moodName'
-                type='category'
-                tickLine={false}
-                tickMargin={5}
-                axisLine={false}
-                tickFormatter={(value) =>
-                  processedConfig[value]?.label || value
-                } // Use the capitalized config label
-              />
+              <>
+                <XAxis
+                  dataKey="moodName"
+                  type="category"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) =>
+                    processedConfig[value]?.label || value
+                  }
+                />
+                <YAxis type="number" hide />
+              </>
             )}
 
-            <XAxis dataKey='quantity' type='number' hide />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+
             <Bar
-              name='Days'
-              dataKey='quantity'
+              dataKey="quantity"
+              name="Days"
               radius={5}
+              // IMPORTANT: This allows individual bars to take colors from the data
+              fill="var(--color-primary)"
             />
           </BarChart>
         </ChartContainer>

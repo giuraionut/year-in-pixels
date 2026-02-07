@@ -1,14 +1,15 @@
-import { Card } from '@/components/ui/card';
-import { TiptapBubbleMenu as BubbleMenu, Editor } from '@tiptap/react';
+import { Card } from "@/components/ui/card";
+import { Editor } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import {
   ChevronLeft,
   ChevronRight,
   TableCellsMerge,
   TableCellsSplit,
-} from 'lucide-react';
-import { useCallback } from 'react';
-import type { GetReferenceClientRect } from 'tippy.js';
-import { sticky } from 'tippy.js';
+} from "lucide-react";
+import { useCallback } from "react";
+import type { GetReferenceClientRect } from "tippy.js";
+import { sticky } from "tippy.js";
 import {
   IconColumnInsertLeft,
   IconColumnInsertRight,
@@ -18,20 +19,20 @@ import {
   IconRowRemove,
   IconTableMinus,
   IconTableSpark,
-} from '@tabler/icons-react';
+} from "@tabler/icons-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/tooltip";
 type TableBubbleMenuProps = {
   editor: Editor | null;
 };
 
 export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
   const shouldShow = useCallback(
-    () => (editor ? editor.isActive('table') : false),
-    [editor]
+    () => (editor ? editor.isActive("table") : false),
+    [editor],
   );
 
   const getReferenceClientRect: GetReferenceClientRect = () => {
@@ -51,7 +52,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
       return new DOMRect(-1000, -1000, 0, 0); // Return empty rectangle if node is not found
     }
 
-    const tableWrapper = node.closest('.tableWrapper');
+    const tableWrapper = node.closest(".tableWrapper");
     if (!tableWrapper) {
       return new DOMRect(-1000, -1000, 0, 0); // Return empty rectangle if table wrapper is not found
     }
@@ -64,7 +65,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
 
   const wrapWithTooltip = (
     button: React.ReactElement,
-    tooltipText: string
+    tooltipText: string,
   ): React.ReactElement => (
     <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
@@ -75,95 +76,97 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
   return (
     <BubbleMenu
       updateDelay={0}
-      options={{
-        offset: [0, 8],
-        popperOptions: {
-          modifiers: [{ name: 'flip', enabled: false }],
-        },
+      options={
+        {
+          offset: [0, 8],
+          popperOptions: {
+            modifiers: [{ name: "flip", enabled: false }],
+          },
 
-        maxWidth: 'auto',
-        getReferenceClientRect,
-        plugins: [sticky],
-        sticky: 'popper',
-      } as any}
+          maxWidth: "auto",
+          getReferenceClientRect,
+          plugins: [sticky],
+          sticky: "popper",
+        } as any
+      }
       shouldShow={shouldShow}
     >
-      <Card className='p-2 flex gap-3 rounded-md'>
+      <Card className="p-2 flex gap-3 rounded-md">
         {wrapWithTooltip(
           <button
             onClick={() => editor.chain().focus().addColumnBefore().run()}
           >
-            <IconColumnInsertLeft className='w-4 h-4' />
+            <IconColumnInsertLeft className="w-4 h-4" />
           </button>,
-          'Add Column Before'
+          "Add Column Before",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().addColumnAfter().run()}>
-            <IconColumnInsertRight className='w-4 h-4' />
+            <IconColumnInsertRight className="w-4 h-4" />
           </button>,
-          'Add Column After'
+          "Add Column After",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().deleteColumn().run()}>
-            <IconColumnRemove className='w-4 h-4' />
+            <IconColumnRemove className="w-4 h-4" />
           </button>,
-          'Delete Column'
+          "Delete Column",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().addRowBefore().run()}>
-            <IconRowInsertBottom className='w-4 h-4' />
+            <IconRowInsertBottom className="w-4 h-4" />
           </button>,
-          'Add Row Before'
+          "Add Row Before",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().addRowAfter().run()}>
-            <IconRowInsertTop className='w-4 h-4' />
+            <IconRowInsertTop className="w-4 h-4" />
           </button>,
-          'Add Row After'
+          "Add Row After",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().deleteRow().run()}>
-            <IconRowRemove className='w-4 h-4' />
+            <IconRowRemove className="w-4 h-4" />
           </button>,
-          'Delete Row'
+          "Delete Row",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().deleteTable().run()}>
-            <IconTableMinus className='w-4 h-4' />
+            <IconTableMinus className="w-4 h-4" />
           </button>,
-          'Delete Table'
+          "Delete Table",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().mergeCells().run()}>
-            <TableCellsMerge className='w-4 h-4' />
+            <TableCellsMerge className="w-4 h-4" />
           </button>,
-          'Merge Cells'
+          "Merge Cells",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().splitCell().run()}>
-            <TableCellsSplit className='w-4 h-4' />
+            <TableCellsSplit className="w-4 h-4" />
           </button>,
-          'Split Cell'
+          "Split Cell",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().fixTables().run()}>
-            <IconTableSpark className='w-4 h-4' />
+            <IconTableSpark className="w-4 h-4" />
           </button>,
-          'Fix Table'
+          "Fix Table",
         )}
         {wrapWithTooltip(
           <button
             onClick={() => editor.chain().focus().goToPreviousCell().run()}
           >
-            <ChevronLeft className='w-4 h-4' />
+            <ChevronLeft className="w-4 h-4" />
           </button>,
-          'Go to Previous Cell'
+          "Go to Previous Cell",
         )}
         {wrapWithTooltip(
           <button onClick={() => editor.chain().focus().goToNextCell().run()}>
-            <ChevronRight className='w-4 h-4' />
+            <ChevronRight className="w-4 h-4" />
           </button>,
-          'Go to Next Cell'
+          "Go to Next Cell",
         )}
       </Card>
     </BubbleMenu>

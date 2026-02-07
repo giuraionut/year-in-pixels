@@ -4,7 +4,8 @@ import { Pixel } from "@prisma/client";
 import { PixelWithRelations } from "@/types/pixel";
 import { getSessionUserId, logServerError, normalizeDate } from "./actionUtils";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
+import { format } from "date-fns";
 
 export const getUserPixels = async (
   userId: string,
@@ -198,10 +199,10 @@ export const upsertUserPixel = async (
       },
     });
 
-    revalidateTag(`pixels-${userId}`, "max");
-    revalidateTag(`pixel-${userId}-${normalizedDate}`, "max");
-    revalidateTag(`pixels-${userId}-${pixel.pixelDate}`, "max");
-    revalidateTag(`p`, "max");
+    updateTag(`pixels-${userId}`);
+    updateTag(`pixel-${userId}-${normalizedDate}`);
+    updateTag(`pixels-${userId}-${pixel.pixelDate}`);
+    updateTag(`p`);
     return { success: true, data: upsertedPixel };
     // return {
     //     ...returnPixel,
@@ -253,6 +254,47 @@ export const getUserPixelsByYear = async (
     return {
       success: false,
       error: `Failed to fetch pixels by year ${year}. Please try again later.`,
+    };
+  }
+};
+
+export const getUserPixelByDate = async (
+  date: Date,
+  userId: string,
+): Promise<ServerActionResponse<PixelWithRelations | null>> => {
+  "use cache";
+  try {
+    const normalizedDate = normalizeDate(date);
+    const pixel = await db.pixel.findUnique({
+      where: {
+        userId_pixelDate: {
+          userId,
+          pixelDate: normalizedDate,
+        },
+      },
+      include: {
+        moods: {
+          include: {
+            mood: true,
+          },
+        },
+        events: {
+          include: {
+            event: true,
+          },
+        },
+      },
+    });
+
+    const dayTag = format(normalizedDate, "yyyy-MM-dd");
+    cacheTag(`pixel-${userId}-${dayTag}`);
+
+    return { success: true, data: pixel };
+  } catch (error: unknown) {
+    logServerError(error as Error, "fetching user pixel by date");
+    return {
+      success: false,
+      error: "Failed to fetch pixel for the given date.",
     };
   }
 };

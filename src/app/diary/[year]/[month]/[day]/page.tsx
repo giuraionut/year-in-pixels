@@ -3,6 +3,7 @@ import '../../../styles.css';
 import DiaryComponent from '../../../DiaryComponent'; // Adjust path as needed
 import { Metadata } from 'next';
 import { getUserDiaryByDate } from '@/actions/diaryActions';
+import { getUserPixelByDate } from '@/actions/pixelActions';
 import { getSessionUserId } from '@/actions/actionUtils';
 import {format } from 'date-fns';
 
@@ -40,15 +41,25 @@ export default async function JournalPage({
   }
   const userId = fetchUserId.data;
   const targetDate = new Date(year, monthIndex, dayIndex);
-  const fetched = await getUserDiaryByDate(targetDate, userId);
-  if (!fetched.success) {
+  
+  const [fetchedDiary, fetchedPixel] = await Promise.all([
+    getUserDiaryByDate(targetDate, userId),
+    getUserPixelByDate(targetDate, userId)
+  ]);
+
+  if (!fetchedDiary.success) {
     return (
       <div className='flex items-center justify-center min-h-screen text-red-600'>
-        Error loading diary for {format(targetDate, 'PPP')}: {fetched.error}
+        Error loading diary for {format(targetDate, 'PPP')}: {fetchedDiary.error}
       </div>
     );
   }
   return (
-    <DiaryComponent userId={userId} diary={fetched.data} date={targetDate} />
+    <DiaryComponent 
+      userId={userId} 
+      diary={fetchedDiary.data} 
+      pixel={fetchedPixel.success ? fetchedPixel.data : null} 
+      date={targetDate} 
+    />
   );
 }

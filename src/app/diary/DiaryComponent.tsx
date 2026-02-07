@@ -32,17 +32,21 @@ import EditorToolbarComponent from './EditorToolbar';
 import { LoadingDots } from '@/components/icons/loading-dots';
 import EditorBubbleMenus from './EditorBubbleMenus';
 import { format } from 'date-fns';
-import { Check } from 'lucide-react'; // Import the Check icon
+import { Check, Smile, Calendar as CalendarIcon } from 'lucide-react'; // Import icons
 import { saveDiary } from './actions';
+import { PixelWithRelations } from '@/types/pixel';
+import { Badge } from '@/components/ui/badge';
 
 const lowlight = createLowlight(all);
 
 export default function DiaryComponent({
   diary,
+  pixel,
   date,
 }: {
   userId: string;
   diary: Diary | null;
+  pixel: PixelWithRelations | null;
   date: Date;
 }) {
   const editor = useEditor({
@@ -166,11 +170,66 @@ export default function DiaryComponent({
     <EditorContext.Provider value={{ editor }}>
     <div className='relative flex flex-col items-start gap-2'>
       <section className='container px-6 flex mx-auto flex-wrap gap-6 border-b border-border/40 py-8 dark:border-border md:py-10 lg:py-12'>
-        <div>
-          <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
-            Diary
-          </h1>
-          <small className='text-xs leading-3'>{format(date, 'PPP')}</small>
+        <div className='flex flex-col md:flex-row md:items-end justify-between w-full gap-4'>
+          <div>
+            <h1 className='text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:leading-[1.1]'>
+              Diary
+            </h1>
+            <small className='text-xs leading-3'>{format(date, 'PPP')}</small>
+          </div>
+
+          <div className='flex flex-wrap gap-4 items-center'>
+            {pixel?.moods && pixel.moods.length > 0 && (
+              <div className='flex flex-col gap-1'>
+                <span className='text-[0.65rem] uppercase font-bold text-muted-foreground flex items-center gap-1'>
+                  <Smile className='h-3 w-3' /> Moods
+                </span>
+                <div className='flex flex-wrap gap-1'>
+                  {pixel.moods.map((mtp) => {
+                    let color = 'gray';
+                    try {
+                      const parsed = JSON.parse(mtp.mood.color);
+                      color = typeof parsed === 'string' ? parsed : (parsed.value || 'gray');
+                    } catch (e) {
+                      color = mtp.mood.color;
+                    }
+                    return (
+                      <Badge
+                        key={mtp.mood.id}
+                        style={{ backgroundColor: color, color: 'white' }}
+                        className='text-[0.7rem] px-2 py-0'
+                      >
+                        {mtp.mood.name}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {pixel?.events && pixel.events.length > 0 && (
+              <div className='flex flex-col gap-1'>
+                <span className='text-[0.65rem] uppercase font-bold text-muted-foreground flex items-center gap-1'>
+                  <CalendarIcon className='h-3 w-3' /> Events
+                </span>
+                <div className='flex flex-wrap gap-1'>
+                  {pixel.events.map((pte) => (
+                    <Badge
+                      key={pte.event.id}
+                      variant='outline'
+                      className='text-[0.7rem] px-2 py-0'
+                    >
+                      {pte.event.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {!pixel?.moods?.length && !pixel?.events?.length && (
+              <p className='text-xs text-muted-foreground italic'>No pixel data for this day.</p>
+            )}
+          </div>
         </div>
       </section>
       <section className='p-5 flex flex-col w-full gap-3 '>

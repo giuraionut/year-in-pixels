@@ -41,8 +41,7 @@ export default function RadarChartComponent({
   config,
 }: RadarChartComponentProps) {
   const initialEvent = Object.keys(data?.[0]?.events || {})[0] || '';
-  const [selectedEvent, setSelectedEvent] =
-    React.useState<string>(initialEvent);
+  const [selectedEvent, setSelectedEvent] = React.useState<string>(initialEvent);
 
   const processedData = React.useMemo(() => {
     if (!data) return [];
@@ -56,17 +55,22 @@ export default function RadarChartComponent({
   }, [data, selectedEvent]);
 
   const eventKeys = React.useMemo(() => {
-    return Object.keys(data?.[0]?.events || {});
+    // Collect all unique event keys from all data points, not just the first one
+    const keys = new Set<string>();
+    data?.forEach(item => {
+      Object.keys(item.events || {}).forEach(k => keys.add(k));
+    });
+    return Array.from(keys);
   }, [data]);
 
   const chartConfig = React.useMemo(
     () => ({
-      quantity: { label: 'Days', color: 'hsl(225 75% 50%)' },
+      quantity: { label: 'Days', color: 'var(--chart-1)' },
       selectedEventCount: {
         label: selectedEvent
           ? selectedEvent.charAt(0).toUpperCase() + selectedEvent.slice(1)
           : 'Event',
-        color: 'hsl(200 75% 50%)',
+        color: 'var(--chart-2)',
       },
       ...config,
     }),
@@ -74,21 +78,17 @@ export default function RadarChartComponent({
   );
 
   return (
-    <Card className={cn('flex flex-col h-full', className)}>
-      <CardHeader className='items-center'>
-        <div className='flex items-center justify-between'>
-          <CardTitle>Mood & Event Radar</CardTitle>
-
+    <Card className={cn('flex flex-col h-full bg-card text-card-foreground', className)}>
+      <CardHeader className='pb-2'>
+        <div className='flex items-center justify-between gap-4'>
+          <CardTitle className="text-lg font-semibold">Mood & Event Radar</CardTitle>
           {eventKeys.length > 0 && (
-            <Select
-              value={selectedEvent}
-              onValueChange={(value) => setSelectedEvent(value || initialEvent)}
-            >
-              <SelectTrigger className='w-[180px] h-8'>
-                <SelectValue placeholder='Select an Event' />
+            <Select value={selectedEvent} onValueChange={setSelectedEvent}>
+              <SelectTrigger className='w-[140px] h-8 text-xs'>
+                <SelectValue placeholder='Event' />
               </SelectTrigger>
               <SelectContent>
-                {eventKeys.map((event: string) => (
+                {eventKeys.map((event) => (
                   <SelectItem key={event} value={event}>
                     {event.charAt(0).toUpperCase() + event.slice(1)}
                   </SelectItem>
@@ -98,50 +98,37 @@ export default function RadarChartComponent({
           )}
         </div>
       </CardHeader>
-      <CardContent className='flex-1'>
+      <CardContent className='flex-1 pb-4'>
         <ChartContainer
           config={chartConfig}
-          className='mx-auto aspect-square max-h-[250px]'
+          className='mx-auto aspect-square max-h-[300px] w-full'
         >
-          <RadarChart
-            data={processedData}
-            margin={{ top: 5, right: 5, bottom: 0, left: 5 }}
-          >
+          <RadarChart data={processedData}>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator='dot' />}
+              content={<ChartTooltipContent indicator='line' />}
             />
+            <PolarGrid className="stroke-muted/50" />
             <PolarAngleAxis
               dataKey='moodName'
-              tick={{ className: 'text-xs fill-muted-foreground', dy: 4 }}
-              // tickLine={false} // Optionally hide tick lines
-              // axisLine={false} // Optionally hide the axis line
-            />
-            <PolarGrid
-              gridType='circle'
-              className='stroke-border stroke-opacity-50 stroke-dasharray-3_3'
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
             />
             <Radar
               name={chartConfig.quantity.label}
               dataKey='quantity'
-              fill={chartConfig.quantity.color}
-              stroke={chartConfig.quantity.color}
+              fill="var(--color-quantity)"
               fillOpacity={0.5}
+              stroke="var(--color-quantity)"
               strokeWidth={2}
-              dot={{ r: 3, fillOpacity: 0.8 }}
             />
-            {selectedEvent &&
-              processedData.some((d) => d.selectedEventCount > 0) && (
-                <Radar
-                  name={chartConfig.selectedEventCount.label}
-                  dataKey='selectedEventCount'
-                  fill={chartConfig.selectedEventCount.color}
-                  stroke={chartConfig.selectedEventCount.color}
-                  fillOpacity={0.4}
-                  strokeWidth={2}
-                  dot={{ r: 3, fillOpacity: 0.8 }}
-                />
-              )}
+            <Radar
+              name={chartConfig.selectedEventCount.label}
+              dataKey='selectedEventCount'
+              fill="var(--color-selectedEventCount)"
+              fillOpacity={0.5}
+              stroke="var(--color-selectedEventCount)"
+              strokeWidth={2}
+            />
           </RadarChart>
         </ChartContainer>
       </CardContent>

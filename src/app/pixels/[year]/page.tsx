@@ -1,18 +1,20 @@
 import React from 'react';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
-import { endOfYear, startOfYear, isValid } from 'date-fns';
+import { endOfYear, startOfYear, isValid, parseISO } from 'date-fns';
 import { getSessionUserId } from '@/actions/actionUtils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import PixelGrid from '../PixelGrid';
 import { YearSelector } from '../YearSelector';
+import YearlyInsights from './YearlyInsights';
+import { getUserDiaryByDate } from '@/actions/diaryActions';
 
 type PixelsYearPageProps = {
   params: Promise<{
     year: string;
   }>;
 
-  searchParams: Promise<{ color: string }>;
+  searchParams: Promise<{ color: string; selected: string }>;
 };
 
 const PixelsYearPage = async ({
@@ -20,6 +22,7 @@ const PixelsYearPage = async ({
   searchParams,
 }: PixelsYearPageProps) => {
   const { year: yearString } = await params;
+  const { color, selected } = await searchParams;
 
   const year = parseInt(yearString, 10);
   if (isNaN(year)) {
@@ -59,7 +62,17 @@ const PixelsYearPage = async ({
     );
   }
 
-  console.log(`pixelsResult for year ${year}:`, pixelsResult.data);
+  let diary = null;
+  if (selected) {
+    const selectedDate = parseISO(selected);
+    if (isValid(selectedDate)) {
+      const diaryResult = await getUserDiaryByDate(selectedDate, userId);
+      if (diaryResult.success) {
+        diary = diaryResult.data;
+      }
+    }
+  }
+
   return (
     <div className='flex flex-col w-full max-w-[900px] mx-auto gap-6 p-4'>
       <div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
@@ -75,6 +88,13 @@ const PixelsYearPage = async ({
         year={year}
         pixels={pixelsResult.data || []}
         searchParams={searchParams}
+      />
+
+      <YearlyInsights
+        pixels={pixelsResult.data || []}
+        year={year}
+        selectedDate={selected || null}
+        diary={diary}
       />
     </div>
   );

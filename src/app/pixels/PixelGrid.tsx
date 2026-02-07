@@ -56,7 +56,7 @@ const getWeeksPerMonth = (days: (Date | null)[]) => {
 type PixelGridProps = {
   pixels: Pixel[];
   year: number;
-  searchParams: Promise<{ color: string }>;
+  searchParams: Promise<{ color: string; selected: string }>;
 };
 const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
   const calendarDays = getCalendarDays(year);
