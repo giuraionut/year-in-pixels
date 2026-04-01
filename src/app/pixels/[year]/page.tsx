@@ -1,18 +1,20 @@
 import React from 'react';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
-import { endOfYear, startOfYear, isValid } from 'date-fns';
+import { endOfYear, startOfYear, isValid, parseISO } from 'date-fns';
 import { getSessionUserId } from '@/actions/actionUtils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import PixelGrid from '../PixelGrid';
 import { YearSelector } from '../YearSelector';
+import YearlyInsights from './YearlyInsights';
+import { getUserDiaryByDate } from '@/actions/diaryActions';
 
 type PixelsYearPageProps = {
   params: Promise<{
     year: string;
   }>;
 
-  searchParams: Promise<{ color: string }>;
+  searchParams: Promise<{ color: string; selected: string }>;
 };
 
 const PixelsYearPage = async ({
@@ -20,6 +22,7 @@ const PixelsYearPage = async ({
   searchParams,
 }: PixelsYearPageProps) => {
   const { year: yearString } = await params;
+  const { color, selected } = await searchParams;
 
   const year = parseInt(yearString, 10);
   if (isNaN(year)) {
@@ -45,7 +48,7 @@ const PixelsYearPage = async ({
 
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
 
@@ -57,6 +60,17 @@ const PixelsYearPage = async ({
         Error fetching pixels for year {year}: {pixelsResult.error}
       </div>
     );
+  }
+
+  let diary = null;
+  if (selected) {
+    const selectedDate = parseISO(selected);
+    if (isValid(selectedDate)) {
+      const diaryResult = await getUserDiaryByDate(selectedDate, userId);
+      if (diaryResult.success) {
+        diary = diaryResult.data;
+      }
+    }
   }
 
   return (
@@ -74,6 +88,13 @@ const PixelsYearPage = async ({
         year={year}
         pixels={pixelsResult.data || []}
         searchParams={searchParams}
+      />
+
+      <YearlyInsights
+        pixels={pixelsResult.data || []}
+        year={year}
+        selectedDate={selected || null}
+        diary={diary}
       />
     </div>
   );

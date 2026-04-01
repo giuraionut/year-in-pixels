@@ -3,13 +3,13 @@
 import React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { Pixel, MoodToPixel, Mood } from '@prisma/client';
+import { PixelWithRelations } from '@/types/pixel';
 
 import { toast } from 'sonner';
 
 interface PixelSquareProps {
   day: Date;
-  pixel: Pixel | null;
+  pixel: PixelWithRelations | null;
   size: number;
   initialBackground: string;
   isInitiallyFiltered: boolean;
@@ -26,25 +26,28 @@ export default function PixelSquare({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const currentFilterColor = searchParams.get('color');
+  const currentSelectedDate = searchParams.get('selected');
+  const isSelected = currentSelectedDate === format(day, 'yyyy-MM-dd');
+
   const handleClick = () => {
     const pixelMoods = pixel?.moods ?? [];
     const validMoodsWithColors = pixelMoods
-      .map((mtp: MoodToPixel) => {
+      .map((mtp: any) => {
         try {
           const moodName = mtp.mood.name;
-          const parsedColor = JSON.parse(mtp.mood.color) as Color;
+          const parsedColor = JSON.parse(mtp.mood.color);
 
           if (
             !parsedColor ||
-            typeof parsedColor.value !== 'string' ||
-            parsedColor.value === 'transparent'
+            (typeof parsedColor === 'object' && parsedColor.value === 'transparent')
           ) {
             return null;
           }
 
-          const colorValue = parsedColor.value.startsWith('#')
-            ? parsedColor.value.slice(1)
-            : parsedColor.value;
+          const colorValue = typeof parsedColor === 'string' 
+            ? (parsedColor.startsWith('#') ? parsedColor.slice(1) : parsedColor)
+            : (parsedColor.value.startsWith('#') ? parsedColor.value.slice(1) : parsedColor.value);
 
           return { moodName, colorValue };
         } catch (error) {
@@ -57,11 +60,17 @@ export default function PixelSquare({
           return null;
         }
       })
-      .filter((item: Mood) => item !== null);
+      .filter((item: any) => item !== null) as any[];
 
-    const currentFilterColor = searchParams.get('color');
-
+    const clickedDateStr = format(day, 'yyyy-MM-dd');
     const newParams = new URLSearchParams(searchParams.toString());
+
+    if (currentSelectedDate === clickedDateStr) {
+      newParams.delete('selected');
+    } else {
+      newParams.set('selected', clickedDateStr);
+    }
+
     const pushWithParams = () => {
       const qs = newParams.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -73,6 +82,7 @@ export default function PixelSquare({
         pushWithParams();
         toast.info('Color filter cleared.');
       } else {
+        pushWithParams();
         toast.error('No mood set for this day.');
       }
       return;
@@ -100,8 +110,8 @@ export default function PixelSquare({
       return;
     }
 
-    const matchedMood = validMoodsWithColors.find(
-      (item: Mood) => item.colorValue === currentFilterColor
+    const matchedMood = (validMoodsWithColors as any[]).find(
+      (item: any) => item.colorValue === currentFilterColor
     );
 
     if (matchedMood) {
@@ -109,15 +119,16 @@ export default function PixelSquare({
       pushWithParams();
       toast.info(
         <span>
-          Filter for <span className='font-bold'>{matchedMood.moodName}</span>
+          Filter for <span className='font-bold'>{matchedMood.moodName}</span>{' '}
           cleared.
         </span>
       );
     } else {
+      pushWithParams(); // Still push to update 'selected'
       toast.warning(
         <span>
           Cannot filter by multiple moods:{' '}
-          {validMoodsWithColors.map((item: Mood, index: number) => (
+          {(validMoodsWithColors as any[]).map((item: any, index: number) => (
             <span key={item.moodName} className='font-bold'>
               {item.moodName}
               {index < validMoodsWithColors.length - 1 && ', '}
@@ -138,8 +149,11 @@ export default function PixelSquare({
         width: `${size}px`,
         height: `${size}px`,
         transition: 'background 0.1s ease-in-out',
+        outline: isSelected ? '2px solid hsl(var(--primary))' : 'none',
+        outlineOffset: isSelected ? '1px' : '0',
+        zIndex: isSelected ? 1 : 0,
       }}
-      className='rounded-[2px] cursor-pointer hover:scale-110 hover:outline-1 hover:outline-offset-1 hover:outline-primary transition-transform duration-100 ease-in-out' // Added hover effects
+      className='rounded-[2px] cursor-pointer hover:scale-110 hover:outline-1 hover:outline-offset-1 hover:outline-primary transition-transform duration-100 ease-in-out'
       aria-label={`Pixel for ${format(day, 'yyyy-MM-dd')}`}
     ></li>
   );

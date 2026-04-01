@@ -53,7 +53,7 @@ const PixelsMonthPage = async ({ params }: PixelsMonthPageProps) => {
 
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
 
@@ -85,6 +85,7 @@ const PixelsMonthPage = async ({ params }: PixelsMonthPageProps) => {
       </div>
     );
   }
+  
 
   return (
     <div className='flex flex-col w-full max-w-[800px] mx-auto gap-6 p-4'>
@@ -110,9 +111,11 @@ const PixelsMonthPage = async ({ params }: PixelsMonthPageProps) => {
             currentMonth={monthIndex + 1}
             userMoods={moodsResult.data}
             userEvents={eventsResult.data}
-            pixel={pixelsResult.data.find((pixel) =>
-              isEqual(startOfDay(pixel.pixelDate), startOfDay(targetDate))
-            )}
+            pixel={
+              pixelsResult.data.find((pixel) =>
+                isEqual(startOfDay(pixel.pixelDate), startOfDay(targetDate))
+              ) || null
+            }
           />
         )}
       </CalendarGrid>

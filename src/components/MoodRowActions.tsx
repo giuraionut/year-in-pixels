@@ -13,15 +13,18 @@ type MoodRowActionsProps = {
 };
 
 export default function MoodRowActions({ mood }: MoodRowActionsProps) {
+  const colorObj =
+    typeof mood.color === 'string' ? JSON.parse(mood.color) : mood.color;
+
   const moodCustomActions: CustomAction[] = [
     {
-      label: `Copy Hex (#${mood.color?.value ?? 'N/A'})`,
+      label: `Copy Hex (#${colorObj?.value ?? 'N/A'})`,
       onSelect: () => {
-        if (mood.color?.value) {
-          navigator.clipboard.writeText(mood.color.value);
+        if (colorObj?.value) {
+          navigator.clipboard.writeText(colorObj.value);
         }
       },
-      disabled: !mood.color?.value,
+      disabled: !colorObj?.value,
     },
   ];
 

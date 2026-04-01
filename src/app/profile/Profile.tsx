@@ -167,7 +167,7 @@ export default function Profile() {
 
     const dbData = await backupFilteredDb();
     if (dbData.success && dbData.data) {
-      const dbBlob = new Blob([dbData.data], { type: 'application/octet-stream' });
+      const dbBlob = new Blob([dbData.data as any], { type: 'application/octet-stream' });
       const dbUrl = URL.createObjectURL(dbBlob);
       const dbAnchor = document.createElement('a');
       dbAnchor.href = dbUrl;

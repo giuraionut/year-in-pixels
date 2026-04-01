@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/popover';
 import React, { useEffect, useState } from 'react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { Pixel } from '@prisma/client';
+import { PixelWithRelations } from '@/types/pixel';
 import { getUserPixelsByRange } from '@/actions/pixelActions';
 import CalendarGrid from '@/components/calendar-grid';
 import { LoadingDots } from '@/components/icons/loading-dots';
@@ -37,7 +37,7 @@ export default function ToolbarCalendar({
   dateProp,
   className,
 }: ToolbarCalendarProps) {
-  const [pixels, setPixels] = useState<Pixel[]>([]);
+  const [pixels, setPixels] = useState<PixelWithRelations[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {

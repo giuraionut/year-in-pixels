@@ -24,7 +24,7 @@ export default async function Moods({ searchParams }: MoodsProps) {
   const searchP = await searchParams;
   const fetchUserId = await getSessionUserId();
   if (!fetchUserId.success) {
-    return { success: false, error: 'User not authenticated.' };
+    return <div className='p-6'>User not authenticated.</div>;
   }
   const userId = fetchUserId.data;
   const fetchMoods = await getUserMoods(userId);

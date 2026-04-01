@@ -13,8 +13,19 @@ const SQUARE_GAP = 2;
 const WEEK_WIDTH = SQUARE_SIZE + SQUARE_GAP;
 
 const getCalendarDays = (year: number) => {
-  const days = [];
+  const days: (Date | null)[] = [];
   const date = new Date(year, 0, 1);
+
+  // Calculate start padding (Monday based)
+  // getDay(): Sun=0, Mon=1, ..., Sat=6
+  // We want Mon=0, Tue=1, ..., Sun=6
+  // So offset = (day + 6) % 7
+  const dayOfWeek = date.getDay();
+  const padding = (dayOfWeek + 6) % 7;
+
+  for (let i = 0; i < padding; i++) {
+    days.push(null);
+  }
 
   while (date.getFullYear() === year) {
     days.push(new Date(date));
@@ -24,41 +35,37 @@ const getCalendarDays = (year: number) => {
   return days;
 };
 
-const getDateMatrix = (year: number) => {
-  const matrix: Date[][] = Array.from({ length: 7 }, () => []);
-  const date = new Date(year, 0);
+const getWeeksPerMonth = (days: (Date | null)[]) => {
+  const weeks: Record<number, number> = {};
 
-  for (let i = 0; i < 365; i++) {
-    const rowIndex = i % 7;
-    matrix[rowIndex].push(new Date(date));
-    date.setDate(date.getDate() + 1);
+  for (let i = 0; i < days.length; i += 7) {
+    // Get the slice for this week/column
+    const week = days.slice(i, i + 7);
+    // Find the "representative" date for this week.
+    // Usually index 0 (Monday). If null, find first non-null.
+    const repDate = week[0] || week.find((d) => d !== null);
+
+    if (repDate) {
+      const month = repDate.getMonth();
+      weeks[month] = (weeks[month] || 0) + 1;
+    }
   }
-
-  return matrix;
-};
-
-const getWeeksPerMonth = (dates: Date[]) => {
-  return dates.reduce((acc, date) => {
-    const month = date.getMonth();
-    acc[month] = (acc[month] || 0) + 1;
-    return acc;
-  }, {} as Record<number, number>);
+  return weeks;
 };
 
 type PixelGridProps = {
   pixels: Pixel[];
   year: number;
-  searchParams: Promise<{ color: string }>;
+  searchParams: Promise<{ color: string; selected: string }>;
 };
 const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
   const calendarDays = getCalendarDays(year);
-  const matrix = getDateMatrix(year);
   const { color } = await searchParams;
   const filterColor = color ? ['#' + color] : [];
-  const weeksPerMonth = getWeeksPerMonth(matrix[0]);
+  const weeksPerMonth = getWeeksPerMonth(calendarDays);
 
   const dayToPixelMap = () => {
-    const map = new Map<string, Pixel>();
+    const map = new Map<string, any>();
     pixels.forEach((pixel) => {
       const dateStr = format(new Date(pixel.pixelDate), 'yyyy-MM-dd');
       map.set(dateStr, pixel);
@@ -131,10 +138,18 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
 
       <ul style={styles.squares}>
         {calendarDays.map((day, index) => {
+          if (!day) {
+            return (
+              <li
+                key={index}
+                style={{ width: `${SQUARE_SIZE}px`, height: `${SQUARE_SIZE}px` }}
+              />
+            );
+          }
           const dateStr = format(day, 'yyyy-MM-dd');
           const pixel = dayToPixelMap().get(dateStr);
           const moods = pixel?.moods || [];
-          const colors = moods.map((moodToPixel: MoodToPixel) => {
+          const colors = moods.map((moodToPixel: any) => {
             try {
               return typeof moodToPixel.mood.color === 'string'
                 ? JSON.parse(moodToPixel.mood.color).value
@@ -145,12 +160,12 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
                 moodToPixel.mood,
                 error
               );
-              return 'transparent'; 
+              return 'transparent';
             }
           });
           let background = 'lightgray';
           if (colors.length === 0) {
-            background = 'lightgray'; 
+            background = 'lightgray';
           } else if (colors.length === 1) {
             background = colors[0];
           } else {
@@ -181,7 +196,7 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
               </TooltipTrigger>
               <TooltipContent>
                 {moods.length > 0
-                  ? moods.map((m: MoodToPixel) => m.mood.name).join(', ')
+                  ? moods.map((m: any) => m.mood.name).join(', ')
                   : 'Not set yet.'}
                 {pixel?.pixelDate
                   ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`

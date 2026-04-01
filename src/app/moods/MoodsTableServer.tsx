@@ -198,10 +198,10 @@ export default function MoodsTableServer({
                               <div className='flex items-center gap-2'>
                                 <div
                                   className='h-5 w-5 rounded-md border'
-                                  style={{ backgroundColor: mood.color.value }}
+                                  style={{ backgroundColor: (mood.color as any).value }}
                                 />
                                 <span className='text-xs text-muted-foreground'>
-                                  {mood.color.label}
+                                  {(mood.color as any).name}
                                 </span>
                               </div>
                             </TableCell>
@@ -210,7 +210,7 @@ export default function MoodsTableServer({
                           return (
                             <TableCell key='hex_code'>
                               <code className='text-xs'>
-                                {mood.color.value}
+                                {(mood.color as any).value}
                               </code>
                             </TableCell>
                           );
