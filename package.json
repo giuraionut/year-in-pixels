@@ -73,7 +73,7 @@
     "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.563.0",
     "next": "^16.2.2",
