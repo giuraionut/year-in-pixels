@@ -1,12 +1,12 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { MoodToPixel, Pixel } from '@prisma/client';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import PixelSquare from './PixelSquare';
+import { PixelWithRelations } from '@/types/pixel';
 
 const SQUARE_SIZE = 13.4;
 const SQUARE_GAP = 2;
@@ -16,10 +16,6 @@ const getCalendarDays = (year: number) => {
   const days: (Date | null)[] = [];
   const date = new Date(year, 0, 1);
 
-  // Calculate start padding (Monday based)
-  // getDay(): Sun=0, Mon=1, ..., Sat=6
-  // We want Mon=0, Tue=1, ..., Sun=6
-  // So offset = (day + 6) % 7
   const dayOfWeek = date.getDay();
   const padding = (dayOfWeek + 6) % 7;
 
@@ -39,10 +35,7 @@ const getWeeksPerMonth = (days: (Date | null)[]) => {
   const weeks: Record<number, number> = {};
 
   for (let i = 0; i < days.length; i += 7) {
-    // Get the slice for this week/column
     const week = days.slice(i, i + 7);
-    // Find the "representative" date for this week.
-    // Usually index 0 (Monday). If null, find first non-null.
     const repDate = week[0] || week.find((d) => d !== null);
 
     if (repDate) {
@@ -54,10 +47,11 @@ const getWeeksPerMonth = (days: (Date | null)[]) => {
 };
 
 type PixelGridProps = {
-  pixels: Pixel[];
+  pixels: PixelWithRelations[];
   year: number;
   searchParams: Promise<{ color: string; selected: string }>;
 };
+
 const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
   const calendarDays = getCalendarDays(year);
   const { color } = await searchParams;
@@ -65,7 +59,7 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
   const weeksPerMonth = getWeeksPerMonth(calendarDays);
 
   const dayToPixelMap = () => {
-    const map = new Map<string, any>();
+    const map = new Map<string, PixelWithRelations>();
     pixels.forEach((pixel) => {
       const dateStr = format(new Date(pixel.pixelDate), 'yyyy-MM-dd');
       map.set(dateStr, pixel);
@@ -149,11 +143,12 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const pixel = dayToPixelMap().get(dateStr);
           const moods = pixel?.moods || [];
-          const colors = moods.map((moodToPixel: any) => {
+          const colors = moods.map((moodToPixel) => {
             try {
-              return typeof moodToPixel.mood.color === 'string'
-                ? JSON.parse(moodToPixel.mood.color).value
-                : moodToPixel.mood.color.value;
+              const colorData = typeof moodToPixel.mood.color === 'string'
+                ? JSON.parse(moodToPixel.mood.color)
+                : moodToPixel.mood.color;
+              return colorData.value;
             } catch (error) {
               console.error(
                 'Error parsing color for mood:',
@@ -171,10 +166,10 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
           } else {
             const colorSpacing = 100 / colors.length;
             const gradientColors = colors
-              .map((color: Color, index: number) => {
+              .map((colorValue, index: number) => {
                 const start = index * colorSpacing;
                 const end = (index + 1) * colorSpacing;
-                return `${color} ${start}%, ${color} ${end}%`;
+                return `${colorValue} ${start}%, ${colorValue} ${end}%`;
               })
               .join(', ');
             background = `linear-gradient(to right, ${gradientColors})`;
@@ -182,13 +177,13 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
 
           const isFiltered =
             filterColor.length > 0 &&
-            !colors.some((color: string) => filterColor.includes(color));
+            !colors.some((colorValue) => filterColor.includes(colorValue));
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <PixelSquare
                   day={day}
-                  pixel={pixel}
+                  pixel={pixel || null}
                   size={SQUARE_SIZE}
                   initialBackground={background}
                   isInitiallyFiltered={isFiltered}
@@ -196,7 +191,7 @@ const PixelGrid = async ({ pixels, year, searchParams }: PixelGridProps) => {
               </TooltipTrigger>
               <TooltipContent>
                 {moods.length > 0
-                  ? moods.map((m: any) => m.mood.name).join(', ')
+                  ? moods.map((m) => m.mood.name).join(', ')
                   : 'Not set yet.'}
                 {pixel?.pixelDate
                   ? ` - ${format(new Date(pixel.pixelDate), 'PPP')}`

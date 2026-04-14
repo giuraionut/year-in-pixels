@@ -70,7 +70,7 @@ export default function AddMoodDialog({ children }: AddMoodDialogProps) {
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        (error as any).errors.forEach((err: any) => {
+        error.issues.forEach((err) => {
           toast.error('Input error, verify the data', {
             description: err.message,
           });

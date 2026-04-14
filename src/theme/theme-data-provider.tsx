@@ -26,10 +26,12 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
         : undefined;
 
       if (parsedCustomHue !== undefined && !isNaN(parsedCustomHue)) {
-        setCustomHue(parsedCustomHue);
-        setThemeColor(undefined);
+        queueMicrotask(() => {
+          setCustomHue(parsedCustomHue);
+          setThemeColor(undefined);
+        });
       } else {
-        setThemeColor(savedThemeColor || 'Zinc');
+        queueMicrotask(() => setThemeColor(savedThemeColor || 'Zinc'));
       }
     } catch (error) {
       console.error('Error loading theme settings from localStorage:', error);

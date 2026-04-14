@@ -99,7 +99,7 @@ export default function TableControls({
   };
 
   useEffect(() => {
-    setFilterValue(searchParams.get('filter') || '');
+    queueMicrotask(() => setFilterValue(searchParams.get('filter') || ''));
   }, [searchParams]);
 
   /**

@@ -195,7 +195,6 @@ export const authOptions: AuthOptions = {
          * - Subsequent requests: Only `token` is available initially.
          */
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async jwt({ token, user,
             //  account, profile, 
             trigger, session }) {

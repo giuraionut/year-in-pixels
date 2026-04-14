@@ -10,7 +10,6 @@ import StarterKit from '@tiptap/starter-kit';
 import { Card } from '@/components/ui/card';
 import Code from '@tiptap/extension-code';
 import Placeholder from '@tiptap/extension-placeholder';
-import Underline from '@tiptap/extension-underline';
 import BulletList from '@tiptap/extension-bullet-list';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { all, createLowlight } from 'lowlight';
@@ -67,7 +66,6 @@ export default function DiaryComponent({
           class: 'rounded code-line',
         },
       }),
-      Underline,
       BulletList.configure({
         HTMLAttributes: { class: 'list-disc p-0.5 pl-2 ml-4' },
         itemTypeName: 'listItem',
@@ -190,7 +188,7 @@ export default function DiaryComponent({
                     try {
                       const parsed = JSON.parse(mtp.mood.color);
                       color = typeof parsed === 'string' ? parsed : (parsed.value || 'gray');
-                    } catch (e) {
+                    } catch {
                       color = mtp.mood.color;
                     }
                     return (
