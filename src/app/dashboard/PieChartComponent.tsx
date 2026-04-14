@@ -29,7 +29,6 @@ export default function PieChartComponent({
 }: {
   className?: string;
   data: DataItem[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: ChartConfig;
 }) {
   const totalMoods = React.useMemo(() => {

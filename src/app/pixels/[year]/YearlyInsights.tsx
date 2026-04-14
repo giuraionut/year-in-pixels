@@ -16,6 +16,13 @@ type YearlyInsightsProps = {
   diary: Diary | null;
 };
 
+type TiptapNode = {
+  type: string;
+  content?: TiptapNode[];
+  text?: string;
+  attrs?: Record<string, unknown>;
+};
+
 export default function YearlyInsights({
   pixels,
   year,
@@ -36,9 +43,11 @@ export default function YearlyInsights({
         if (!moodCounts[moodId]) {
           let color = 'gray';
           try {
-            const parsed = JSON.parse(mtp.mood.color);
-            color = typeof parsed === 'string' ? parsed : (parsed.value || 'gray');
-          } catch (e) {
+            const colorData = typeof mtp.mood.color === 'string'
+              ? JSON.parse(mtp.mood.color)
+              : mtp.mood.color;
+            color = typeof colorData === 'string' ? colorData : (colorData.value || 'gray');
+          } catch {
             color = mtp.mood.color;
           }
           moodCounts[moodId] = { name: mtp.mood.name, color, count: 0 };
@@ -71,19 +80,20 @@ export default function YearlyInsights({
       // Simple rendering for now, could be improved with a proper Tiptap viewer
       return (
         <div className='prose prose-sm dark:prose-invert max-w-none'>
-           {json.content?.map((block: any, idx: number) => {
+           {(json.content as TiptapNode[])?.map((block, idx) => {
              if (block.type === 'paragraph') {
-               return <p key={idx}>{block.content?.map((c: any) => c.text).join('')}</p>;
+               return <p key={idx}>{block.content?.map((c) => c.text).join('')}</p>;
              }
              if (block.type === 'heading') {
-               const Tag = `h${block.attrs.level}` as any;
-               return <Tag key={idx}>{block.content?.map((c: any) => c.text).join('')}</Tag>;
+               const level = (block.attrs?.level as number) || 1;
+               const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
+               return <Tag key={idx}>{block.content?.map((c) => c.text).join('')}</Tag>;
              }
              return null;
            })}
         </div>
       );
-    } catch (e) {
+    } catch {
       return <p>{content}</p>;
     }
   };
@@ -167,7 +177,7 @@ export default function YearlyInsights({
                                 try {
                                   const parsed = JSON.parse(mtp.mood.color);
                                   color = typeof parsed === 'string' ? parsed : (parsed.value || 'gray');
-                                } catch (e) {
+                                } catch {
                                   color = mtp.mood.color;
                                 }
                                 return (

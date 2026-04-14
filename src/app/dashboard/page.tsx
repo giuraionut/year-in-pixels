@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import generateChartData from './mood-chart-config';
 import { getUserPixels, getUserPixelsByRange } from '@/actions/pixelActions';
-import { MoodToPixel, Pixel } from '@prisma/client';
+import { PixelWithRelations } from '@/types/pixel';
 import { getSessionUserId } from '@/actions/actionUtils';
 import BarChartComponent from './BarChartComponent';
 import PieChartComponent from './PieChartComponent';
@@ -33,15 +33,23 @@ function parseDateParam(param?: string | string[]): Date | null {
   return isValid(d) ? d : null;
 }
 
+interface MoodColor {
+  name: string;
+  value: string;
+}
+
 function getTopMoods(
-  pixels: any[],
+  pixels: PixelWithRelations[],
   topN = 3
 ): Array<{ name: string; color: string; count: number }> {
   const map = new Map<string, { name: string; color: string; count: number }>();
   pixels.forEach((px) =>
-    px.moods.forEach((mtp: any) => {
+    px.moods.forEach((mtp: PixelWithRelations['moods'][number]) => {
       const raw = mtp.mood.color;
-      const color = typeof raw === 'string' ? JSON.parse(raw).value : raw.value;
+      const color =
+        typeof raw === 'string'
+          ? (JSON.parse(raw) as MoodColor).value
+          : (raw as unknown as MoodColor).value;
       const key = mtp.mood.id;
       if (!map.has(key)) map.set(key, { name: mtp.mood.name, color, count: 0 });
       map.get(key)!.count++;
@@ -92,7 +100,7 @@ export default async function Dashboard({
   if (!fetchPixelsByRange.success) {
     return <div className='p-6'>Failed to fetch pixels by range.</div>;
   }
-  const { data, config } = generateChartData(fetchPixelsByRange.data as any);
+  const { data, config } = generateChartData(fetchPixelsByRange.data);
   const topMoods = getTopMoods(fetchAllPixels.data, 3);
   const summaryGridCols = `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-${Math.min(
     topMoods.length + 2,

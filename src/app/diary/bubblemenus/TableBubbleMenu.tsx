@@ -25,6 +25,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 type TableBubbleMenuProps = {
   editor: Editor | null;
 };
@@ -61,6 +62,7 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
 
     return rect;
   };
+
   if (!editor) return null;
 
   const wrapWithTooltip = (
@@ -73,22 +75,22 @@ export default function TableBubbleMenu({ editor }: TableBubbleMenuProps) {
     </Tooltip>
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const options: any = {
+    offset: [0, 8],
+    popperOptions: {
+      modifiers: [{ name: "flip", enabled: false }],
+    },
+    maxWidth: "auto",
+    getReferenceClientRect,
+    plugins: [sticky],
+    sticky: "popper",
+  };
+
   return (
     <BubbleMenu
       updateDelay={0}
-      options={
-        {
-          offset: [0, 8],
-          popperOptions: {
-            modifiers: [{ name: "flip", enabled: false }],
-          },
-
-          maxWidth: "auto",
-          getReferenceClientRect,
-          plugins: [sticky],
-          sticky: "popper",
-        } as any
-      }
+      options={options}
       shouldShow={shouldShow}
     >
       <Card className="p-2 flex gap-3 rounded-md">

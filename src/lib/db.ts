@@ -1,24 +1,22 @@
 import { PrismaLibSql } from "@prisma/adapter-libsql";
-import "dotenv/config";
 import { PrismaClient } from "../../generated/prisma/client";
+import "dotenv/config";
+
 declare global {
-  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
 const prismaClientSingleton = () => {
-  if (!process.env.TURSO_DATABASE_URL) {
-    throw new Error("TURSO_DATABASE_URL is not set in environment variables");
-  }
-  if (!process.env.TURSO_AUTH_TOKEN) {
-    console.warn(
-      "TURSO_AUTH_TOKEN is not set. Assuming local file or no auth required.",
-    );
+  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error("DATABASE_URL or TURSO_DATABASE_URL is not set in environment variables");
   }
 
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+
   const adapter = new PrismaLibSql({
-    url: process.env.TURSO_DATABASE_URL,
-    authToken: process.env.TURSO_AUTH_TOKEN,
+    url: url,
+    authToken: authToken,
   });
 
   return new PrismaClient({ adapter });

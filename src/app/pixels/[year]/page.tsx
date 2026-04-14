@@ -22,7 +22,7 @@ const PixelsYearPage = async ({
   searchParams,
 }: PixelsYearPageProps) => {
   const { year: yearString } = await params;
-  const { color, selected } = await searchParams;
+  const { selected } = await searchParams;
 
   const year = parseInt(yearString, 10);
   if (isNaN(year)) {

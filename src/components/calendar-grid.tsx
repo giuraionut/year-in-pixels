@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Mood, Pixel, Event } from '@prisma/client';
+import { Mood, Event } from '@prisma/client';
 import { PixelWithRelations } from '@/types/pixel';
 import {
   eachDayOfInterval,
@@ -62,9 +62,12 @@ export default function CalendarGrid({
     const moodsList = px?.moods || [];
 
     // Compute background based on moods
-    const moodColors = moodsList.map(
-      (mtp: any) => JSON.parse(mtp.mood.color).value
-    );
+    const moodColors = moodsList.map((mtp) => {
+      const colorData = typeof mtp.mood.color === 'string'
+        ? JSON.parse(mtp.mood.color)
+        : mtp.mood.color;
+      return colorData.value;
+    });
 
     let background = '';
     if (moodColors.length === 1) {

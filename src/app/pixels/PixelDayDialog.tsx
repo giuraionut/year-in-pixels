@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { Mood, Event, Pixel, MoodToPixel } from '@prisma/client';
+import { Mood, Event, Pixel, MoodToPixel, PixelToEvent } from '@prisma/client';
 import {
   Dialog,
   DialogContent,
@@ -12,25 +12,24 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import AddPixelDialogForm from './AddPixelDialogForm';
-// import PixelDayDisplay from './PixelDayDisplay';
-
 import dynamic from 'next/dynamic';
 
 const PixelDayDisplay = dynamic(
   () => import('./PixelDayDisplay'),
   { ssr: false }
 );
+
 type PixelDayButtonProps = {
   targetDate: Date;
   background: string;
   userMoods: Mood[];
   userEvents: Event[];
-  pixel: (Pixel & { moods: MoodToPixel[]; events: any[] }) | null;
+  pixel: (Pixel & { moods: MoodToPixel[]; events: (PixelToEvent & { event: Event })[] }) | null;
   currentMonth: number;
 };
 
 export default function PixelDayDialog({
-targetDate,
+  targetDate,
   background,
   userMoods,
   userEvents,
@@ -42,7 +41,7 @@ targetDate,
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <PixelDayDisplay date={targetDate} background={background}  currentMonth={currentMonth}/>
+        <PixelDayDisplay date={targetDate} background={background} currentMonth={currentMonth} />
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>

@@ -40,6 +40,7 @@ export default function CodeBlockComponent({
         </SelectContent>
       </Select>
       <pre>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <NodeViewContent as={'code' as any} />
       </pre>
     </NodeViewWrapper>

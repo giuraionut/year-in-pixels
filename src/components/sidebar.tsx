@@ -77,7 +77,7 @@ export default function SideBar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    setIsClient(true);
+    queueMicrotask(() => setIsClient(true));
   }, []);
 
   const isActive = (href: string) => pathname === href;
