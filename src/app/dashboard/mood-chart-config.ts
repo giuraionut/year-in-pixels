@@ -1,11 +1,16 @@
-import { Event, PixelToEvent, MoodToPixel } from "@prisma/client";
+import { Event, PixelToEvent } from "@prisma/client";
 import { PixelWithRelations } from "@/types/pixel";
+
+interface MoodColor {
+    name: string;
+    value: string;
+}
 
 export default function generateChartData(pixels: PixelWithRelations[]) {
     // Map pixels into moods with moodName, moodColor, and events
     const moods = pixels.flatMap(pixel => // Use flatMap to handle multiple moods per pixel
         pixel.moods.map((moodToPixel) => {
-            const colorObject = typeof moodToPixel.mood.color === 'string' ? JSON.parse(moodToPixel.mood.color) : moodToPixel.mood.color; // Parse and safely access color value
+            const colorObject = typeof moodToPixel.mood.color === 'string' ? (JSON.parse(moodToPixel.mood.color) as MoodColor) : (moodToPixel.mood.color as unknown as MoodColor); // Parse and safely access color value
 
             return {
                 moodName: moodToPixel.mood.name.toLowerCase(),
@@ -54,10 +59,7 @@ export default function generateChartData(pixels: PixelWithRelations[]) {
     }, []);
 
     // Create config object with labels and colors
-    const config = data.reduce((acc: { [key: string]: { label: string; fill: string } }, curr) => { // Correct the reduce target
-        if (!acc.quantity) {
-            acc.quantity = { label: "Value", fill: "" };
-        }
+    const config = data.reduce((acc: Record<string, { label: string; fill: string }>, curr) => { // Correct the reduce target
         acc[curr.moodName] = {
             label: curr.moodName.charAt(0).toUpperCase() + curr.moodName.slice(1),
             fill: curr.fill,

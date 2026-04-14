@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
 import { upsertUserPixel } from '@/actions/pixelActions';
-import { Mood, Event, Pixel, MoodToPixel } from '@prisma/client';
+import { Mood, Event, Pixel, MoodToPixel, PixelToEvent } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -29,7 +29,7 @@ interface AddPixelDialogFormProps {
   date: Date;
   userMoods: Mood[];
   userEvents: Event[];
-  existingPixel: (Pixel & { moods: MoodToPixel[]; events: any[] }) | null;
+  existingPixel: (Pixel & { moods: MoodToPixel[]; events: (PixelToEvent & { event: Event })[] }) | null;
   onFormSubmit?: () => void;
 }
 
@@ -49,7 +49,7 @@ export default function AddPixelDialogForm({
         existingPixel?.moods.map((m: MoodToPixel): string => m.moodId) || [],
       eventIds:
         existingPixel?.events.map(
-          (pe: any): string => pe.event.id
+          (pe: PixelToEvent & { event: Event }): string => pe.event.id
         ) || [],
     },
   });
@@ -57,7 +57,7 @@ export default function AddPixelDialogForm({
 
   const onSubmit = async (data: PixelFormInput) => {
     const result = await upsertUserPixel(
-      { pixelDate: new Date(data.date), userId: '' } as any,
+      { pixelDate: new Date(data.date), userId: '' } as unknown as Pixel,
       data.eventIds || [],
       data.moodIds || []
     );

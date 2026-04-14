@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
-const { version } = require("./package.json")
+import pkg from "./package.json";
+const { version } = pkg;
 
 const nextConfig: NextConfig = {
   /* config options here */

@@ -33,10 +33,12 @@ export default function PixelSquare({
   const handleClick = () => {
     const pixelMoods = pixel?.moods ?? [];
     const validMoodsWithColors = pixelMoods
-      .map((mtp: any) => {
+      .map((mtp) => {
         try {
           const moodName = mtp.mood.name;
-          const parsedColor = JSON.parse(mtp.mood.color);
+          const parsedColor = typeof mtp.mood.color === 'string'
+            ? JSON.parse(mtp.mood.color)
+            : mtp.mood.color;
 
           if (
             !parsedColor ||
@@ -60,7 +62,7 @@ export default function PixelSquare({
           return null;
         }
       })
-      .filter((item: any) => item !== null) as any[];
+      .filter((item): item is { moodName: string; colorValue: string } => item !== null);
 
     const clickedDateStr = format(day, 'yyyy-MM-dd');
     const newParams = new URLSearchParams(searchParams.toString());
@@ -110,8 +112,8 @@ export default function PixelSquare({
       return;
     }
 
-    const matchedMood = (validMoodsWithColors as any[]).find(
-      (item: any) => item.colorValue === currentFilterColor
+    const matchedMood = validMoodsWithColors.find(
+      (item) => item.colorValue === currentFilterColor
     );
 
     if (matchedMood) {
@@ -128,7 +130,7 @@ export default function PixelSquare({
       toast.warning(
         <span>
           Cannot filter by multiple moods:{' '}
-          {(validMoodsWithColors as any[]).map((item: any, index: number) => (
+          {validMoodsWithColors.map((item, index) => (
             <span key={item.moodName} className='font-bold'>
               {item.moodName}
               {index < validMoodsWithColors.length - 1 && ', '}

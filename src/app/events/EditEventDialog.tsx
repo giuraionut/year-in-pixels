@@ -43,8 +43,7 @@ export default function EditEventDialog({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const eventData = event;
-    event.name = data.name;
+    const eventData = { ...event, name: data.name };
     try {
       FormSchema.parse(eventData);
       const newEvent = await editUserEvent(eventData);
@@ -54,7 +53,7 @@ export default function EditEventDialog({
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        (error as any).errors.forEach((err: any) => {
+        error.issues.forEach((err) => {
           toast.error('Input error, verify the data', {
             description: err.message,
           });

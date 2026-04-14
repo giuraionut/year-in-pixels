@@ -192,28 +192,40 @@ export default function MoodsTableServer({
                           );
                         case 'name':
                           return <TableCell key='name'>{mood.name}</TableCell>;
-                        case 'color':
+                        case 'color': {
+                          let colorObj = { name: 'Unknown', value: 'gray' };
+                          try {
+                            colorObj = typeof mood.color === 'string' ? JSON.parse(mood.color) : mood.color;
+                          } catch {
+                            colorObj = { name: mood.color, value: mood.color === '[object Object]' ? 'gray' : mood.color };
+                          }
                           return (
                             <TableCell key='color'>
                               <div className='flex items-center gap-2'>
                                 <div
                                   className='h-5 w-5 rounded-md border'
-                                  style={{ backgroundColor: (mood.color as any).value }}
+                                  style={{ backgroundColor: colorObj.value }}
                                 />
                                 <span className='text-xs text-muted-foreground'>
-                                  {(mood.color as any).name}
+                                  {colorObj.name}
                                 </span>
                               </div>
                             </TableCell>
                           );
-                        case 'hex_code':
+                        }
+                        case 'hex_code': {
+                          let colorObj = { name: 'Unknown', value: 'gray' };
+                          try {
+                            colorObj = typeof mood.color === 'string' ? JSON.parse(mood.color) : mood.color;
+                          } catch {
+                            colorObj = { name: mood.color, value: mood.color === '[object Object]' ? 'gray' : mood.color };
+                          }
                           return (
                             <TableCell key='hex_code'>
-                              <code className='text-xs'>
-                                {(mood.color as any).value}
-                              </code>
+                              <code className='text-xs'>{colorObj.value}</code>
                             </TableCell>
                           );
+                        }
                         case 'createdAt':
                           return (
                             <TableCell key='createdAt'>

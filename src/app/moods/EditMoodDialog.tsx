@@ -60,9 +60,11 @@ export default function EditMoodDialog({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       FormSchema.parse(data);
-      const moodData = mood;
-      moodData.name = data.name;
-      moodData.color = JSON.stringify(data.color);
+      const moodData = {
+        ...mood,
+        name: data.name,
+        color: JSON.stringify(data.color),
+      };
 
       const newMood = await editUserMood(moodData);
       if (newMood.success) {
@@ -71,7 +73,7 @@ export default function EditMoodDialog({
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        (error as any).issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           toast.error("Input error, verify the data", {
             description: err.message,
           });

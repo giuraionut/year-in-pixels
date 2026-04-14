@@ -31,7 +31,6 @@ export default function BarChartComponent({
 }: {
   className?: string;
   data: DataItem[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: ChartConfig;
 }) {
   const [barChartVertical, setBarChartVertical] = useState<boolean>(false);

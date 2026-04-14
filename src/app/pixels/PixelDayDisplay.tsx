@@ -22,7 +22,7 @@ const PixelDayDisplay = forwardRef<
   useEffect(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    setTodayStart(now);
+    queueMicrotask(() => setTodayStart(now));
   }, []);
 
   // wait for client‐side mount
